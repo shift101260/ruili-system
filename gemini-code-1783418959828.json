@@ -1,0 +1,17 @@
+{
+  "name": "睿立業務系統",
+  "short_name": "睿立業務",
+  "description": "睿立集團內部政策與工廠法規諮詢管理系統",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme-color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3061/3061341.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

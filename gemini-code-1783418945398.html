@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睿立業務系統</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e3a8a">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased">
+
+    <div id="login-section" class="min-h-screen flex items-center justify-center bg-slate-950 px-4">
+        <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="flex justify-center mb-4">
+                <span class="material-icons text-blue-500 text-5xl">layers</span>
+            </div>
+            <h2 class="text-2xl font-bold text-center text-white mb-2">睿立業務系統</h2>
+            <p class="text-slate-400 text-center text-sm mb-6">請選擇人員身分以登錄系統</p>
+            
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-slate-300 mb-2">登錄人姓名</label>
+                <select id="user-select" class="w-full bg-slate-800 border border-slate-700 text-slate-100 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="">-- 請選擇您的姓名 --</option>
+                    <option value="樊靖畇">樊靖畇</option>
+                    <option value="鄭家承">鄭家承</option>
+                    <option value="陳宥騰">陳宥騰</option>
+                    <option value="楊裕憲">楊裕憲</option>
+                    <option value="楊淯淳">楊淯淳</option>
+                </select>
+            </div>
+            <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl font-semibold transition duration-200 shadow-lg shadow-blue-600/20">
+                進入系統
+            </button>
+        </div>
+    </div>
+
+    <div id="main-dashboard" class="hidden min-h-screen flex flex-col">
+        <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex items-center space-x-3">
+                <span class="material-icons text-blue-500">layers</span>
+                <span class="text-xl font-bold text-white tracking-wider">睿立業務系統</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-full">
+                    <span class="material-icons text-green-400 text-sm mr-2">account_circle</span>
+                    <span id="welcome-msg" class="text-sm font-medium text-slate-200"></span>
+                </div>
+                <button onclick="handleLogout()" class="flex items-center bg-red-950/40 text-red-400 hover:bg-red-900/60 border border-red-900/50 px-3 py-1.5 rounded-xl text-xs font-medium transition duration-150">
+                    <span class="material-icons text-xs mr-1">logout</span> 登出
+                </button>
+            </div>
+        </header>
+
+        <div class="flex flex-1">
+            <nav class="w-64 bg-slate-950 p-4 space-y-1.5 hidden md:block border-r border-slate-800/60">
+                <div class="text-xs font-semibold text-slate-500 px-3 mb-2 tracking-wider uppercase">主選單</div>
+                <button class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-600/10 text-blue-400 border border-blue-500/20 font-medium text-sm transition">
+                    <span class="material-icons text-sm">analytics</span> <span>工廠健檢管理</span>
+                </button>
+                <button class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-900 hover:text-slate-200 text-sm transition">
+                    <span class="material-icons text-sm">eco</span> <span>綠能轉型服務</span>
+                </button>
+                <button class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-900 hover:text-slate-200 text-sm transition">
+                    <span class="material-icons text-sm">gavel</span> <span>法規轉型諮詢</span>
+                </button>
+                <div class="h-px bg-slate-800 my-4"></div>
+                <div class="text-xs font-semibold text-slate-500 px-3 mb-2 tracking-wider uppercase">雲端同步狀態</div>
+                <div class="px-4 py-3 bg-slate-900 rounded-xl border border-slate-800 text-xs text-slate-400">
+                    <div class="flex items-center justify-between mb-1">
+                        <span>Google 雲端硬碟</span>
+                        <span class="text-green-400 flex items-center"><span class="w-1.5 h-1.5 bg-green-400 rounded-full mr-1.5 animate-pulse"></span>已連線</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500">資料將即時自動同步至備份試算表</p>
+                </div>
+            </nav>
+
+            <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-5 border-b border-slate-800 mb-6 gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">工廠客戶健檢追蹤模組</h3>
+                            <p class="text-sm text-slate-400 mt-0.5">依據系統架構圖規劃之風險評級(紅、黃、綠燈)與執行戰術狀態</p>
+                        </div>
+                        <button class="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl transition font-medium">
+                            <span class="material-icons text-sm">add</span><span>新增工廠個案</span>
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-800 bg-slate-950/40 text-slate-400 text-xs font-semibold tracking-wider uppercase">
+                                    <th class="p-3">廠房 / 客戶名稱</th>
+                                    <th class="p-3">負責人 / 聯絡窗口</th>
+                                    <th class="p-3">風險燈號</th>
+                                    <th class="p-3">戰術執行進度</th>
+                                    <th class="p-3 text-right">Google Drive</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm divide-y divide-slate-800/50">
+                                <tr class="hover:bg-slate-800/30 transition">
+                                    <td class="p-3 font-semibold text-white">睿立範例工廠 (合規化專案)</td>
+                                    <td class="p-3 text-slate-300">陳先生</td>
+                                    <td class="p-3">
+                                        <span class="bg-red-500/10 text-red-400 border border-red-500/20 px-2.5 py-1 rounded-md text-xs font-medium">緊急應變 (紅燈)</span>
+                                    </td>
+                                    <td class="p-3 text-slate-400">土地合法化變更審查中</td>
+                                    <td class="p-3 text-right">
+                                        <a href="#" class="text-blue-400 hover:text-blue-300 inline-flex items-center text-xs font-medium">
+                                            <span class="material-icons text-xs mr-1">folder_shared</span>開啟雲端資料夾
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin() {
+            const user = document.getElementById('user-select').value;
+            if (!user) {
+                alert('請選擇登錄人員！');
+                return;
+            }
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('main-dashboard').classList.remove('hidden');
+            document.getElementById('welcome-msg').innerText = `${user}`;
+            localStorage.setItem('ruili_logged_user', user);
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('ruili_logged_user');
+            location.reload();
+        }
+
+        // 自動登入檢查與 PWA 註冊
+        window.onload = () => {
+            const savedUser = localStorage.getItem('ruili_logged_user');
+            if (savedUser) {
+                document.getElementById('user-select').value = savedUser;
+                handleLogin();
+            }
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(() => console.log('睿立系統 PWA 服務註冊成功'))
+                    .catch(err => console.log('PWA 註冊失敗:', err));
+            }
+        };
+    </script>
+</body>
+</html>
