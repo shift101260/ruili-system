@@ -1,4 +1,18 @@
-<!DOCTYPE html>
+# The uploaded file is named '案件評估.xlsx' (which is the Excel file the user uploaded).
+# Let's double check if there are other sheets or anything new in '案件評估.xlsx'. 
+# In the previous step, xls.sheet_names returned only ['括弧圖'].
+# The user's request is simple and clear:
+# They want to REMOVE the navigation menu items:
+# - 工廠太陽能自建 (content-solar)
+# - 公司會議記錄 (content-meet-internal)
+# - 合作夥伴會議記錄 (content-meet-partner)
+# Because they want to focus purely on "工廠買賣與案件評估" (Case Assessment) first, and build things step by step as they go!
+#
+# Let's modify index.html to remove these tabs from the sidebar and from the main content layout.
+# This makes the UI clean, focused, and dedicated only to "工廠買賣與案件評估".
+
+# Let's draft the clean HTML code.
+clean_html_code = """<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -7,11 +21,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        .active-tab {
-            background-color: rgba(37, 99, 235, 0.15);
-            color: #60a5fa;
-            border-color: rgba(59, 130, 246, 0.4);
-        }
         .client-item.active {
             background-color: rgba(59, 130, 246, 0.2);
             border-color: #3b82f6;
@@ -29,13 +38,6 @@
                 padding: 0 !important;
                 margin: 0 !important;
                 background: white !important;
-            }
-            .tab-content {
-                display: none !important;
-            }
-            .tab-content:not(.hidden) {
-                display: block !important;
-                width: 100% !important;
             }
             .bg-slate-950, .bg-slate-900, .bg-slate-900\/60, .bg-blue-950\/20, .bg-slate-800 {
                 background-color: transparent !important;
@@ -114,28 +116,10 @@
                 <div>
                     <div class="text-xs font-semibold text-slate-500 px-3 mb-2 tracking-wider uppercase">核心業務管理</div>
                     <div class="space-y-1">
-                        <button onclick="switchTab('assess')" id="btn-assess" class="active-tab w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left text-sm font-medium transition border border-transparent">
+                        <div class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left text-sm font-medium transition border border-transparent bg-blue-950/40 text-blue-400 border-blue-900/40">
                             <span class="material-icons text-sm text-amber-500">rate_review</span>
                             <span>工廠買賣與案件評估</span>
-                        </button>
-                        <button onclick="switchTab('solar')" id="btn-solar" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 text-sm transition border border-transparent">
-                            <span class="material-icons text-sm text-blue-400">wb_sunny</span>
-                            <span>工廠太陽能自建</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="text-xs font-semibold text-slate-500 px-3 mb-2 tracking-wider uppercase">決策與會議</div>
-                    <div class="space-y-1">
-                        <button onclick="switchTab('meet-internal')" id="btn-meet-internal" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 text-sm transition border border-transparent">
-                            <span class="material-icons text-sm text-emerald-400">groups</span>
-                            <span>公司會議記錄</span>
-                        </button>
-                        <button onclick="switchTab('meet-partner')" id="btn-meet-partner" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 text-sm transition border border-transparent">
-                            <span class="material-icons text-sm text-purple-400">handshake</span>
-                            <span>合作夥伴會議記錄</span>
-                        </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -146,7 +130,7 @@
                     <span>動態案件名單</span>
                     <span id="case-count" class="bg-blue-600/20 text-blue-400 text-[10px] px-2 py-0.5 rounded-full">0 案</span>
                 </div>
-                <div id="client-list-container" class="space-y-1.5 max-h-60 overflow-y-auto pr-1">
+                <div id="client-list-container" class="space-y-1.5 max-h-80 overflow-y-auto pr-1">
                     <!-- 動態清單會渲染在這裡 -->
                 </div>
             </div>
@@ -155,8 +139,8 @@
         <!-- 主內容區 -->
         <main class="flex-1 p-8 overflow-y-auto space-y-8 bg-slate-900/40 pb-24">
             
-            <!-- 板塊 1: 工廠買賣案件資料表 (案件評估) -->
-            <div id="content-assess" class="tab-content space-y-6">
+            <!-- 板塊: 工廠買賣案件資料表 (案件評估) -->
+            <div id="content-assess" class="space-y-6">
                 <div class="border-b border-slate-800 pb-4 flex justify-between items-center">
                     <div>
                         <h2 class="text-xl font-bold text-white flex items-center"><span class="material-icons mr-2 text-amber-500">rate_review</span> 案件評估：工廠基本資料與調查</h2>
@@ -426,38 +410,6 @@
                         </div>
                     </div>
 
-                </div>
-            </div>
-
-            <!-- 板塊 2: 工廠太陽能自建 -->
-            <div id="content-solar" class="tab-content space-y-6 hidden">
-                <div class="border-b border-slate-800 pb-4">
-                    <h2 class="text-xl font-bold text-white flex items-center"><span class="material-icons mr-2 text-blue-400">wb_sunny</span> 工廠太陽能自建系統</h2>
-                </div>
-                <div class="bg-slate-950 border border-slate-800/80 p-6 rounded-2xl space-y-6 shadow-xl">
-                    <div class="text-center py-12 text-slate-500 text-xs">
-                        請切換回「工廠買賣與案件評估」使用最新的大綱管理！太陽能自建與各項會議功能將於後續步驟無縫串接。
-                    </div>
-                </div>
-            </div>
-
-            <!-- 板塊 3: 公司會議記錄 -->
-            <div id="content-meet-internal" class="tab-content space-y-6 hidden">
-                <div class="border-b border-slate-800 pb-4">
-                    <h2 class="text-xl font-bold text-white flex items-center"><span class="material-icons mr-2 text-emerald-400">groups</span> 公司內部例行會議</h2>
-                </div>
-                <div class="bg-slate-950 border border-slate-800/80 p-6 rounded-2xl shadow-xl">
-                    <div class="text-center py-12 text-slate-500 text-xs">內部會議記錄正在等待與最新案件名單綁定...</div>
-                </div>
-            </div>
-
-            <!-- 板塊 4: 合作夥伴會議記錄 -->
-            <div id="content-meet-partner" class="tab-content space-y-6 hidden">
-                <div class="border-b border-slate-800 pb-4">
-                    <h2 class="text-xl font-bold text-white flex items-center"><span class="material-icons mr-2 text-purple-400">handshake</span> 合作夥伴會議記錄</h2>
-                </div>
-                <div class="bg-slate-950 border border-slate-800/80 p-6 rounded-2xl shadow-xl">
-                    <div class="text-center py-12 text-slate-500 text-xs">合作夥伴會議紀錄正在等待與最新案件名單綁定...</div>
                 </div>
             </div>
 
@@ -862,21 +814,6 @@
             document.getElementById("modal-case-name").value = "";
         }
 
-        // 切換主要系統頁籤
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-            document.getElementById('content-' + tabId).classList.remove('hidden');
-
-            document.querySelectorAll('nav button').forEach(b => {
-                b.className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 text-sm transition border border-transparent";
-            });
-
-            const activeBtn = document.getElementById('btn-' + tabId);
-            if(activeBtn) {
-                activeBtn.className = "active-tab w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left text-sm font-medium transition border border-transparent";
-            }
-        }
-
         // 保存按鈕 (後端備份/本機緩存)
         function saveAllToStorage() {
             localStorage.setItem("ruili_clients_data", JSON.stringify(clientsState));
@@ -890,4 +827,8 @@
         }
     </script>
 </body>
-</html>
+</html>"""
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(clean_html_code)
+print("Updated index.html to only focus on Case Assessment.")
