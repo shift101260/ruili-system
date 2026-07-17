@@ -84,7 +84,7 @@
                 background: white !important;
                 color: black !important;
             }
-            header, nav, footer, button, input[type="file"], .no-print {
+            header, nav, footer, button, input[type="file"], .no-print, .theme-banner {
                 display: none !important;
             }
             main {
@@ -127,7 +127,7 @@
 </head>
 <body class="theme-navy font-sans antialiased min-h-screen flex flex-col" id="body-theme">
 
-    <!-- 【頂部控制列】 (列印時自動隱藏) -->
+    <!-- 【頂部標題列】 (列印時自動隱藏) -->
     <header class="custom-card border-b px-6 py-4 flex justify-between items-center sticky top-0 z-50 no-print">
         <div class="flex items-center space-x-3">
             <span class="material-icons text-blue-500 text-3xl">business</span>
@@ -137,21 +137,8 @@
             </div>
         </div>
         
-        <!-- 功能控制按鍵區 (右側) -->
+        <!-- 右側功能控制按鍵區 -->
         <div class="flex items-center space-x-3">
-            
-            <!-- ⭐【醒目的主題切換下拉選單】⭐ -->
-            <div class="flex items-center space-x-2 bg-slate-800 border-2 border-blue-500/80 px-3 py-1.5 rounded-xl shadow-lg shadow-blue-500/10">
-                <span class="material-icons text-sm text-yellow-400">palette</span>
-                <span class="text-xs text-white font-bold mr-1">介面風格：</span>
-                <select id="theme-selector" onchange="changeTheme()" class="bg-slate-900 text-xs text-white focus:outline-none cursor-pointer font-bold py-0.5 px-1 rounded border border-slate-700">
-                    <option value="theme-navy" class="bg-slate-950 text-slate-100">🌌 浩瀚深邃藍 (預設)</option>
-                    <option value="theme-light" class="bg-white text-slate-950">☀️ 睿智簡約白</option>
-                    <option value="theme-esg" class="bg-emerald-950 text-emerald-100">🌲 自然ESG綠</option>
-                    <option value="theme-luxury" class="bg-black text-amber-400">🏆 尊榮極致黑</option>
-                </select>
-            </div>
-
             <!-- [匯出/列印] 按鈕 -->
             <button onclick="exportToPDF()" class="flex items-center bg-red-900/40 hover:bg-red-800/60 border border-red-700/50 text-red-200 px-4 py-2 rounded-xl text-xs font-semibold transition">
                 <span class="material-icons text-sm mr-1.5">picture_as_pdf</span> [匯出/列印] 按鈕
@@ -168,6 +155,24 @@
             </div>
         </div>
     </header>
+
+    <!-- ⭐【全新獨立：主題風格切換控制橫幅】 (絕對不被遮擋、全螢幕適配) ⭐ -->
+    <div class="theme-banner bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 border-b border-blue-500/40 px-6 py-3 flex justify-between items-center no-print z-40">
+        <div class="flex items-center space-x-2">
+            <span class="material-icons text-yellow-400 animate-pulse">palette</span>
+            <span class="text-xs font-bold text-white tracking-wide">系統展示專用：點選右側選單即可一鍵變更整套系統配色！</span>
+        </div>
+        
+        <div class="flex items-center space-x-2 bg-slate-950 px-4 py-1 rounded-xl border border-yellow-400">
+            <label for="theme-selector" class="text-xs font-black text-yellow-400 mr-2">選擇介面風格 ➔</label>
+            <select id="theme-selector" onchange="changeTheme()" class="bg-slate-900 text-xs text-white focus:outline-none cursor-pointer font-bold py-1 px-3 rounded border border-slate-700 text-center">
+                <option value="theme-navy">🌌 浩瀚深邃藍 (預設風格)</option>
+                <option value="theme-light">☀️ 睿智簡約白 (明亮辦公)</option>
+                <option value="theme-esg">🌲 自然ESG綠 (減碳永續)</option>
+                <option value="theme-luxury">🏆 尊榮極致黑 (高階決策)</option>
+            </select>
+        </div>
+    </div>
 
     <div class="flex flex-1">
         <!-- 【左側選單欄】 (列印時自動隱藏) -->
