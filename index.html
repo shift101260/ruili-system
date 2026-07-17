@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>睿立業務秘書系統</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <link href="[https://fonts.googleapis.com/icon?family=Material+Icons](https://fonts.googleapis.com/icon?family=Material+Icons)" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         .client-item.active {
             background-color: rgba(59, 130, 246, 0.2);
@@ -71,7 +71,7 @@
         </div>
         <div class="flex items-center space-x-4">
             <button onclick="exportToPDF()" class="flex items-center bg-red-900/40 hover:bg-red-800/60 border border-red-700/50 text-red-200 px-4 py-2 rounded-xl text-xs font-semibold transition">
-                <span class="material-icons text-sm mr-1.5">picture_as_pdf</span> 一鍵匯出PDF
+                <span class="material-icons text-sm mr-1.5">picture_as_pdf</span> 匯出/列印
             </button>
             <button onclick="saveAllToStorage()" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-lg shadow-blue-500/20">
                 <span class="material-icons text-sm mr-1.5">cloud_upload</span> 儲存變更
@@ -193,6 +193,10 @@
                                 <textarea id="assess-service-quote" oninput="updateCurrentClientData()" rows="3" placeholder="預估報價或收費架構..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none"></textarea>
                             </div>
                         </div>
+                        <div class="mt-3">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">5. 業務即時狀態與追蹤備註</label>
+                            <input type="text" id="assess-status-remark" oninput="updateCurrentClientData()" placeholder="目前送件審查、補正進度..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                        </div>
                     </div>
 
                     <!-- 二、公司基本資料 -->
@@ -245,7 +249,7 @@
                                 <input type="text" id="land-id" oninput="updateCurrentClientData()" placeholder="輸入地號" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">都市計畫內使用分區</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">2. 都市計畫內使用分區</label>
                                 <input type="text" id="land-urban" oninput="updateCurrentClientData()" placeholder="都計內分區" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div>
@@ -254,17 +258,17 @@
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">坪數 (㎡)</label>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">3. 坪數 (㎡)</label>
                                     <input type="number" id="land-sqm" oninput="updateCurrentClientData(); convertLandSqm()" placeholder="㎡" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">坪數 (坪)</label>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">3. 坪數 (坪)</label>
                                     <input type="number" id="land-ping" oninput="updateCurrentClientData(); convertLandPing()" placeholder="坪" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">4. 土地備註</label>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">4. 備註</label>
                             <input type="text" id="land-remark" oninput="updateCurrentClientData()" placeholder="路寬、面寬、坐向等補充..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                         </div>
                     </div>
@@ -290,17 +294,17 @@
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">合法建物坪數</label>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">4. 合法建物坪數</label>
                                     <input type="number" id="building-legal-ping" oninput="updateCurrentClientData()" placeholder="坪" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">違章建物坪數</label>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">4. 違章建物坪數</label>
                                     <input type="number" id="building-illegal-ping" oninput="updateCurrentClientData()" placeholder="坪" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">5. 建物備註</label>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">5. 備註</label>
                             <input type="text" id="building-remark" oninput="updateCurrentClientData()" placeholder="滴水、中脊、結構補強等備註..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                         </div>
                     </div>
@@ -308,31 +312,38 @@
                     <!-- 五、ESG評估 -->
                     <div class="border-t border-slate-800 pt-4">
                         <h4 class="text-xs font-bold text-emerald-400 mb-3 tracking-wider uppercase">五、ESG永續轉型評估指標</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">1. 是否有接班人</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">1. 是否有接班人</label>
                                 <select id="esg-successor" onchange="updateCurrentClientData()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
-                                    <option value="是">是 (二代已接班/準備接班)</option>
-                                    <option value="否">否 (代尋退場方案中)</option>
+                                    <option value="是">是</option>
+                                    <option value="否">否</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">2. 產品是否外銷</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">2. 產品是否外銷</label>
                                 <select id="esg-export" onchange="updateCurrentClientData()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
-                                    <option value="否">否 (僅限內銷)</option>
-                                    <option value="是">是 (外銷)</option>
+                                    <option value="否">否</option>
+                                    <option value="是">是</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">外銷國家</label>
-                                <input type="text" id="esg-export-country" oninput="updateCurrentClientData()" placeholder="如：歐盟、美洲" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">外銷國家與說明</label>
+                                <input type="text" id="esg-export-country" oninput="updateCurrentClientData()" placeholder="外銷國家及說明細節" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">3. 是否受歐盟減碳要求</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">3. 是否受歐盟減碳要求</label>
                                 <select id="esg-eu-carbon" onchange="updateCurrentClientData()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                     <option value="否">否</option>
-                                    <option value="是">是 (急迫、需碳盤查規劃)</option>
+                                    <option value="是">是</option>
                                 </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">減碳要求說明</label>
+                                <input type="text" id="esg-eu-carbon-desc" oninput="updateCurrentClientData()" placeholder="具體減碳時程或CBAM相關說明..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                         </div>
 
@@ -344,54 +355,78 @@
                                 <input type="number" id="esg-power-cost" oninput="updateCurrentClientData()" placeholder="元" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-slate-400 mb-1">設備馬力 (HP)</label>
+                                <label class="block text-[10px] text-slate-400 mb-1">馬力 (HP)</label>
                                 <input type="number" id="esg-power-hp" oninput="updateCurrentClientData()" placeholder="馬" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white">
                             </div>
                             <div>
                                 <label class="block text-[10px] text-slate-400 mb-1">契約容量 (kW)</label>
                                 <input type="number" id="esg-power-contract" oninput="updateCurrentClientData()" placeholder="kW" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white">
                             </div>
-                            <div class="flex flex-col justify-center space-y-1">
-                                <label class="flex items-center space-x-1.5 text-xs text-slate-300">
-                                    <input type="checkbox" id="esg-power-high" onchange="updateCurrentClientData()" class="rounded bg-slate-950 text-blue-500">
-                                    <span>為高壓用電</span>
-                                </label>
-                                <label class="flex items-center space-x-1.5 text-xs text-slate-300">
-                                    <input type="checkbox" id="esg-power-time" onchange="updateCurrentClientData()" class="rounded bg-slate-950 text-blue-500">
-                                    <span>為時間電價</span>
-                                </label>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1.5">是否為高壓用電</label>
+                                <select id="esg-power-high-select" onchange="updateCurrentClientData()" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-1.5 text-xs text-white">
+                                    <option value="否">口否</option>
+                                    <option value="是">口是</option>
+                                </select>
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] text-slate-400 mb-1.5">是否為時間電價</label>
+                                <select id="esg-power-time-select" onchange="updateCurrentClientData()" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-1.5 text-xs text-white">
+                                    <option value="否">口否</option>
+                                    <option value="是">口是</option>
+                                    <option value="不清楚">口不清楚</option>
+                                </select>
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] text-slate-400 mb-1.5">用電時段（可複選）</label>
+                                <div class="flex space-x-4 text-xs text-slate-300 pt-1">
+                                    <label class="flex items-center space-x-1.5">
+                                        <input type="checkbox" id="power-period-day" onchange="updateCurrentClientData()" class="rounded bg-slate-950 text-emerald-500">
+                                        <span>口白天為主</span>
+                                    </label>
+                                    <label class="flex items-center space-x-1.5">
+                                        <input type="checkbox" id="power-period-night" onchange="updateCurrentClientData()" class="rounded bg-slate-950 text-emerald-500">
+                                        <span>口夜間為主</span>
+                                    </label>
+                                    <label class="flex items-center space-x-1.5">
+                                        <input type="checkbox" id="power-period-even" onchange="updateCurrentClientData()" class="rounded bg-slate-950 text-emerald-500">
+                                        <span>口平均分佈</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">5. ESG 評估說明與備註</label>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">5. 備註</label>
                             <input type="text" id="esg-remark" oninput="updateCurrentClientData()" placeholder="歐盟要求、溫室氣體盤查、綠電自建等需求細節..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                         </div>
                     </div>
 
                     <!-- 六、客戶應備文件與七、檔案上傳 -->
                     <div class="border-t border-slate-800 pt-4">
-                        <h4 class="text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">六、應備文件與附檔清單</h4>
+                        <h4 class="text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">六、客戶應備文件與七、其他檔案</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-                                <h5 class="text-xs font-bold text-slate-300 mb-1">應備文件檢核 (可打勾)</h5>
-                                <div class="grid grid-cols-2 gap-2 text-xs text-slate-300">
-                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-bill" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口 電費單</span></label>
-                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-photos" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口 屋頂現況照片</span></label>
-                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-roof-plan" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口 屋頂平面圖</span></label>
-                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-license" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口 使用執照</span></label>
-                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-structure" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口 建築圖</span></label>
-                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-circuits" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口 場域線路分佈圖</span></label>
-                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-drone" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口 廠區空拍圖</span></label>
+                                <h5 class="text-xs font-bold text-slate-300 mb-1">應備文件清單（可打勾）</h5>
+                                <div class="grid grid-cols-1 gap-2 text-xs text-slate-300">
+                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-bill" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口電費單</span></label>
+                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-photos" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口屋頂現況照片（多角度）</span></label>
+                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-roof-plan" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口屋頂平面圖</span></label>
+                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-license" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口使用執照</span></label>
+                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-structure" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口建築圖</span></label>
+                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-circuits" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口場域線路分佈圖</span></label>
+                                    <label class="flex items-center space-x-2"><input type="checkbox" id="doc-drone" onchange="updateCurrentClientData()" class="rounded bg-slate-950"> <span>口廠區空拍圖</span></label>
                                 </div>
                             </div>
-                            <div class="space-y-3">
+                            <div class="space-y-4">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">應備文件與其他檔案上傳</label>
+                                    <h5 class="text-xs font-bold text-slate-300 mb-1">應備文件檔案上傳</h5>
                                     <input type="file" id="assess-file-uploader" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">5. 業務即時狀態與追蹤備註</label>
-                                    <input type="text" id="assess-status-remark" oninput="updateCurrentClientData()" placeholder="目前送件審查、補正進度..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                    <h5 class="text-xs font-bold text-slate-300 mb-1">七、其他檔案（可存任何類型檔案）</h5>
+                                    <input type="file" id="other-file-uploader" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer">
                                 </div>
                             </div>
                         </div>
@@ -489,11 +524,15 @@
                 esgExport: "否",
                 esgExportCountry: "",
                 esgEuCarbon: "否",
+                esgEuCarbonDesc: "",
                 esgPowerCost: 45000,
                 esgPowerHp: 150,
                 esgPowerContract: 90,
-                esgPowerHigh: true,
-                esgPowerTime: false,
+                esgPowerHigh: "是",
+                esgPowerTime: "否",
+                powerPeriodDay: true,
+                powerPeriodNight: false,
+                powerPeriodEven: false,
                 esgRemark: "近期需安排碳足跡盤查輔導",
                 docBill: true,
                 docPhotos: true,
@@ -540,6 +579,7 @@
                 else if(client.status === "準備簽約") badgeColor = "bg-yellow-500";
                 else if(client.status === "已簽約") badgeColor = "bg-red-500";
                 else if(client.status === "結案") badgeColor = "bg-purple-500";
+                else if(client.status === "沒下文") badgeColor = "bg-slate-500";
                 
                 div.innerHTML = `
                     <div class="flex items-center space-x-2 truncate">
@@ -577,6 +617,7 @@
                 else if(client.status === "準備簽約") badgeColor = "bg-yellow-500";
                 else if(client.status === "已簽約") badgeColor = "bg-red-500";
                 else if(client.status === "結案") badgeColor = "bg-purple-500";
+                else if(client.status === "沒下文") badgeColor = "bg-slate-500";
 
                 div.innerHTML = `
                     <div class="flex items-center space-x-2 truncate">
@@ -608,6 +649,7 @@
             document.getElementById("assess-service-desc").value = client.serviceDesc || "";
             document.getElementById("assess-service-result").value = client.serviceResult || "";
             document.getElementById("assess-service-quote").value = client.serviceQuote || "";
+            document.getElementById("assess-status-remark").value = client.statusRemark || "";
 
             document.getElementById("company-name").value = client.companyName || "";
             document.getElementById("company-tax-id").value = client.taxId || "";
@@ -636,11 +678,18 @@
             document.getElementById("esg-export").value = client.esgExport || "否";
             document.getElementById("esg-export-country").value = client.esgExportCountry || "";
             document.getElementById("esg-eu-carbon").value = client.esgEuCarbon || "否";
+            document.getElementById("esg-eu-carbon-desc").value = client.esgEuCarbonDesc || "";
+            
             document.getElementById("esg-power-cost").value = client.esgPowerCost || "";
             document.getElementById("esg-power-hp").value = client.esgPowerHp || "";
             document.getElementById("esg-power-contract").value = client.esgPowerContract || "";
-            document.getElementById("esg-power-high").checked = !!client.esgPowerHigh;
-            document.getElementById("esg-power-time").checked = !!client.esgPowerTime;
+            document.getElementById("esg-power-high-select").value = client.esgPowerHigh || "否";
+            document.getElementById("esg-power-time-select").value = client.esgPowerTime || "否";
+            
+            document.getElementById("power-period-day").checked = !!client.powerPeriodDay;
+            document.getElementById("power-period-night").checked = !!client.powerPeriodNight;
+            document.getElementById("power-period-even").checked = !!client.powerPeriodEven;
+            
             document.getElementById("esg-remark").value = client.esgRemark || "";
 
             document.getElementById("doc-bill").checked = !!client.docBill;
@@ -650,7 +699,6 @@
             document.getElementById("doc-structure").checked = !!client.docStructure;
             document.getElementById("doc-circuits").checked = !!client.docCircuits;
             document.getElementById("doc-drone").checked = !!client.docDrone;
-            document.getElementById("assess-status-remark").value = client.statusRemark || "";
         }
 
         // 動態寫回 State
@@ -666,6 +714,7 @@
             client.serviceDesc = document.getElementById("assess-service-desc").value;
             client.serviceResult = document.getElementById("assess-service-result").value;
             client.serviceQuote = document.getElementById("assess-service-quote").value;
+            client.statusRemark = document.getElementById("assess-status-remark").value;
 
             client.companyName = document.getElementById("company-name").value;
             client.taxId = document.getElementById("company-tax-id").value;
@@ -694,11 +743,18 @@
             client.esgExport = document.getElementById("esg-export").value;
             client.esgExportCountry = document.getElementById("esg-export-country").value;
             client.esgEuCarbon = document.getElementById("esg-eu-carbon").value;
+            client.esgEuCarbonDesc = document.getElementById("esg-eu-carbon-desc").value;
+            
             client.esgPowerCost = parseFloat(document.getElementById("esg-power-cost").value) || 0;
             client.esgPowerHp = parseFloat(document.getElementById("esg-power-hp").value) || 0;
             client.esgPowerContract = parseFloat(document.getElementById("esg-power-contract").value) || 0;
-            client.esgPowerHigh = document.getElementById("esg-power-high").checked;
-            client.esgPowerTime = document.getElementById("esg-power-time").checked;
+            client.esgPowerHigh = document.getElementById("esg-power-high-select").value;
+            client.esgPowerTime = document.getElementById("esg-power-time-select").value;
+            
+            client.powerPeriodDay = document.getElementById("power-period-day").checked;
+            client.powerPeriodNight = document.getElementById("power-period-night").checked;
+            client.powerPeriodEven = document.getElementById("power-period-even").checked;
+            
             client.esgRemark = document.getElementById("esg-remark").value;
 
             client.docBill = document.getElementById("doc-bill").checked;
@@ -708,7 +764,6 @@
             client.docStructure = document.getElementById("doc-structure").checked;
             client.docCircuits = document.getElementById("doc-circuits").checked;
             client.docDrone = document.getElementById("doc-drone").checked;
-            client.statusRemark = document.getElementById("assess-status-remark").value;
             
             // 立即緩存儲存
             localStorage.setItem("ruili_clients_data", JSON.stringify(clientsState));
@@ -752,6 +807,9 @@
                 status: "初期評估",
                 manager: "樊靖畇",
                 source: "",
+                serviceDesc: "",
+                serviceResult: "",
+                serviceQuote: "",
                 taxId: "",
                 factoryId: "",
                 industry: "",
@@ -775,11 +833,15 @@
                 esgExport: "否",
                 esgExportCountry: "",
                 esgEuCarbon: "否",
+                esgEuCarbonDesc: "",
                 esgPowerCost: 0,
                 esgPowerHp: 0,
                 esgPowerContract: 0,
-                esgPowerHigh: false,
-                esgPowerTime: false,
+                esgPowerHigh: "否",
+                esgPowerTime: "否",
+                powerPeriodDay: false,
+                powerPeriodNight: false,
+                powerPeriodEven: false,
                 esgRemark: "",
                 docBill: false,
                 docPhotos: false,
