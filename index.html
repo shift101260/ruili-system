@@ -9,44 +9,45 @@
     <!-- 引入 Google Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        /* 1. 浩瀚深邃藍 (預設) */
+        /* ================= 4種內建主題配色 ================= */
+        /* 1. 🌌 浩瀚深邃藍 (預設) */
         .theme-navy {
             --bg-main: #0f172a; /* slate-900 */
             --bg-card: #020617; /* slate-950 */
-            --bg-input: #0f172a;
-            --border-color: #1e293b; /* slate-800 */
+            --bg-input: #1e293b; /* slate-800 */
+            --border-color: #334155; /* slate-700 */
             --text-main: #f1f5f9; /* slate-100 */
             --text-muted: #94a3b8; /* slate-400 */
             --accent-color: #3b82f6; /* blue-500 */
             --accent-glow: rgba(59, 130, 246, 0.2);
         }
-        /* 2. 睿智簡約白 */
+        /* 2. ☀️ 睿智簡約白 */
         .theme-light {
             --bg-main: #f8fafc; /* slate-50 */
             --bg-card: #ffffff;
             --bg-input: #f1f5f9;
             --border-color: #cbd5e1; /* slate-300 */
             --text-main: #0f172a; /* slate-900 */
-            --text-muted: #475569; /* slate-600 */
+            --text-muted: #64748b; /* slate-500 */
             --accent-color: #0284c7; /* sky-600 */
             --accent-glow: rgba(2, 132, 199, 0.15);
         }
-        /* 3. 自然ESG綠 */
+        /* 3. 🌲 自然ESG綠 */
         .theme-esg {
-            --bg-main: #14532d; /* green-900 */
-            --bg-card: #052e16; /* green-950 */
-            --bg-input: #14532d;
-            --border-color: #15803d; /* green-700 */
+            --bg-main: #064e3b; /* green-900 */
+            --bg-card: #022c22; /* green-950 */
+            --bg-input: #0f766e; /* teal-700 */
+            --border-color: #115e59; /* teal-800 */
             --text-main: #f0fdf4; /* green-50 */
-            --text-muted: #86efac; /* green-300 */
+            --text-muted: #a7f3d0; /* green-200 */
             --accent-color: #22c55e; /* green-500 */
             --accent-glow: rgba(34, 197, 94, 0.2);
         }
-        /* 4. 尊榮極致黑 */
+        /* 4. 🏆 尊榮極致黑 */
         .theme-luxury {
             --bg-main: #000000;
             --bg-card: #0a0a0a;
-            --bg-input: #121212;
+            --bg-input: #171717;
             --border-color: #262626; /* neutral-800 */
             --text-main: #fafafa; /* neutral-50 */
             --text-muted: #a3a3a3; /* neutral-400 */
@@ -54,7 +55,7 @@
             --accent-glow: rgba(212, 175, 55, 0.2);
         }
 
-        /* 應用變數 */
+        /* 將變數套用到全局 */
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
@@ -77,7 +78,7 @@
             border-color: var(--accent-color);
         }
         
-        /* 一鍵匯出 A4 直向滿版 PDF 印表樣式 */
+        /* 輸出 PDF 專用 A4 直向滿版印表機設定 */
         @media print {
             body {
                 background: white !important;
@@ -132,27 +133,35 @@
             <span class="material-icons text-blue-500 text-3xl">business</span>
             <div>
                 <h1 class="text-xl font-bold tracking-wider">睿立業務秘書系統</h1>
-                <p class="text-xs text-slate-400">專案評估指標與決策管制庫</p>
+                <p class="text-xs text-slate-400">專案評估與決策管制庫</p>
             </div>
         </div>
-        <div class="flex items-center space-x-4">
-            <!-- 主題選擇器 -->
-            <div class="flex items-center space-x-2 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-xl">
+        
+        <!-- 功能控制按鍵區 (右側) -->
+        <div class="flex items-center space-x-3">
+            
+            <!-- ⭐【醒目的主題切換下拉選單】⭐ -->
+            <div class="flex items-center space-x-2 bg-slate-800 border-2 border-blue-500/80 px-3 py-1.5 rounded-xl shadow-lg shadow-blue-500/10">
                 <span class="material-icons text-sm text-yellow-400">palette</span>
-                <select id="theme-selector" onchange="changeTheme()" class="bg-transparent text-xs text-white focus:outline-none cursor-pointer font-semibold">
-                    <option value="theme-navy" class="bg-slate-900 text-white">🌌 浩瀚深邃藍</option>
+                <span class="text-xs text-white font-bold mr-1">介面風格：</span>
+                <select id="theme-selector" onchange="changeTheme()" class="bg-slate-900 text-xs text-white focus:outline-none cursor-pointer font-bold py-0.5 px-1 rounded border border-slate-700">
+                    <option value="theme-navy" class="bg-slate-950 text-slate-100">🌌 浩瀚深邃藍 (預設)</option>
                     <option value="theme-light" class="bg-white text-slate-950">☀️ 睿智簡約白</option>
-                    <option value="theme-esg" class="bg-green-900 text-white">🌲 自然ESG綠</option>
+                    <option value="theme-esg" class="bg-emerald-950 text-emerald-100">🌲 自然ESG綠</option>
                     <option value="theme-luxury" class="bg-black text-amber-400">🏆 尊榮極致黑</option>
                 </select>
             </div>
 
+            <!-- [匯出/列印] 按鈕 -->
             <button onclick="exportToPDF()" class="flex items-center bg-red-900/40 hover:bg-red-800/60 border border-red-700/50 text-red-200 px-4 py-2 rounded-xl text-xs font-semibold transition">
                 <span class="material-icons text-sm mr-1.5">picture_as_pdf</span> [匯出/列印] 按鈕
             </button>
+            
+            <!-- 儲存按鍵 -->
             <button onclick="saveAllToStorage()" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-lg shadow-blue-500/20">
                 <span class="material-icons text-sm mr-1.5">cloud_upload</span> 儲存按鍵
             </button>
+            
             <div class="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-full text-xs text-slate-200 flex items-center">
                 <span class="material-icons text-green-400 text-sm mr-1.5">account_circle</span>
                 <span>樊靖畇 (創辦人)</span>
@@ -168,7 +177,7 @@
                 <div class="space-y-3">
                     <div class="relative">
                         <span class="material-icons absolute left-3 top-2.5 text-slate-500 text-sm">search</span>
-                        <input type="text" id="sidebar-search" oninput="filterClients()" placeholder="搜尋過濾器 (綁定關鍵字)..." class="custom-input w-full border rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:border-blue-500">
+                        <input type="text" id="sidebar-search" oninput="filterClients()" placeholder="搜尋過濾器 (關鍵字篩選)..." class="custom-input w-full border rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:border-blue-500">
                     </div>
                     <button onclick="showNewCaseModal()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white p-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-md shadow-blue-500/10">
                         <span class="material-icons text-sm">add_circle</span>
@@ -526,7 +535,7 @@
         </div>
     </div>
 
-    <!-- 網頁頁尾 (一般畫面顯示，落實表格每一頁最下面必需顯示的要求) -->
+    <!-- 網頁頁尾 -->
     <footer class="custom-card border-t py-6 px-8 text-center text-xs text-slate-500 space-y-2 shrink-0 z-40 no-print">
         <div class="flex flex-wrap justify-center gap-6 font-semibold text-slate-400">
             <span>睿立資產管理顧問有限公司 (統編：90411790)</span>
@@ -637,7 +646,7 @@
             renderClientList();
             loadClientDetails();
 
-            // 讀取先前儲存的主題偏好
+            // 讀取先前儲存的主題偏好，若無則預設為 theme-navy
             const savedTheme = localStorage.getItem("ruili_theme") || "theme-navy";
             document.getElementById("theme-selector").value = savedTheme;
             document.getElementById("body-theme").className = `${savedTheme} font-sans antialiased min-h-screen flex flex-col`;
@@ -951,7 +960,7 @@
             document.getElementById("modal-case-name").value = "";
         }
 
-        // 保存按鈕 (提示成功)
+        // 保存按鈕
         function saveAllToStorage() {
             localStorage.setItem("ruili_clients_data_v2", JSON.stringify(clientsState));
             alert("【儲存成功】資料已寫入/更新至本機雲端，已為您安全保存所有案件資料！");
