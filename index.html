@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>睿立業務秘書系統</title>
+    <!-- 引入 Tailwind CSS 確保極速、現代化的 UI 排版 -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Material Icons 提升視覺質感 -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
+        /* 作用中的案件項目高亮視覺 */
         .client-item.active {
             background-color: rgba(59, 130, 246, 0.2);
             border-color: #3b82f6;
@@ -60,21 +63,22 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- 頂部導覽列 (列印時隱藏) -->
+    <!-- 【頂部控制列】 (列印時自動隱藏) -->
     <header class="bg-slate-950 border-b border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50 no-print">
         <div class="flex items-center space-x-3">
             <span class="material-icons text-blue-500 text-3xl">business</span>
             <div>
                 <h1 class="text-xl font-bold text-white tracking-wider">睿立業務秘書系統</h1>
-                <p class="text-xs text-slate-400">專案評估指標與會議決策管制庫</p>
+                <p class="text-xs text-slate-400">專案評估指標與決策管制庫 (全新 Excel 結構版)</p>
             </div>
         </div>
         <div class="flex items-center space-x-4">
+            <!-- 2_2 新增之匯出與儲存功能按鍵 -->
             <button onclick="exportToPDF()" class="flex items-center bg-red-900/40 hover:bg-red-800/60 border border-red-700/50 text-red-200 px-4 py-2 rounded-xl text-xs font-semibold transition">
-                <span class="material-icons text-sm mr-1.5">picture_as_pdf</span> 匯出/列印
+                <span class="material-icons text-sm mr-1.5">picture_as_pdf</span> [匯出/列印] 按鈕
             </button>
             <button onclick="saveAllToStorage()" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-lg shadow-blue-500/20">
-                <span class="material-icons text-sm mr-1.5">cloud_upload</span> 儲存變更
+                <span class="material-icons text-sm mr-1.5">cloud_upload</span> 儲存按鍵
             </button>
             <div class="bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-full text-xs text-slate-200 flex items-center">
                 <span class="material-icons text-green-400 text-sm mr-1.5">account_circle</span>
@@ -84,22 +88,22 @@
     </header>
 
     <div class="flex flex-1">
-        <!-- 左側選單 (列印時隱藏) -->
+        <!-- 【左側選單欄】 (列印時自動隱藏) -->
         <nav class="w-72 bg-slate-950 p-4 space-y-6 border-r border-slate-800/60 shrink-0 no-print flex flex-col justify-between">
             <div class="space-y-6">
-                <!-- 搜尋與核心按鈕 -->
+                <!-- 搜尋過濾器與核心案件按鈕 -->
                 <div class="space-y-3">
                     <div class="relative">
                         <span class="material-icons absolute left-3 top-2.5 text-slate-500 text-sm">search</span>
-                        <input type="text" id="sidebar-search" oninput="filterClients()" placeholder="案件搜尋..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                        <input type="text" id="sidebar-search" oninput="filterClients()" placeholder="搜尋過濾器 (綁定關鍵字)..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <button onclick="showNewCaseModal()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white p-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-md shadow-blue-500/10">
                         <span class="material-icons text-sm">add_circle</span>
-                        <span>[＋ 新增公司案件]</span>
+                        <span>[＋ 新增公司案件] 按鈕</span>
                     </button>
                 </div>
 
-                <!-- 核心業務：僅顯示 案件評估 -->
+                <!-- 核心業務樹狀導覽 -->
                 <div>
                     <div class="text-xs font-semibold text-slate-500 px-3 mb-2 tracking-wider uppercase">核心業務管理</div>
                     <div class="space-y-1">
@@ -111,53 +115,51 @@
                 </div>
             </div>
 
-            <!-- 動態案件名單容器 -->
+            <!-- 【案件動態表 - 存放動態案件陣列】 -->
             <div class="pt-4 border-t border-slate-800">
                 <div class="text-xs font-semibold text-slate-500 px-3 mb-2 tracking-wider uppercase flex justify-between items-center">
-                    <span>動態案件名單</span>
+                    <span>動態案件名單 (State)</span>
                     <span id="case-count" class="bg-blue-600/20 text-blue-400 text-[10px] px-2 py-0.5 rounded-full">0 案</span>
                 </div>
                 <div id="client-list-container" class="space-y-1.5 max-h-80 overflow-y-auto pr-1">
-                    <!-- 動態名單 -->
+                    <!-- 透過 Loop 迴圈動態渲染之物件元件 -->
                 </div>
             </div>
         </nav>
 
-        <!-- 主內容區 -->
+        <!-- 【主內容區 - 使用者介面層】 -->
         <main class="flex-1 p-8 overflow-y-auto space-y-8 bg-slate-900/40 pb-24">
             
-            <!-- 板塊: 案件評估 -->
             <div id="content-assess" class="space-y-6">
-                <div class="border-b border-slate-800 pb-4 flex justify-between items-center">
-                    <div>
-                        <h2 class="text-xl font-bold text-white flex items-center"><span class="material-icons mr-2 text-amber-500">rate_review</span> 案件評估：工廠基本資料與調查</h2>
-                        <p class="text-xs text-slate-400 mt-1">2. 使用者介面層：動態同步，支援歷史修改，實價登錄自定義表格</p>
-                    </div>
+                <!-- 標題 -->
+                <div class="border-b border-slate-800 pb-4">
+                    <h2 class="text-xl font-bold text-white flex items-center"><span class="material-icons mr-2 text-amber-500">rate_review</span> 案件評估核心系統</h2>
+                    <p class="text-xs text-slate-400 mt-1">依據 案件評估2_2.xlsx 最新架構重新建構之全新介面</p>
                 </div>
 
                 <div class="bg-slate-950 border border-slate-800/80 p-6 rounded-2xl space-y-6 shadow-xl">
                     
                     <!-- 一、專案人員 -->
                     <div>
-                        <h4 class="text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">一、專案人員與進度控制</h4>
+                        <h4 class="text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">一、專案人員</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">1. 日期 / 時間</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">1.日期 / 時間</label>
                                 <input type="datetime-local" id="assess-date" onchange="updateCurrentClientData()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">2. 案件狀態 (下拉選單)</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">2.案件狀態（下拉選單）</label>
                                 <select id="assess-status" onchange="updateCurrentClientData()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
-                                    <option value="初期評估">🟢 初期評估</option>
-                                    <option value="已報價">🔵 已報價</option>
-                                    <option value="準備簽約">🟡 準備簽約</option>
-                                    <option value="已簽約">🔴 已簽約</option>
-                                    <option value="結案">🟣 結案</option>
-                                    <option value="沒下文">⚫ 沒下文</option>
+                                    <option value="初期評估">初期評估</option>
+                                    <option value="已報價">已報價</option>
+                                    <option value="準備簽約">準備簽約</option>
+                                    <option value="已簽約">已簽約</option>
+                                    <option value="結案">結案</option>
+                                    <option value="沒下文">沒下文</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">3. 專案經理 (下拉選單)</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">3.專案經理（下拉選單）</label>
                                 <select id="assess-manager" onchange="updateCurrentClientData()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
                                     <option value="樊靖畇">樊靖畇</option>
                                     <option value="鄭家承">鄭家承</option>
@@ -170,32 +172,32 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">6. 案件來源</label>
-                                <input type="text" id="assess-source" oninput="updateCurrentClientData()" placeholder="如：地政士轉介" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">6.案件來源</label>
+                                <input type="text" id="assess-source" oninput="updateCurrentClientData()" placeholder="案件來源..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
                             </div>
                         </div>
                     </div>
 
-                    <!-- 4. 服務項目 -->
+                    <!-- 4.服務項目 -->
                     <div class="border-t border-slate-800 pt-4">
-                        <h4 class="text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">服務項目評估與報價</h4>
+                        <h4 class="text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">4.服務項目 (評估與報價)</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1">業務案件說明</label>
-                                <textarea id="assess-service-desc" oninput="updateCurrentClientData()" rows="3" placeholder="輸入案件之詳細狀況與需求..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none"></textarea>
+                                <textarea id="assess-service-desc" oninput="updateCurrentClientData()" rows="3" placeholder="請填寫業務案件說明..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none"></textarea>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1">項目評估結果</label>
-                                <textarea id="assess-service-result" oninput="updateCurrentClientData()" rows="3" placeholder="法規可行性評估或合規判定..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none"></textarea>
+                                <textarea id="assess-service-result" oninput="updateCurrentClientData()" rows="3" placeholder="請填寫項目評估結果..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none"></textarea>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">項目報價 (元)</label>
-                                <textarea id="assess-service-quote" oninput="updateCurrentClientData()" rows="3" placeholder="預估報價或收費架構..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none"></textarea>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">項目報價</label>
+                                <textarea id="assess-service-quote" oninput="updateCurrentClientData()" rows="3" placeholder="請填寫項目報價..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none"></textarea>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">5. 業務即時狀態與追蹤備註</label>
-                            <input type="text" id="assess-status-remark" oninput="updateCurrentClientData()" placeholder="目前送件審查、補正進度..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">5.業務即時狀態備註</label>
+                            <input type="text" id="assess-status-remark" oninput="updateCurrentClientData()" placeholder="請輸入業務即時追蹤進度..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                         </div>
                     </div>
 
@@ -204,38 +206,38 @@
                         <h4 class="text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">二、公司基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">1. 公司名稱</label>
-                                <input type="text" id="company-name" oninput="updateCurrentClientData(); syncCaseNameToList()" placeholder="輸入公司名稱" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">1.公司名稱</label>
+                                <input type="text" id="company-name" oninput="updateCurrentClientData(); syncCaseNameToList()" placeholder="填寫公司名稱" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">2. 統編</label>
-                                <input type="text" id="company-tax-id" oninput="updateCurrentClientData()" placeholder="輸入統一編號" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">2.統編</label>
+                                <input type="text" id="company-tax-id" oninput="updateCurrentClientData()" placeholder="填寫統一編號" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">3. 工廠登記證字號</label>
-                                <input type="text" id="company-factory-id" oninput="updateCurrentClientData()" placeholder="登記證字號" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">3.工廠登記證字號</label>
+                                <input type="text" id="company-factory-id" oninput="updateCurrentClientData()" placeholder="工廠登記字號" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">4. 產業類型</label>
-                                <input type="text" id="company-industry" oninput="updateCurrentClientData()" placeholder="金屬、塑膠、紡織等" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">4.產業類型</label>
+                                <input type="text" id="company-industry" oninput="updateCurrentClientData()" placeholder="例如：金屬製造業" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">5. 聯絡人</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">5.聯絡人</label>
                                 <input type="text" id="company-contact" oninput="updateCurrentClientData()" placeholder="聯絡窗口姓名" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">6. 聯絡電話</label>
-                                <input type="text" id="company-phone" oninput="updateCurrentClientData()" placeholder="電話或手機" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">6.聯絡電話</label>
+                                <input type="text" id="company-phone" oninput="updateCurrentClientData()" placeholder="電話或分機" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">7. E-mail</label>
-                                <input type="email" id="company-email" oninput="updateCurrentClientData()" placeholder="電子郵件" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">7.E-mail</label>
+                                <input type="email" id="company-email" oninput="updateCurrentClientData()" placeholder="聯絡電子郵件" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">8. 工廠地址</label>
-                                <input type="text" id="company-address" oninput="updateCurrentClientData()" placeholder="廠區完整物理地址" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">8.工廠地址</label>
+                                <input type="text" id="company-address" oninput="updateCurrentClientData()" placeholder="工廠完整物理地址" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                         </div>
                     </div>
@@ -245,31 +247,31 @@
                         <h4 class="text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">三、土地基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">1. 地段地號</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">1.地段地號</label>
                                 <input type="text" id="land-id" oninput="updateCurrentClientData()" placeholder="輸入地號" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">2. 都市計畫內使用分區</label>
-                                <input type="text" id="land-urban" oninput="updateCurrentClientData()" placeholder="都計內分區" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">2.土地型態 (都市計畫內使用分區)</label>
+                                <input type="text" id="land-urban" oninput="updateCurrentClientData()" placeholder="都計內使用分區" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">都市計畫外使用地類別</label>
-                                <input type="text" id="land-non-urban" oninput="updateCurrentClientData()" placeholder="丁種建築用地等" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">2.土地型態 (都市計畫外使用地類別)</label>
+                                <input type="text" id="land-non-urban" oninput="updateCurrentClientData()" placeholder="都計外使用地類別" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">3. 坪數 (㎡)</label>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">3.土地坪數 (平方公尺)</label>
                                     <input type="number" id="land-sqm" oninput="updateCurrentClientData(); convertLandSqm()" placeholder="㎡" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">3. 坪數 (坪)</label>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">3.土地坪數 (坪)</label>
                                     <input type="number" id="land-ping" oninput="updateCurrentClientData(); convertLandPing()" placeholder="坪" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">4. 備註</label>
-                            <input type="text" id="land-remark" oninput="updateCurrentClientData()" placeholder="路寬、面寬、坐向等補充..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">4.備註</label>
+                            <input type="text" id="land-remark" oninput="updateCurrentClientData()" placeholder="填寫土地特徵、路寬等備註..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                         </div>
                     </div>
 
@@ -278,50 +280,50 @@
                         <h4 class="text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">四、建物基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">1. 是否有建物</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">1..是否有建物</label>
                                 <select id="building-exists" onchange="updateCurrentClientData()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
-                                    <option value="是">口是 (有保存登記)</option>
-                                    <option value="否">口否 (無保存登記/全違建)</option>
+                                    <option value="是">口是</option>
+                                    <option value="否">口否</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">2. 建號</label>
-                                <input type="text" id="building-id" oninput="updateCurrentClientData()" placeholder="輸入建號" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">2.建號</label>
+                                <input type="text" id="building-id" oninput="updateCurrentClientData()" placeholder="建號..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">3. 建造年份</label>
-                                <input type="text" id="building-year" oninput="updateCurrentClientData()" placeholder="如：民國78年" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">3.建造年份</label>
+                                <input type="text" id="building-year" oninput="updateCurrentClientData()" placeholder="建造年份..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">4. 合法建物坪數</label>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">4.建物坪數 (合法)</label>
                                     <input type="number" id="building-legal-ping" oninput="updateCurrentClientData()" placeholder="坪" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">4. 違章建物坪數</label>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">4.建物坪數 (違章)</label>
                                     <input type="number" id="building-illegal-ping" oninput="updateCurrentClientData()" placeholder="坪" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">5. 備註</label>
-                            <input type="text" id="building-remark" oninput="updateCurrentClientData()" placeholder="滴水、中脊、結構補強等備註..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">5.備註</label>
+                            <input type="text" id="building-remark" oninput="updateCurrentClientData()" placeholder="結構或現況補充..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                         </div>
                     </div>
 
                     <!-- 五、ESG評估 -->
                     <div class="border-t border-slate-800 pt-4">
-                        <h4 class="text-xs font-bold text-emerald-400 mb-3 tracking-wider uppercase">五、ESG永續轉型評估指標</h4>
+                        <h4 class="text-xs font-bold text-emerald-400 mb-3 tracking-wider uppercase">五、ESG評估</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">1. 是否有接班人</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">1.是否有接班人 (下拉選單)</label>
                                 <select id="esg-successor" onchange="updateCurrentClientData()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                     <option value="是">是</option>
                                     <option value="否">否</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">2. 產品是否外銷</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">2.產品是否外銷 (下拉選單)</label>
                                 <select id="esg-export" onchange="updateCurrentClientData()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                     <option value="否">否</option>
                                     <option value="是">是</option>
@@ -329,13 +331,13 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1">外銷國家與說明</label>
-                                <input type="text" id="esg-export-country" oninput="updateCurrentClientData()" placeholder="外銷國家及說明細節" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <input type="text" id="esg-export-country" oninput="updateCurrentClientData()" placeholder="填寫外銷國家及說明細項" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">3. 是否受歐盟減碳要求</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">3.是否受歐盟減碳要求 (下拉選單)</label>
                                 <select id="esg-eu-carbon" onchange="updateCurrentClientData()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                     <option value="否">否</option>
                                     <option value="是">是</option>
@@ -343,23 +345,23 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1">減碳要求說明</label>
-                                <input type="text" id="esg-eu-carbon-desc" oninput="updateCurrentClientData()" placeholder="具體減碳時程或CBAM相關說明..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                <input type="text" id="esg-eu-carbon-desc" oninput="updateCurrentClientData()" placeholder="具體歐盟CBAM減碳時程或說明..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             </div>
                         </div>
 
-                        <!-- 4. 用電狀況 -->
+                        <!-- 4.用電狀況 -->
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 bg-slate-900/40 p-4 rounded-xl border border-slate-800">
-                            <div class="md:col-span-4"><h5 class="text-xs font-bold text-slate-300">4. 廠區用電規格與狀況</h5></div>
+                            <div class="md:col-span-4"><h5 class="text-xs font-bold text-slate-300">4.用電狀況</h5></div>
                             <div>
-                                <label class="block text-[10px] text-slate-400 mb-1">每月平均電費 (元)</label>
+                                <label class="block text-[10px] text-slate-400 mb-1">每月平均電費</label>
                                 <input type="number" id="esg-power-cost" oninput="updateCurrentClientData()" placeholder="元" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-slate-400 mb-1">馬力 (HP)</label>
+                                <label class="block text-[10px] text-slate-400 mb-1">馬力</label>
                                 <input type="number" id="esg-power-hp" oninput="updateCurrentClientData()" placeholder="馬" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-slate-400 mb-1">契約容量 (kW)</label>
+                                <label class="block text-[10px] text-slate-400 mb-1">契約容量(kW)</label>
                                 <input type="number" id="esg-power-contract" oninput="updateCurrentClientData()" placeholder="kW" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white">
                             </div>
                             <div>
@@ -398,14 +400,14 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">5. 備註</label>
-                            <input type="text" id="esg-remark" oninput="updateCurrentClientData()" placeholder="歐盟要求、溫室氣體盤查、綠電自建等需求細節..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">5.備註</label>
+                            <input type="text" id="esg-remark" oninput="updateCurrentClientData()" placeholder="溫室氣體、碳盤查等其它綠電備註..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                         </div>
                     </div>
 
                     <!-- 六、客戶應備文件與七、檔案上傳 -->
                     <div class="border-t border-slate-800 pt-4">
-                        <h4 class="text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">六、客戶應備文件與七、其他檔案</h4>
+                        <h4 class="text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">六、客戶應備文件 與 七、其他檔案</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
                                 <h5 class="text-xs font-bold text-slate-300 mb-1">應備文件清單（可打勾）</h5>
@@ -421,11 +423,11 @@
                             </div>
                             <div class="space-y-4">
                                 <div>
-                                    <h5 class="text-xs font-bold text-slate-300 mb-1">應備文件檔案上傳</h5>
+                                    <h5 class="text-xs font-bold text-slate-300 mb-1">應備文件檔案上傳（可存任何類型的檔案）</h5>
                                     <input type="file" id="assess-file-uploader" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer">
                                 </div>
                                 <div>
-                                    <h5 class="text-xs font-bold text-slate-300 mb-1">七、其他檔案（可存任何類型檔案）</h5>
+                                    <h5 class="text-xs font-bold text-slate-300 mb-1">七、其他檔案（可存任何類型的檔案）</h5>
                                     <input type="file" id="other-file-uploader" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer">
                                 </div>
                             </div>
@@ -438,43 +440,43 @@
         </main>
     </div>
 
-    <!-- 頁尾列印元件 (僅在列印 PDF 時顯示) -->
+    <!-- 頁尾列印元件 (僅在列印 PDF 時強制顯示在底端) -->
     <div class="print-footer hidden">
         <div style="font-weight: bold; margin-bottom: 5px;">
-            睿立資產管理顧問有限公司 (90411790) | 元業綠能驗證有限公司 (90000831) | 天梁不動產股份有限公司 (93628169)
+            睿立資產管理顧問有限公司 (統編：90411790) | 元業綠能驗證有限公司 (統編：90000831) | 天梁不動產股份有限公司 (統編：93628169)
         </div>
         <div>
-            TEL: 07-222-5595 | FAX: 07-269-3091 | E-mail: ruilu1101108@gmail.com | 地址: 高雄市苓雅區新光路38號30樓之2
+            TEL：07-222-5595 | FAX：07-269-3091 | E-mell：ruilu1101108@gmail.com | ADD：高雄市苓雅區新光路38號30樓之2
         </div>
         <div style="color: #d97706; font-weight: bold; margin-top: 5px;">
             此文件報價及建議有效期限一個月。
         </div>
     </div>
 
-    <!-- 頁尾 (網頁正常模式顯示) -->
+    <!-- 網頁頁尾 (一般畫面顯示，落實表格每一頁最下面必需顯示的要求) -->
     <footer class="bg-slate-950 border-t border-slate-800 py-6 px-8 text-center text-xs text-slate-500 space-y-2 shrink-0 z-40 no-print">
         <div class="flex flex-wrap justify-center gap-6 font-semibold text-slate-400">
-            <span>睿立資產管理顧問有限公司 (統編: 90411790)</span>
-            <span>元業綠能驗證有限公司 (統編: 90000831)</span>
-            <span>天梁不動產股份有限公司 (統編: 93628169)</span>
+            <span>睿立資產管理顧問有限公司 (統編：90411790)</span>
+            <span>元業綠能驗證有限公司 (統編：90000831)</span>
+            <span>天梁不動產股份有限公司 (統編：93628169)</span>
         </div>
         <div class="flex justify-center space-x-6 text-[10px]">
-            <span>TEL: 07-222-5595</span>
-            <span>FAX: 07-269-3091</span>
-            <span>E-mail: ruilu1101108@gmail.com</span>
-            <span>地址: 高雄市苓雅區新光路38號30樓之2</span>
+            <span>TEL：07-222-5595</span>
+            <span>FAX：07-269-3091</span>
+            <span>E-mell：ruilu1101108@gmail.com</span>
+            <span>ADD：高雄市苓雅區新光路38號30樓之2</span>
         </div>
         <div class="text-[10px] text-amber-500/80 font-bold">
             此文件報價及建議有效期限一個月。
         </div>
     </footer>
 
-    <!-- 新增公司案件彈出視窗 -->
+    <!-- 新建案件彈出視窗 -->
     <div id="new-case-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50 no-print">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-white flex items-center"><span class="material-icons mr-2 text-blue-500">add_circle</span> 新建公司案件</h3>
             <div>
-                <label class="block text-xs font-semibold text-slate-400 mb-1">請輸入 公司名稱 (作為本案案名)</label>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">請輸入公司名稱 (做為本案名)</label>
                 <input type="text" id="modal-case-name" placeholder="如：屏東大新鋼鐵廠" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-blue-500">
             </div>
             <div class="flex justify-end space-x-3 pt-2">
@@ -485,41 +487,41 @@
     </div>
 
     <script>
-        // 1. 狀態管理層：核心資料陣列（存放所有公司案件）
+        // 狀態管理陣列 (完全排除先前舊結構歷史干擾)
         let clientsState = [];
         let currentClientId = null;
 
-        // 預設案件種子資料（如果瀏覽器是第一次打開）
+        // 系統預設案件種子資料
         const defaultClients = [
             {
                 id: "case-1",
-                companyName: "高雄睿立測試工廠",
-                date: "2026-07-15T18:00",
+                companyName: "高雄睿立示範工廠",
+                date: "2026-07-17T20:00",
                 status: "初期評估",
                 manager: "樊靖畇",
-                source: "客戶轉介",
+                source: "合作地政士轉介",
                 serviceDesc: "工廠ESG輔導與地目變更",
                 serviceResult: "初步判定可合規辦理特定工廠登記",
-                serviceQuote: "一般案件服務費25萬，地政士稅務變更費用另計",
+                serviceQuote: "專案輔導收費25萬元整，規費另計",
                 taxId: "90411790",
                 factoryId: "F12345678",
                 industry: "金屬加工業",
                 contact: "王經理",
                 phone: "0912-345678",
-                email: "wang@example.com",
+                email: "wang@ruili.com",
                 address: "高雄市苓雅區新光路38號30樓",
                 landId: "前金段101-2地號",
                 landUrban: "都計內工業區",
                 landNonUrban: "丁種建築用地",
                 landSqm: 1650,
                 landPing: 500,
-                landRemark: "面寬35米，臨10米道路",
+                landRemark: "臨10米道路，出入通暢",
                 buildingExists: "是",
                 buildingId: "B-9981",
                 buildingYear: "民國78年",
                 buildingLegalPing: 300,
                 buildingIllegalPing: 80,
-                buildingRemark: "滴水高6米，鋼鐵造結構良好",
+                buildingRemark: "鋼鐵造結構良好",
                 esgSuccessor: "是",
                 esgExport: "否",
                 esgExportCountry: "",
@@ -533,7 +535,7 @@
                 powerPeriodDay: true,
                 powerPeriodNight: false,
                 powerPeriodEven: false,
-                esgRemark: "近期需安排碳足跡盤查輔導",
+                esgRemark: "近期規劃安排碳盤查與綠電轉換方案",
                 docBill: true,
                 docPhotos: true,
                 docRoofPlan: false,
@@ -545,14 +547,15 @@
             }
         ];
 
-        // 初始化載入
+        // 頁面初始化
         window.onload = function() {
-            const savedData = localStorage.getItem("ruili_clients_data");
+            // 從 LocalStorage 載入，如無則初始化預設資料
+            const savedData = localStorage.getItem("ruili_clients_data_v2");
             if (savedData) {
                 clientsState = JSON.parse(savedData);
             } else {
                 clientsState = defaultClients;
-                localStorage.setItem("ruili_clients_data", JSON.stringify(clientsState));
+                localStorage.setItem("ruili_clients_data_v2", JSON.stringify(clientsState));
             }
             
             if (clientsState.length > 0) {
@@ -562,7 +565,7 @@
             loadClientDetails();
         };
 
-        // 2. 使用者介面層：動態名單渲染
+        // 動態渲染左側案件清單
         function renderClientList() {
             const container = document.getElementById("client-list-container");
             container.innerHTML = "";
@@ -572,7 +575,7 @@
                 div.className = `client-item border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 p-2.5 rounded-xl cursor-pointer transition text-xs flex justify-between items-center ${client.id === currentClientId ? 'active' : ''}`;
                 div.onclick = () => selectClient(client.id);
                 
-                // 狀態對應小燈號
+                // 狀態小圓燈
                 let badgeColor = "bg-slate-600";
                 if(client.status === "初期評估") badgeColor = "bg-emerald-500";
                 else if(client.status === "已報價") badgeColor = "bg-blue-500";
@@ -594,7 +597,7 @@
             document.getElementById("case-count").innerText = `${clientsState.length} 案`;
         }
 
-        // 篩選與過濾
+        // 搜尋篩選過濾器
         function filterClients() {
             const keyword = document.getElementById("sidebar-search").value.toLowerCase();
             const container = document.getElementById("client-list-container");
@@ -630,14 +633,13 @@
             });
         }
 
-        // 選擇客戶
         function selectClient(id) {
             currentClientId = id;
             renderClientList();
             loadClientDetails();
         }
 
-        // 切換資料載入
+        // 載入當前案件細節到 UI 表格
         function loadClientDetails() {
             const client = clientsState.find(c => c.id === currentClientId);
             if (!client) return;
@@ -702,7 +704,7 @@
             document.getElementById("doc-drone").checked = !!client.docDrone;
         }
 
-        // 動態寫回 State
+        // 即時同步 UI 資料回前端 State 與本機快取
         function updateCurrentClientData() {
             const client = clientsState.find(c => c.id === currentClientId);
             if (!client) return;
@@ -766,11 +768,11 @@
             client.docCircuits = document.getElementById("doc-circuits").checked;
             client.docDrone = document.getElementById("doc-drone").checked;
             
-            // 立即緩存儲存
-            localStorage.setItem("ruili_clients_data", JSON.stringify(clientsState));
+            // 自動儲存到瀏覽器
+            localStorage.setItem("ruili_clients_data_v2", JSON.stringify(clientsState));
         }
 
-        // 土地單位相互換算
+        // 土地坪數自動換算
         function convertLandSqm() {
             const sqm = parseFloat(document.getElementById("land-sqm").value) || 0;
             document.getElementById("land-ping").value = (sqm * 0.3025).toFixed(2);
@@ -782,12 +784,12 @@
             updateCurrentClientData();
         }
 
-        // 動態連動左側列表的名字
+        // 即時連動清單顯示名稱
         function syncCaseNameToList() {
             renderClientList();
         }
 
-        // 新增案件
+        // 彈出新增視窗
         function showNewCaseModal() {
             document.getElementById("new-case-modal").classList.remove("hidden");
             document.getElementById("new-case-modal").classList.add("flex");
@@ -856,7 +858,7 @@
 
             clientsState.push(newCase);
             currentClientId = newId;
-            localStorage.setItem("ruili_clients_data", JSON.stringify(clientsState));
+            localStorage.setItem("ruili_clients_data_v2", JSON.stringify(clientsState));
             
             renderClientList();
             loadClientDetails();
@@ -864,15 +866,15 @@
             document.getElementById("modal-case-name").value = "";
         }
 
-        // 保存按鈕 (後端備份/本機緩存)
+        // 保存按鈕 (提示成功)
         function saveAllToStorage() {
-            localStorage.setItem("ruili_clients_data", JSON.stringify(clientsState));
-            alert("【儲存成功】資料已同步寫入/更新至本機雲端，已為您備份所有動態名單！");
+            localStorage.setItem("ruili_clients_data_v2", JSON.stringify(clientsState));
+            alert("【儲存成功】資料已寫入/更新至本機雲端，已為您安全保存所有案件資料！");
         }
 
-        // 一鍵匯出PDF
+        // [匯出/列印] 按鈕動作
         function exportToPDF() {
-            alert("正在生成本公司個案的專屬 A4 列印格式...");
+            alert("系統正在生成本案專屬 A4 標準直向格式...");
             window.print();
         }
     </script>
