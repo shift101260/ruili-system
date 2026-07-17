@@ -40,14 +40,14 @@
             border-color: var(--accent-blue);
         }
         
-        /* 🏆 【高級美化列印 CSS 樣式優化】 */
+        /* 🏆 【高級一鍵匯出、列印 PDF 美編樣式優化區】 */
         @media print {
             body {
                 background: #ffffff !important;
                 color: #000000 !important;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             }
-            /* 隱藏網頁控制元件 */
+            /* 隱藏不必要的網頁操作元件 */
             header, nav, footer, button, input[type="file"], .no-print {
                 display: none !important;
             }
@@ -56,26 +56,28 @@
                 margin: 0 !important;
                 background: #ffffff !important;
             }
-            /* 卡片與欄位框線轉化（徹底去除灰色塊背景，改為乾淨俐落的俐落黑白框） */
-            .custom-card, .bg-slate-900\/60, .bg-slate-900\/40, .bg-slate-900\/20 {
-                background-color: transparent !important;
-                background: transparent !important;
-                border: 1px solid #1e293b !important;
-                color: #000000 !important;
-                box-shadow: none !important;
-                border-radius: 8px !important;
-                padding: 12px !important;
-            }
-            /* 讓輸入框、下拉選單在列印時完美呈現乾淨黑白線條 */
-            input, select, textarea, .custom-input {
-                background-color: transparent !important;
-                background: transparent !important;
-                border: 1px solid #475569 !important;
+            /* 🎨 徹底移除用電狀況與子層卡片的灰色底，改為高質感的細線白底商務外框 */
+            .custom-card, .bg-slate-900\/60, .bg-slate-900\/40, .bg-slate-900\/20, 
+            div[class*="bg-slate-900"], div[class*="shadow-inner"] {
+                background-color: #ffffff !important;
+                background: #ffffff !important;
+                border: 1px solid #000000 !important;
                 color: #000000 !important;
                 box-shadow: none !important;
                 border-radius: 6px !important;
+                padding: 14px !important;
             }
-            /* 文字高對比呈現 */
+            /* 確保所有輸入框與下拉選單在外觀上保持一致的典雅黑白框線，去除陰影 */
+            input, select, textarea, .custom-input {
+                background-color: #ffffff !important;
+                background: #ffffff !important;
+                border: 1px solid #1e293b !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                border-radius: 4px !important;
+                padding: 6px !important;
+            }
+            /* 提升字體在紙張上的對比度 */
             h2, h3, h4, h5, label, span, p {
                 color: #000000 !important;
                 text-shadow: none !important;
@@ -84,13 +86,14 @@
                 border-bottom: 2px solid #000000 !important;
                 padding-bottom: 4px !important;
                 margin-bottom: 12px !important;
+                font-weight: bold !important;
             }
-            /* 頁尾強制顯示元件 */
+            /* 強制頁尾多公司簽核宣告區塊於底部現形 */
             .print-footer {
                 display: block !important;
                 border-top: 2px solid #000000;
                 padding-top: 14px;
-                margin-top: 40px;
+                margin-top: 50px;
                 text-align: center;
                 font-size: 11px;
                 color: #000000 !important;
@@ -104,7 +107,7 @@
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- 【頂部控制列】 (列印時自動隱藏) -->
+    <!-- 【頂部控制列】 -->
     <header class="custom-card border-b px-6 py-4 flex justify-between items-center sticky top-0 z-50 no-print shadow-lg shadow-black/40">
         <div class="flex items-center space-x-3">
             <span class="material-icons text-blue-500 text-3xl">business</span>
@@ -114,7 +117,6 @@
             </div>
         </div>
         
-        <!-- 功能控制按鍵區 -->
         <div class="flex items-center space-x-4">
             <!-- 關鍵字搜尋過濾器 -->
             <div class="relative">
@@ -133,7 +135,7 @@
     </header>
 
     <div class="flex flex-1">
-        <!-- 【左側選單欄 - 狀態管理層】 (已移除非核心主題模組) -->
+        <!-- 【左側選單欄 - 狀態管理層】 (已完全移除非核心項目) -->
         <nav class="custom-card w-72 p-4 space-y-5 border-r shrink-0 no-print flex flex-col justify-between shadow-xl">
             <div class="space-y-4">
                 <!-- 新增公司案件按鈕 -->
@@ -158,7 +160,7 @@
                     <span id="case-count" class="bg-blue-600/20 text-blue-400 text-[10px] px-2 py-0.5 rounded-full">0 案</span>
                 </div>
                 <div id="client-list-container" class="space-y-1.5 overflow-y-auto flex-1 pr-1 max-h-[500px]">
-                    <!-- Loop 迴圈動態渲染之物件元件 -->
+                    <!-- 迴圈動態渲染之物件元件 -->
                 </div>
             </div>
         </nav>
@@ -167,10 +169,9 @@
         <main class="flex-1 p-8 overflow-y-auto space-y-8 bg-slate-900/10 pb-24">
             
             <div id="content-assess" class="space-y-6">
-                <!-- 標題 -->
                 <div class="border-b border-slate-800 pb-4">
                     <h2 class="text-xl font-bold text-white flex items-center"><span class="material-icons mr-2 text-amber-500">rate_review</span> 案件評估核心主檔系統</h2>
-                    <p class="text-xs text-slate-400 mt-1">完全對齊 （終極）睿立業務系統.xlsx 腦圖欄位架構</p>
+                    <p class="text-xs text-slate-400 mt-1">完全對齊 666睿立業務系統.xlsx 腦圖最新規格</p>
                 </div>
 
                 <div class="custom-card border p-6 rounded-2xl space-y-6 shadow-xl">
@@ -186,12 +187,12 @@
                             <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1.5">案件狀態（下拉選單）</label>
                                 <select id="assess-status" onchange="updateCurrentClientData(); syncCaseNameToList();" class="custom-input w-full border rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500 font-bold">
-                                    <option value="初期評估">初期評估（綠色燈號）</option>
-                                    <option value="已報價">已報價（藍色燈號）</option>
-                                    <option value="準備簽約">準備簽約（金色燈號）</option>
-                                    <option value="已簽約">已簽約（紅色燈號）</option>
-                                    <option value="結案">結案（紫色燈號）</option>
-                                    <option value="沒下文">沒下文（黑色燈號）</option>
+                                    <option value="初期評估">初期評估（綠色按鈕）</option>
+                                    <option value="已報價">已報價（藍色按鈕）</option>
+                                    <option value="準備簽約">準備簽約（金色按鈕）</option>
+                                    <option value="已簽約">已簽約（紅色按鈕）</option>
+                                    <option value="結案">結案（紫色按鈕）</option>
+                                    <option value="沒下文">沒下文（黑色按鈕）</option>
                                 </select>
                             </div>
                             <div>
@@ -217,13 +218,12 @@
                     <!-- 服務項目層 (動態加載子陣列) -->
                     <div class="border-t border-slate-800 pt-4">
                         <div class="flex justify-between items-center mb-3">
-                            <h4 class="text-xs font-bold text-blue-400 tracking-wider uppercase flex items-center"><span class="material-icons text-sm mr-1">business_center</span>服務項目層 (服務項目、案件說明、評估結果、報價)</h4>
+                            <h4 class="text-xs font-bold text-blue-400 tracking-wider uppercase flex items-center"><span class="material-icons text-sm mr-1">business_center</span>服務項目層 (可動態增減 [＋ 新增服務項目] 陣列)</h4>
                             <button onclick="addServiceRow()" class="bg-blue-600/30 hover:bg-blue-600/60 border border-blue-500 text-blue-200 text-[11px] font-bold px-3 py-1 rounded-xl transition flex items-center space-x-1 no-print">
                                 <span class="material-icons text-xs">add</span><span>[＋ 新增服務項目] 按鈕</span>
                             </button>
                         </div>
                         
-                        <!-- 動態服務項目列表容器 -->
                         <div id="service-items-container" class="space-y-3"></div>
 
                         <div class="mt-4">
@@ -282,7 +282,6 @@
                             </button>
                         </div>
 
-                        <!-- 動態地段地號容器 -->
                         <div id="land-rows-container" class="space-y-3 mb-4"></div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -374,7 +373,7 @@
                             </div>
                         </div>
 
-                        <!-- 🛠️【用電狀況子層 - 已優化列印轉黑白線條格式】 -->
+                        <!-- 🛠️【用電狀況區塊 - 支援一鍵匯出自動除灰、黑白線框化美編】 -->
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800 shadow-inner">
                             <div class="md:col-span-4"><h5 class="text-xs font-bold text-slate-300">⚡ 用電狀況</h5></div>
                             <div>
@@ -429,7 +428,7 @@
                                 <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
                                     <h5 class="text-xs font-bold text-slate-300">應備文件清單（可打勾）</h5>
                                     <button onclick="addCustomDocField()" class="text-[10px] text-blue-400 hover:text-blue-300 font-bold flex items-center space-x-0.5 no-print">
-                                        <span class="material-icons text-xs">add</span><span>自行填寫新增（可打勾）</span>
+                                        <span class="material-icons text-xs">add</span><span>自行填寫新增項目欄位</span>
                                     </button>
                                 </div>
                                 <div id="doc-checklist-container" class="grid grid-cols-1 gap-2 text-xs text-slate-400">
@@ -508,11 +507,11 @@
     </div>
 
     <script>
-        // 全局狀態管理層
+        // 全局資料狀態管理層
         let clientsState = [];
         let currentClientId = null;
 
-        // 初始化核心示範種子資料
+        // 初始化種子數據
         const defaultClients = [
             {
                 id: "case-prime",
@@ -530,11 +529,9 @@
                 companyEmail: "service@ruili.com",
                 companyAddress: "高雄市苓雅區新光路38號30樓",
                 
-                // 動態服務項目子陣列
                 services: [
                     { serviceName: "特工合法化與太陽能自建輔導", serviceDesc: "進行全區屋頂發電效益量精算與合規評估。", serviceResult: "判定可合規施作，預計鋪設320kW。", serviceQuote: "專案規劃輔導金22萬元整，規費另計。" }
                 ],
-                // 動態地段地號子陣列
                 lands: [
                     { segment: "新光段", landNum: "108-5" }
                 ],
@@ -589,7 +586,7 @@
             loadClientDetails();
         };
 
-        // ⭐【完美綁定：圓形動態狀態燈號渲染】⭐
+        // 🟢 🔵 🟡 🔴 🟣 ⚫ 【精準圓形動態狀態燈號渲染】
         function renderClientList() {
             const container = document.getElementById("client-list-container");
             container.innerHTML = "";
@@ -599,13 +596,13 @@
                 div.className = `client-item border border-slate-800 bg-slate-900/30 hover:bg-slate-800/80 p-2.5 rounded-xl cursor-pointer transition text-xs flex justify-between items-center ${client.id === currentClientId ? 'active' : ''}`;
                 div.onclick = () => selectClient(client.id);
                 
-                // 依據 Excel 括弧規範：嚴格綁定圓形顏色燈
+                // 完全根據 Excel 括弧文字定義圓形小徽章燈色
                 let badgeStyle = "background-color: #4b5563;"; 
-                if(client.status === "初期評估") badgeStyle = "background-color: #10b981;"; // 綠色
-                else if(client.status === "已報價") badgeStyle = "background-color: #3b82f6;"; // 藍色
-                else if(client.status === "準備簽約") badgeStyle = "background-color: #fbbf24;"; // 金色
-                else if(client.status === "已簽約") badgeStyle = "background-color: #ef4444;"; // 紅色
-                else if(client.status === "結案") badgeStyle = "background-color: #a855f7;"; // 紫色
+                if(client.status === "初期評估") badgeStyle = "background-color: #10b981;";     // 綠色
+                else if(client.status === "已報價") badgeStyle = "background-color: #3b82f6;";     // 藍色
+                else if(client.status === "準備簽約") badgeStyle = "background-color: #fbbf24;";   // 金色
+                else if(client.status === "已簽約") badgeStyle = "background-color: #ef4444;";     // 紅色
+                else if(client.status === "結案") badgeStyle = "background-color: #a855f7;";       // 紫色
                 else if(client.status === "沒下文") badgeStyle = "background-color: #111827; border: 1px solid #4b5563;"; // 黑色
                 
                 div.innerHTML = `
@@ -621,7 +618,7 @@
             document.getElementById("case-count").innerText = `${clientsState.length} 案`;
         }
 
-        // 搜尋篩選
+        // 搜尋功能
         function filterClients() {
             const keyword = document.getElementById("top-search").value.toLowerCase();
             const container = document.getElementById("client-list-container");
@@ -654,7 +651,7 @@
             loadClientDetails();
         }
 
-        // 動態增減服務項目層控制
+        // 動態服務項目子陣列增減
         function addServiceRow() {
             const client = clientsState.find(c => c.id === currentClientId);
             if (!client) return;
@@ -713,7 +710,7 @@
             }
         }
 
-        // 動態增減地段地號控制
+        // 動態地段地號子陣列增減
         function addLandRow() {
             const client = clientsState.find(c => c.id === currentClientId);
             if (!client) return;
@@ -760,7 +757,7 @@
             }
         }
 
-        // 自行填寫新增項目控制 (應備文件)
+        // 自訂填寫應備文件
         function addCustomDocField() {
             const labelText = prompt("請輸入需要新增的自訂應備文件欄位名稱：");
             if(!labelText) return;
@@ -787,7 +784,15 @@
             });
         }
 
-        // 載入與回填資料到使用者介面
+        function syncCustomDocCheck(index, isChecked) {
+            const client = clientsState.find(c => c.id === currentClientId);
+            if(client && client.customDocs && client.customDocs[index]) {
+                client.customDocs[index].checked = isChecked;
+                updateCurrentClientData();
+            }
+        }
+
+        // 回填數據回表單 UI
         function loadClientDetails() {
             const client = clientsState.find(c => c.id === currentClientId);
             if (!client) return;
@@ -843,13 +848,13 @@
             document.getElementById("doc-circuits").checked = !!client.docCircuits;
             document.getElementById("doc-drone").checked = !!client.docDrone;
 
-            // 渲染載入子陣列群
+            // 子層元件載入
             renderServiceRows(client.services || []);
             renderLandRows(client.lands || []);
             renderCustomDocs(client.customDocs || []);
         }
 
-        // 同步 UI 資料回前端資料庫陣列 (State)
+        // 同步 UI 欄位變更回前端 State 儲存
         function updateCurrentClientData() {
             const client = clientsState.find(c => c.id === currentClientId);
             if (!client) return;
@@ -897,6 +902,7 @@
             client.powerPeriodEven = document.getElementById("power-period-even").checked;
             client.esgRemark = document.getElementById("esg-remark").value;
 
+            client.docBill = document.getElementById;
             client.docBill = document.getElementById("doc-bill").checked;
             client.docPhotos = document.getElementById("doc-photos").checked;
             client.docRoofPlan = document.getElementById("doc-roof-plan").checked;
@@ -908,7 +914,7 @@
             localStorage.setItem("ruili_single_core_state", JSON.stringify(clientsState));
         }
 
-        // 土地面積自動換算
+        // 自動坪數換算
         function convertLandSqm() {
             const sqm = parseFloat(document.getElementById("land-sqm").value) || 0;
             document.getElementById("land-ping").value = (sqm * 0.3025).toFixed(2);
@@ -924,7 +930,7 @@
             renderClientList();
         }
 
-        // 彈窗模組化邏輯
+        // 彈出視窗與確認邏輯
         function showNewCaseModal() {
             document.getElementById("new-case-modal").classList.remove("hidden");
             document.getElementById("new-case-modal").classList.add("flex");
@@ -970,11 +976,11 @@
 
         function saveAllToStorage() {
             localStorage.setItem("ruili_single_core_state", JSON.stringify(clientsState));
-            alert("【儲存成功】本地動態陣列已成功同步持久化！");
+            alert("【儲存成功】本地動態資料狀態庫已成功同步持久化！");
         }
 
         function exportToPDF() {
-            alert("系統正在產出 A4 滿版直向高階評估報告書（用電區塊已優化為黑白高級外框規格）...");
+            alert("系統正在為您產出 A4 高階直向評估報告書（用電狀況區塊已完美除去灰色底，轉為優雅線條外框樣式）...");
             window.print();
         }
     </script>
