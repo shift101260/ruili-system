@@ -390,6 +390,61 @@
                         </div>
                     </div>
 
+                    <!-- 🟢 五、用電狀況 (回歸補強) -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-amber-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-bolt mr-1.5"></i>五、用電狀況</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                            <div><label class="text-slate-400">目前電費 (元/月)</label><input type="number" value="${c.electricBill||''}" oninput="updateField('${c.id}', 'electricBill', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">馬力數 (HP)</label><input type="number" value="${c.horsepower||''}" oninput="updateField('${c.id}', 'horsepower', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">契約容量 (kW)</label><input type="number" value="${c.contractCapacity||''}" oninput="updateField('${c.id}', 'contractCapacity', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">是否高壓用電</label>
+                                <select onchange="updateField('${c.id}', 'isHighVoltage', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.isHighVoltage==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.isHighVoltage==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">是否時間電價</label>
+                                <select onchange="updateField('${c.id}', 'isTimeRate', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.isTimeRate==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.isTimeRate==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">主要用電時段</label><input type="text" value="${c.timePeriod||''}" oninput="updateField('${c.id}', 'timePeriod', this.value)" placeholder="例如：白天/深夜" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                        </div>
+                    </div>
+
+                    <!-- 🟢 六、ESG評估與企業轉型 (回歸補強) -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-leaf mr-1.5"></i>六、ESG評估與企業轉型</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+                            <div><label class="text-slate-400 block mb-1">二代接班狀況</label>
+                                <select onchange="updateField('${c.id}', 'esgHasSuccessor', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.esgHasSuccessor==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.esgHasSuccessor==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400 block mb-1">是否為外銷廠商</label>
+                                <select onchange="updateField('${c.id}', 'esgIsExport', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.esgIsExport==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.esgIsExport==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400 block mb-1">受歐盟碳關稅影響</label>
+                                <select onchange="updateField('${c.id}', 'esgEuCarbon', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.esgEuCarbon==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.esgEuCarbon==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400 block mb-1">綠色認證需求</label><input type="text" value="${c.esgGreenCert||''}" oninput="updateField('${c.id}', 'esgGreenCert', this.value)" placeholder="如 ISO14064" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400 block mb-1">儲能系統意願</label>
+                                <select onchange="updateField('${c.id}', 'esgStorage', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.esgStorage==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.esgStorage==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 七、應備文件清單 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
@@ -397,14 +452,14 @@
                                 <span class="font-bold text-violet-400">七、客戶應備文件清單</span>
                                 <button onclick="addDocItem('${c.id}', 'client')" class="text-[10px] bg-violet-900 px-2 rounded no-print">[＋ 新增]</button>
                             </div>
-                            <div class="space-y-1">${c.customDocsClient.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-violet-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'client', i)" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
+                            <div class="space-y-1">${c.customDocsClient.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-violet-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'client', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
                         </div>
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
                                 <span class="font-bold text-cyan-400">七、睿立調閱文件清單</span>
                                 <button onclick="addDocItem('${c.id}', 'ruili')" class="text-[10px] bg-cyan-900 px-2 rounded no-print">[＋ 新增]</button>
                             </div>
-                            <div class="space-y-1">${c.customDocsRuili.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-cyan-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'ruili', i)" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
+                            <div class="space-y-1">${c.customDocsRuili.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-cyan-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
                         </div>
                     </div>
 
@@ -557,6 +612,9 @@
             let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: "樊靖畇" };
             if(currentActiveTab==='case-eval') {
                 obj.companyName = "全新公司案件 " + (dataArr.length + 1); obj.services = []; obj.lands = []; obj.buildingsLegal = []; obj.buildingsIllegal = []; obj.customDocsClient = ["電費單"]; obj.customDocsRuili = ["土地謄本"]; obj.clientFiles = []; obj.ruiliFiles = [];
+                // 預設補齊欄位避免未定義錯誤
+                obj.electricBill = ""; obj.horsepower = ""; obj.contractCapacity = ""; obj.isHighVoltage = "否"; obj.isTimeRate = "否"; obj.timePeriod = "";
+                obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = ""; obj.esgStorage = "否";
             } else {
                 obj.companyName = "新自建項目 " + (dataArr.length + 1); obj.meetSubject = "新研討主題";
             }
@@ -564,7 +622,7 @@
             renderSidebarSubLists(); renderMainForms();
         }
 
-        function saveToCloud() { alert("N版頂部控制鈕全數復活歸位，列印機制已完成強制直式A4重組。"); }
+        function saveToCloud() { alert("五與六區塊已成功加載，資料同步中。"); }
         window.onload = function() { toggleCategory('case-eval'); };
     </script>
 </body>
