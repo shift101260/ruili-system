@@ -3,884 +3,864 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>睿立業務系統 - 浩瀚深邃藍</title>
+    <title>睿立業務系統 - H核心管理平台</title>
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Vue 3 CDN -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <!-- FontAwesome 圖示 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 圖標 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cosmic: {
+                            950: '#060b19', // 深邃基底
+                            900: '#0a142c', // 左側導覽
+                            800: '#112246', // 卡片區塊
+                            700: '#1a3160', // 輸入框/邊框
+                            600: '#234280', // 互動層
+                            500: '#315cb5', // 主色調亮藍
+                            400: '#4c7cd4'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        /* 深邃藍主題背景優化 */
-        body {
-            background-color: #0B132B;
-            color: #E2E8F0;
-        }
-        /* 自訂隱藏捲軸 */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; color: black; }
-            .print-card { border: 1px solid #ccc; box-shadow: none; background: white !important; color: black !important; }
-        }
+        body { background-color: #060b19; color: #e2e8f0; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0a142c; }
+        ::-webkit-scrollbar-thumb { background: #1a3160; border-radius: 3px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
-<body class="font-sans antialiased selection:bg-cyan-500 selection:text-white">
+<body class="h-screen flex overflow-hidden">
 
-    <div id="app" class="flex h-screen overflow-hidden">
-        
-        <!-- 左側導覽列 (Sidebar) -->
-        <aside class="w-80 bg-[#1C2541] border-r border-[#3A506B] flex flex-col no-print">
-            <!-- 系統頂部 Logo -->
-            <div class="p-5 border-b border-[#3A506B] flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-cyan-500 text-slate-900 p-2 rounded-lg font-bold">RL</div>
-                    <div>
-                        <h1 class="text-lg font-bold tracking-wider text-white">睿立業務系統</h1>
-                        <p class="text-xs text-cyan-400">Policy & Regulation</p>
-                    </div>
+    <!-- LEFT SIDEBAR (UI - 左側導覽列組件) -->
+    <aside class="w-72 bg-cosmic-900 border-r border-cosmic-700/50 flex flex-col justify-between shrink-0 select-none">
+        <div>
+            <div class="p-6 border-b border-cosmic-700/30 flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-tr from-cosmic-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shadow-cosmic-500/20">
+                    <i class="fa-solid fa-chart-network text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wider text-white">睿立集團</h1>
+                    <p class="text-xs text-slate-400">RUILI GROUP SYSTEM H</p>
                 </div>
             </div>
 
-            <!-- 五大列表主功能區 -->
-            <nav class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
-                
-                <!-- 1. 案件評估 -->
+            <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-180px)]">
+                <!-- 一、[案件評估] 按鈕 -->
                 <div>
-                    <button @click="toggleCategory('caseEval')" 
-                            class="w-full flex items-center justify-between p-3 rounded-xl transition font-medium text-left"
-                            :class="currentTab === 'caseEval' ? 'bg-[#3A506B] text-white' : 'text-slate-300 hover:bg-[#253352]'">
+                    <button onclick="toggleCategory('case-eval')" id="btn-case-eval" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-calculator text-cyan-400"></i>
-                            <span>案件評估</span>
+                            <i class="fa-solid fa-folder-open w-5 text-center text-cyan-400"></i>
+                            <span class="font-medium text-sm tracking-wide">案件評估</span>
                         </div>
-                        <i class="fa-solid text-xs transition-transform" :class="expandedCategory === 'caseEval' ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                        <i id="arrow-case-eval" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-200"></i>
                     </button>
-                    <!-- 子清單 (隔離資料名單) -->
-                    <div v-if="expandedCategory === 'caseEval'" class="mt-1 ml-6 pl-2 border-l border-[#3A506B] space-y-1">
-                        <button v-for="item in caseEvalData" :key="item.id" @click="selectActiveItem('caseEval', item.id)"
-                                class="w-full text-left py-2 px-3 rounded-lg text-sm transition flex items-center justify-between"
-                                :class="activeItemId === item.id && currentTab === 'caseEval' ? 'text-cyan-400 bg-[#253352]' : 'text-slate-400 hover:text-white'">
-                            <span class="truncate">{{ item.companyName || '未命名公司' }}</span>
-                            <span class="w-2 h-2 rounded-full" :class="getStatusColorClass(item.status)"></span>
-                        </button>
-                        <div v-if="caseEvalData.length === 0" class="text-xs text-slate-500 p-2">暫無案件</div>
-                    </div>
+                    <div id="sub-list-case-eval" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
                 </div>
 
-                <!-- 2. 工廠太陽能自建 -->
+                <!-- 二、[太陽能自建] 按鈕 -->
                 <div>
-                    <button @click="toggleCategory('solar')" 
-                            class="w-full flex items-center justify-between p-3 rounded-xl transition font-medium text-left"
-                            :class="currentTab === 'solar' ? 'bg-[#3A506B] text-white' : 'text-slate-300 hover:bg-[#253352]'">
+                    <button onclick="toggleCategory('solar')" id="btn-solar" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-solar-panel text-amber-400"></i>
-                            <span>工廠太陽能自建</span>
+                            <i class="fa-solid fa-solar-panel w-5 text-center text-amber-400"></i>
+                            <span class="font-medium text-sm tracking-wide">太陽能自建</span>
                         </div>
-                        <i class="fa-solid text-xs transition-transform" :class="expandedCategory === 'solar' ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                        <i id="arrow-solar" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-200"></i>
                     </button>
-                    <div v-if="expandedCategory === 'solar'" class="mt-1 ml-6 pl-2 border-l border-[#3A506B] space-y-1">
-                        <button v-for="item in solarData" :key="item.id" @click="selectActiveItem('solar', item.id)"
-                                class="w-full text-left py-2 px-3 rounded-lg text-sm transition flex items-center justify-between"
-                                :class="activeItemId === item.id && currentTab === 'solar' ? 'text-amber-400 bg-[#253352]' : 'text-slate-400 hover:text-white'">
-                            <span class="truncate">{{ item.companyName || '未命名工廠' }}</span>
-                            <span class="w-2 h-2 rounded-full" :class="getStatusColorClass(item.status)"></span>
-                        </button>
-                    </div>
+                    <div id="sub-list-solar" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
                 </div>
 
-                <!-- 3. 工廠買賣案件資料表 -->
+                <!-- 三、[工廠買賣案件資料表] 按鈕 -->
                 <div>
-                    <button @click="toggleCategory('trading')" 
-                            class="w-full flex items-center justify-between p-3 rounded-xl transition font-medium text-left"
-                            :class="currentTab === 'trading' ? 'bg-[#3A506B] text-white' : 'text-slate-300 hover:bg-[#253352]'">
+                    <button onclick="toggleCategory('trading')" id="btn-trading" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-building-shield text-purple-400"></i>
-                            <span>工廠買賣案件資料</span>
+                            <i class="fa-solid fa-building-circle-arrow-right w-5 text-center text-emerald-400"></i>
+                            <span class="font-medium text-sm tracking-wide">工廠買賣案件資料表</span>
                         </div>
-                        <i class="fa-solid text-xs transition-transform" :class="expandedCategory === 'trading' ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                        <i id="arrow-trading" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-200"></i>
                     </button>
+                    <div id="sub-list-trading" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
                 </div>
 
-                <!-- 4. 公司會議記錄 -->
+                <!-- 四、[會議記錄] 按鈕 (外部主題) -->
                 <div>
-                    <button @click="toggleCategory('meetingInternal')" 
-                            class="w-full flex items-center justify-between p-3 rounded-xl transition font-medium text-left"
-                            :class="currentTab === 'meetingInternal' ? 'bg-[#3A506B] text-white' : 'text-slate-300 hover:bg-[#253352]'">
+                    <button onclick="toggleCategory('meeting')" id="btn-meeting" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-users text-emerald-400"></i>
-                            <span>公司會議記錄</span>
+                            <i class="fa-solid fa-handshake w-5 text-center text-purple-400"></i>
+                            <span class="font-medium text-sm tracking-wide">會議記錄</span>
                         </div>
+                        <i id="arrow-meeting" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-200"></i>
                     </button>
+                    <div id="sub-list-meeting" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
                 </div>
 
-                <!-- 5. 合作夥伴會議記錄 -->
+                <!-- 五、[公司會議記錄] 按鈕 (內部與會) -->
                 <div>
-                    <button @click="toggleCategory('meetingPartner')" 
-                            class="w-full flex items-center justify-between p-3 rounded-xl transition font-medium text-left"
-                            :class="currentTab === 'meetingPartner' ? 'bg-[#3A506B] text-white' : 'text-slate-300 hover:bg-[#253352]'">
+                    <button onclick="toggleCategory('internal-meet')" id="btn-internal-meet" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-handshake text-indigo-400"></i>
-                            <span>合作夥伴會議記錄</span>
+                            <i class="fa-solid fa-comments w-5 text-center text-indigo-400"></i>
+                            <span class="font-medium text-sm tracking-wide">公司會議記錄</span>
                         </div>
+                        <i id="arrow-internal-meet" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-200"></i>
                     </button>
+                    <div id="sub-list-internal-meet" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
                 </div>
 
+                <div class="pt-4 border-t border-cosmic-700/30 my-2"></div>
+                <button onclick="switchTab('sys-architecture')" id="btn-sys-architecture" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition text-slate-300 bg-gradient-to-r from-cosmic-800 to-transparent border border-cosmic-700/50 text-left">
+                    <i class="fa-solid fa-sitemap text-teal-400"></i>
+                    <span class="font-bold text-sm text-teal-300">H版 全新組織架構圖</span>
+                </button>
             </nav>
-
-            <!-- 狀態隔離調試標籤 (對應架構設計) -->
-            <div class="p-3 bg-[#0B132B] text-xs border-t border-[#3A506B]">
-                <div class="flex items-center justify-between mb-1">
-                    <span class="text-slate-500">Global State隔離：</span>
-                </div>
-                <div class="space-y-1">
-                    <div><code class="text-cyan-400">caseEvalData:</code> <span class="text-slate-400">{{ caseEvalData.length }} 筆</span></div>
-                    <div><code class="text-amber-400">solarData:</code> <span class="text-slate-400">{{ solarData.length }} 筆</span></div>
-                </div>
+        </div>
+        <div class="p-4 border-t border-cosmic-700/30 bg-cosmic-950/40">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-full bg-cosmic-700 flex items-center justify-center font-bold text-xs text-cyan-300 border border-cosmic-500/30">H版</div>
+                <div><p class="text-xs text-slate-400">核心管理層</p><p class="text-sm font-medium text-slate-200">系統管理員</p></div>
             </div>
-        </aside>
+        </div>
+    </aside>
 
-        <!-- 右側主畫面區 -->
-        <main class="flex-1 bg-[#0B132B] flex flex-col overflow-y-auto p-8 relative">
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-1 flex flex-col overflow-hidden bg-cosmic-950">
+        <!-- TOP CONTROL BAR -->
+        <header class="h-16 border-b border-cosmic-700/40 px-8 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md">
+            <div>
+                <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司關鍵字動態篩選..." class="w-80 bg-cosmic-950 border border-cosmic-700 rounded-xl pl-4 pr-4 py-1.5 text-sm focus:outline-none focus:border-cosmic-500 text-white placeholder-slate-500">
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 hover:from-cosmic-400 hover:to-blue-500 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-lg shadow-cosmic-500/10 transition">
+                    <i class="fa-solid fa-plus"></i><span>[＋ 新增公司案件]</span>
+                </button>
+                <button onclick="window.print()" class="bg-cosmic-800 hover:bg-cosmic-700 text-slate-300 text-xs font-semibold px-3.5 py-2 rounded-xl border border-cosmic-700/60 transition">
+                    <i class="fa-solid fa-print mr-1"></i> [匯出/列印]
+                </button>
+                <button onclick="saveToCloud()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md">
+                    <i class="fa-solid fa-cloud-arrow-up mr-1"></i>儲存按鍵
+                </button>
+            </div>
+        </header>
+
+        <!-- ROUTING VIEWPORT -->
+        <div class="flex-1 overflow-y-auto p-8">
+            <section id="tab-case-eval" class="tab-content active"><div id="case-eval-container" class="space-y-6"></div></section>
+            <section id="tab-solar" class="tab-content"><div id="solar-container" class="space-y-6"></div></section>
+            <section id="tab-trading" class="tab-content"><div id="trading-container" class="space-y-6"></div></section>
+            <section id="tab-meeting" class="tab-content"><div id="meeting-container" class="space-y-6"></div></section>
+            <section id="tab-internal-meet" class="tab-content"><div id="internal-meet-container" class="space-y-6"></div></section>
+
+            <!-- H版架構圖 -->
+            <section id="tab-sys-architecture" class="tab-content space-y-6">
+                <h2 class="text-xl font-bold text-teal-300">H版 睿立業務系統核心變更摘要</h2>
+                <div class="bg-cosmic-900/60 p-6 border border-cosmic-700 rounded-xl space-y-2 text-xs text-slate-300">
+                    <p>🟢 <strong>用電狀況與五項ESG評估增修</strong>：全面支援「是/否/評估中」三態選擇，並導入綠電與儲存系統盤點。</p>
+                    <p>🟢 <strong>檔案與文件拆分</strong>：客戶應備文件與睿立調閱文件完全分流，支援動態增加可刪除的打勾欄位。</p>
+                    <p>🟢 <strong>公司會議記錄</strong>：內置財務報告、共識目標、以及可動態增減的「案件報告層」與「提案報告層」。</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // 全局狀態管理層 (Global State) - 完美融合 H 版本的全套新欄位
+        let caseEvalData = [
+            {
+                id: "eval-1", date: "2026-07-18T16:00", status: "初期評估", manager: "樊靖畇", remark: "急需變更審查。", source: "公會引介",
+                companyName: "大鼎精密工業股份有限公司", taxId: "83746291", factoryLicense: "64009876", industryType: "金屬製品製造業", contact: "王大鼎", phone: "0912-345678", email: "tading@precision.com", address: "高雄市岡山區本工路88號",
+                services: [{ name: "特定工廠轉型", desc: "計畫編製", result: "可行", quote: "350000" }],
+                lands: [{ section: "岡山段", number: "105-02", sqm: "1500", ping: "453" }], landTotalSqm: "1500", landTotalPing: "453", landPattern: "都市計畫外使用地類別", landRemark: "",
+                buildings: [{ number: "402", sqm: "800", ping: "242" }], buildYear: "2005", legalBuildPing: "242", illegalBuildPing: "120", buildRemark: "",
+                electricBill: "185000", horsepower: "150", contractCapacity: "120", isHighVoltage: "否", isTimeRate: "是", timePeriod: "白天為主", electricRemark: "",
+                esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "評估中", esgStorage: "否", esgRemark: "",
+                customDocsClient: ["電費單", "使用執照"], customDocsRuili: ["土地謄本", "地籍圖"], clientFiles: ["鏈結1"], ruiliFiles: ["鏈結2"]
+            }
+        ];
+
+        let solarData = [
+            {
+                id: "solar-1", date: "2026-07-18T16:30", status: "已報價", manager: "陳宥騰", remark: "高壓鋼鐵廠房自建案。", source: "綠能組",
+                companyName: "國泰鋼鐵廠房（大坪數試算案）", taxId: "12457896", factoryLicense: "64002233", industryType: "鋼鐵業", contact: "陳廠長", phone: "0988-555666", email: "ct@steel.com", address: "小港區中鋼路1號",
+                services: [], lands: [], buildings: [],
+                electricBill: "950000", horsepower: "600", contractCapacity: "450", isHighVoltage: "是", isTimeRate: "是", timePeriod: "白天為主", electricRemark: "",
+                esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "是", esgRemark: "",
+                customDocsClient: ["電費單"], customDocsRuili: ["土地謄本"], clientFiles: [], ruiliFiles: [],
+                // 太陽能專屬試算核心參數 (Excel 儲存格可填數據機制)
+                calcPing: "600", calcPricePerUnit: "3.5", calcNearbyPing: "500", calcNearbyPrice: "400",
+                warRoomRate: true, warRoomCarbon: true, warRoomMonitor: false, warRoomSafety: true, warRoomCustom: [],
+                roofType: "鋼構鐵皮屋", roofAge: "10", roofLeak: "否", hasChemical: "否", nearbyChemical: "否", isNearSea: "是", nearSeaDist: "1-5公里", shadowStatus: "否",
+                roofAir: true, roofExhaust: true, roofWater: false, roofPipe: false, roofNone: false,
+                hasStructReport: "是", acceptStructTest: "是", hasStructReinforce: "否", reinforceYear: "", roofTechRemark: ""
+            }
+        ];
+
+        let tradingData = [{ id: "trading-1", date: "2026-07-18T12:00", status: "準備簽約", manager: "鄭家承", companyName: "瑞昱地產買賣案", customDocsClient: [], customDocsRuili: [], clientFiles: [], ruiliFiles: [], services: [], lands: [], buildings: [], esgGreenCert: "否", esgStorage: "否" }];
+        let meetingData = [{ id: "meet-1", date: "2026-07-18T14:00", status: "結案", manager: "黃逸豪", companyName: "外部聯合戰略研討會", meetSubject: "綠能開發與地政變更聯席決議", attendees: ["楊裕憲", "陳宥騰"], baseInfoName: "合作公會", baseInfoContact: "林秘書", baseInfoPhone: "07-111", baseInfoTax: "", baseInfoAddr: "", baseInfoLink: "", meetContents: [{ reporter: "黃逸豪", text: "簡報特定工廠轉型政策", discuss: "如何對齊碳盤查數據", conclusion: "下週前完成草案" }], meetFinalConclusion: "全面推動雙軌防錯表單系統。", files: [] }];
+        let internalMeetData = [{ id: "int-1", date: "2026-07-18T09:00", status: "結案", manager: "楊裕憲", companyName: "內部戰略月報會", meetSubject: "H版新系統上線盤點", attendees: ["楊裕憲", "陳宥騰", "鄭家承", "樊靖畇", "鄭至宏"], financeReport: "正常", consensus: "全力服務 successor 接班企業", target: "完成100家工廠健檢", caseReports: [{ reporter: "陳宥騰", caseName: "大鼎項目", desc: "進入初期評估", conclusion: "準備提供試算表" }], proposalReports: [{ reporter: "樊靖畇", item: "系統優化", content: "拆分客戶與睿立端文件", conclusion: "已實作完成" }], meetFinalConclusion: "全員落實 Professional Altruism 精神。", files: [] }];
+
+        let selectedIds = { "case-eval": "eval-1", "solar": "solar-1", "trading": "trading-1", "meeting": "meet-1", "internal-meet": "int-1" };
+        let currentActiveTab = "case-eval";
+
+        const managersList = ["樊靖畇", "鄭家承", "陳宥騰", "楊裕憲", "黃逸豪", "李宜璇", "王瑋聆", "許先生", "鄭至宏"];
+        const attendeesOptions = ["楊裕憲", "陳宥騰", "鄭家承", "樊靖畇", "鄭至宏"];
+        const statusConfig = { "初期評估": { bg: "bg-emerald-500" }, "已報價": { bg: "bg-blue-500" }, "準備簽約": { bg: "bg-amber-500" }, "已簽約": { bg: "bg-red-500" }, "結案": { bg: "bg-purple-500" }, "沒下文": { bg: "bg-slate-600" } };
+
+        function toggleCategory(catId) {
+            const subList = document.getElementById(`sub-list-${catId}`);
+            const isHidden = subList ? subList.classList.contains('hidden') : true;
+            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(id => {
+                const sl = document.getElementById(`sub-list-${id}`);
+                if (sl) sl.classList.add('hidden');
+                const ar = document.getElementById(`arrow-${id}`);
+                if (ar) ar.classList.remove('rotate-180');
+            });
+            if (isHidden && subList) {
+                subList.classList.remove('hidden');
+                const arrow = document.getElementById(`arrow-${catId}`);
+                if (arrow) arrow.classList.add('rotate-180');
+            }
+            switchTab(catId);
+        }
+
+        function getTargetDataArray(tabId) {
+            if (tabId === 'case-eval') return caseEvalData;
+            if (tabId === 'solar') return solarData;
+            if (tabId === 'trading') return tradingData;
+            if (tabId === 'meeting') return meetingData;
+            if (tabId === 'internal-meet') return internalMeetData;
+            return [];
+        }
+
+        function renderSidebarSubLists() {
+            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
+                const container = document.getElementById(`sub-list-${tabId}`);
+                if (!container) return;
+                const dataArr = getTargetDataArray(tabId);
+                const currentSelId = selectedIds[tabId];
+                const iconClass = tabId === 'solar' ? 'fa-sun text-amber-400' : (tabId.includes('meet')||tabId==='meeting' ? 'fa-comments text-purple-400' : 'fa-folder text-cyan-400');
+
+                container.innerHTML = dataArr.map(c => `
+                    <button onclick="selectSpecificCase('${c.id}', '${tabId}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition ${currentSelId === c.id && currentActiveTab === tabId ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}">
+                        <i class="fa-solid ${iconClass} mr-2"></i>${c.companyName || '未命名項目'}
+                    </button>
+                `).join('');
+            });
+        }
+
+        function selectSpecificCase(id, tabId) { selectedIds[tabId] = id; switchTab(tabId); }
+        function switchTab(tabId) {
+            currentActiveTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            const targetSection = document.getElementById(`tab-${tabId}`);
+            if (targetSection) targetSection.classList.add('active');
+            renderSidebarSubLists(); renderMainForms();
+        }
+
+        function renderMainForms() {
+            const containerMap = { "case-eval": "case-eval-container", "solar": "solar-container", "trading": "trading-container", "meeting": "meeting-container", "internal-meet": "internal-meet-container" };
+            const activeContainerId = containerMap[currentActiveTab];
+            if (!activeContainerId) return;
+
+            const dataArr = getTargetDataArray(currentActiveTab);
+            const activeId = selectedIds[currentActiveTab];
+            const activeCase = dataArr.find(c => c.id === activeId) || dataArr[0];
+
+            if (!activeCase) {
+                document.getElementById(activeContainerId).innerHTML = '<p class="text-xs text-slate-500">暫無子案件名單。</p>';
+                return;
+            }
+
+            if (currentActiveTab === 'meeting') {
+                document.getElementById(activeContainerId).innerHTML = generateMeetingFormHTML(activeCase);
+            } else if (currentActiveTab === 'internal-meet') {
+                document.getElementById(activeContainerId).innerHTML = generateInternalMeetingFormHTML(activeCase);
+            } else {
+                document.getElementById(activeContainerId).innerHTML = generateCaseFormHTML(activeCase, currentActiveTab);
+            }
+        }
+
+        // ==================== 1. 標準公司案件表單產生器 (案件評估、太陽能自建、工廠買賣) ====================
+        function generateCaseFormHTML(c, mode) {
+            const isSolar = mode === 'solar';
+            const currentStatusColor = statusConfig[c.status]?.bg || 'bg-slate-500';
+
+            // 太陽能公式自動試算邏輯 (坪數/1.5*590/1000*4*365*3.5)
+            const pingNum = parseFloat(c.calcPing || 0);
+            const priceUnit = parseFloat(c.calcPricePerUnit || 3.5);
+            const solarRevenue = Math.round((pingNum / 1.5) * (590 / 1000) * 4 * 365 * priceUnit);
+            const rent10 = Math.round(solarRevenue * 0.1);
+            const rent15 = Math.round(solarRevenue * 0.15);
             
-            <!-- 頂部控制列 (新增/列印/儲存) -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-6 border-b border-[#3A506B] no-print gap-4">
-                <div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">睿立決策看板</span>
-                    <h2 class="text-2xl font-bold text-white mt-0.5">
-                        {{ getTabTitle() }} 
-                        <span v-if="activeItem" class="text-lg font-normal text-slate-400"> / {{ activeItem.companyName || '新案件' }}</span>
-                    </h2>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <button @click="addNewCase" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-slate-950 font-semibold px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-lg shadow-cyan-500/10 cursor-pointer">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>＋ 新增公司案件</span>
-                    </button>
-                    <button @click="printWindow" class="bg-[#1C2541] hover:bg-[#253352] text-white border border-[#3A506B] px-4 py-2.5 rounded-xl transition flex items-center space-x-2 cursor-pointer">
-                        <i class="fa-solid fa-print text-slate-400"></i>
-                        <span>匯出/列印</span>
-                    </button>
-                    <button @click="saveData" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition flex items-center space-x-2 cursor-pointer">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <span>儲存按鍵</span>
-                    </button>
-                </div>
-            </div>
+            const nearbyPing = parseFloat(c.calcNearbyPing || 0);
+            const nearbyPrice = parseFloat(c.calcNearbyPrice || 0);
+            const nearbyTotalRent = Math.round(nearbyPing * nearbyPrice);
 
-            <!-- 表單未選擇或空數據狀態 -->
-            <div v-if="!activeItem && ['caseEval', 'solar'].includes(currentTab)" class="flex-1 flex flex-col items-center justify-center text-center p-12">
-                <div class="w-16 h-16 bg-[#1C2541] rounded-full flex items-center justify-center text-slate-400 mb-4 border border-[#3A506B]">
-                    <i class="fa-solid fa-folder-open text-xl"></i>
-                </div>
-                <h3 class="text-lg font-medium text-slate-300">請從左側點選或建立新的管理資料</h3>
-                <p class="text-sm text-slate-500 mt-1">獨立儲存機制已就緒，確保各模組數據 100% 獨立不混淆。</p>
-            </div>
-
-            <!-- 其他三大功能預留頁面 -->
-            <div v-else-if="!['caseEval', 'solar'].includes(currentTab)" class="flex-1 flex flex-col items-center justify-center text-center p-12 bg-[#1C2541]/40 border border-[#3A506B]/50 rounded-2xl">
-                <i class="fa-solid fa-cubes text-4xl text-slate-500 mb-4"></i>
-                <h3 class="text-xl font-bold text-slate-300">【{{ getTabTitle() }}】模組</h3>
-                <p class="text-sm text-slate-400 max-w-md mt-2">此功能已整合於左側業務大分類導覽。目前畫面上展示之完整架構（專案人員、公司/土地/建物及ESG評估）將同步配置於本視窗內。</p>
-            </div>
-
-            <!-- 表單詳細動態資料表層 (案件評估結構完美實作) -->
-            <div v-else class="print-card bg-[#1C2541] border border-[#3A506B] rounded-2xl p-6 md:p-8 space-y-8 shadow-xl">
-                
-                <!-- 一、專案人員區 -->
-                <section>
-                    <div class="flex items-center space-x-2 border-b border-[#3A506B]/60 pb-3 mb-4">
-                        <span class="w-1.5 h-5 bg-cyan-400 rounded-full"></span>
-                        <h3 class="text-base font-bold text-white tracking-wide">一、專案人員</h3>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-2">日期 / 時間</label>
-                            <input type="datetime-local" v-model="activeItem.dateTime" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-2">案件狀態（下拉選單）</label>
-                            <div class="relative">
-                                <select v-model="activeItem.status" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2.5 text-white appearance-none focus:outline-none focus:border-cyan-400">
-                                    <option value="初期評估">🟢 初期評估</option>
-                                    <option value="已報價">🔵 已報價</option>
-                                    <option value="準備簽約">🟡 準備簽約</option>
-                                    <option value="已簽約">🔴 已簽約</option>
-                                    <option value="結案">🟣 結案</option>
-                                    <option value="沒下文">⚫ 沒下文</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-2">專案經理（下拉選單）</label>
-                            <select v-model="activeItem.projectManager" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-400">
-                                <option v-for="pm in managers" :key="pm" :value="pm">{{ pm }}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- 服務項目子陣列 (動態增減) -->
-                    <div class="mt-6 bg-[#0B132B]/50 rounded-xl p-4 border border-[#3A506B]/40">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm font-semibold text-cyan-400 flex items-center gap-1.5">
-                                <i class="fa-solid fa-list-check text-xs"></i> 服務項目層
-                            </span>
-                            <button @click="addServiceItem" class="text-xs bg-[#3A506B] hover:bg-[#4E6A8E] text-white py-1 px-3 rounded-lg transition cursor-pointer">
-                                <i class="fa-solid fa-plus mr-1"></i> 新增服務項目
-                            </button>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="border-b border-[#3A506B] text-slate-400 text-xs uppercase">
-                                        <th class="py-2 px-3">服務項目</th>
-                                        <th class="py-2 px-3">案件說明</th>
-                                        <th class="py-2 px-3">評估結果</th>
-                                        <th class="py-2 px-3">報價</th>
-                                        <th class="py-2 px-3 text-center no-print">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(srv, sIdx) in activeItem.services" :key="sIdx" class="border-b border-[#3A506B]/40 text-sm">
-                                        <td class="py-2 px-2"><input type="text" v-model="srv.title" placeholder="如：特定工廠登記" class="w-full bg-transparent border-b border-transparent focus:border-cyan-400 py-1 text-white focus:outline-none"></td>
-                                        <td class="py-2 px-2"><input type="text" v-model="srv.desc" placeholder="輸入說明" class="w-full bg-transparent border-b border-transparent focus:border-cyan-400 py-1 text-white focus:outline-none"></td>
-                                        <td class="py-2 px-2"><input type="text" v-model="srv.result" placeholder="合格/不合格" class="w-full bg-transparent border-b border-transparent focus:border-cyan-400 py-1 text-white focus:outline-none"></td>
-                                        <td class="py-2 px-2"><input type="text" v-model="srv.quote" placeholder="金額" class="w-full bg-transparent border-b border-transparent focus:border-cyan-400 py-1 text-white focus:outline-none"></td>
-                                        <td class="py-2 px-2 text-center no-print">
-                                            <button @click="removeServiceItem(sIdx)" class="text-rose-400 hover:text-rose-500 p-1 cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-2">業務即時狀態備註</label>
-                            <textarea v-model="activeItem.businessNote" rows="2" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400" placeholder="填寫當前與客戶對接的重要進度..."></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-2">案件來源</label>
-                            <input type="text" v-model="activeItem.source" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-400" placeholder="例如：介紹、官網、既有客戶">
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 二、公司基本資料 -->
-                <section>
-                    <div class="flex items-center space-x-2 border-b border-[#3A506B]/60 pb-3 mb-4">
-                        <span class="w-1.5 h-5 bg-cyan-400 rounded-full"></span>
-                        <h3 class="text-base font-bold text-white tracking-wide">二、公司基本資料</h3>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">公司名稱</label>
-                            <input type="text" v-model="activeItem.companyName" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">統編</label>
-                            <input type="text" v-model="activeItem.taxId" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">工廠登記證字號</label>
-                            <input type="text" v-model="activeItem.factoryRegId" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">產業類型</label>
-                            <input type="text" v-model="activeItem.industryType" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400" placeholder="如金屬加工/塑膠射出">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">聯絡人</label>
-                            <input type="text" v-model="activeItem.contactPerson" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">聯絡電話</label>
-                            <input type="text" v-model="activeItem.contactPhone" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">E-mail</label>
-                            <input type="email" v-model="activeItem.contactEmail" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                        <div class="md:col-span-4">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">工廠地址</label>
-                            <input type="text" v-model="activeItem.factoryAddress" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 三、土地基本資料 -->
-                <section>
-                    <div class="flex items-center justify-between border-b border-[#3A506B]/60 pb-3 mb-4">
-                        <div class="flex items-center space-x-2">
-                            <span class="w-1.5 h-5 bg-cyan-400 rounded-full"></span>
-                            <h3 class="text-base font-bold text-white tracking-wide">三、土地基本資料</h3>
-                        </div>
-                        <button @click="addLandItem" class="text-xs bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 py-1 px-3 rounded-lg border border-cyan-500/40 transition no-print cursor-pointer">
-                            <i class="fa-solid fa-plus mr-1"></i> 新增地段地號
-                        </button>
-                    </div>
-
-                    <!-- 地段地號動態列表 -->
-                    <div class="space-y-3 mb-4">
-                        <div v-for="(land, lIdx) in activeItem.lands" :key="lIdx" class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-[#0B132B]/40 p-3 rounded-xl items-end border border-[#3A506B]/30">
+            return `
+                <div class="bg-cosmic-800/70 border ${isSolar ? 'border-amber-500/40':'border-cosmic-700/50'} rounded-2xl shadow-xl overflow-hidden p-6 space-y-6">
+                    
+                    <!-- 頂部列與一、專案人員 -->
+                    <div class="flex flex-wrap items-center justify-between border-b border-cosmic-700/50 pb-4 gap-4">
+                        <div class="flex flex-wrap items-center space-x-6">
+                            <div><label class="block text-[11px] text-slate-400 mb-1">日期 / 時間</label><input type="datetime-local" value="${c.date}" onchange="updateField('${c.id}', 'date', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded-lg px-2.5 py-1 text-xs text-slate-200"></div>
                             <div>
-                                <label class="block text-[11px] text-slate-500 mb-1">地段</label>
-                                <input type="text" v-model="land.section" placeholder="段別" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-cyan-400">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] text-slate-500 mb-1">地號</label>
-                                <input type="text" v-model="land.number" placeholder="地號" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-cyan-400">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] text-slate-500 mb-1">平方公尺</label>
-                                <input type="number" v-model="land.sqm" @input="convertLandArea(lIdx, 'sqm')" placeholder="面積" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-cyan-400">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] text-slate-500 mb-1">坪</label>
-                                <input type="number" v-model="land.ping" @input="convertLandArea(lIdx, 'ping')" placeholder="坪數" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-cyan-400">
-                            </div>
-                            <div class="flex items-center justify-between no-print pb-1">
-                                <span class="text-xs text-slate-500">地號明細 #{{ lIdx+1 }}</span>
-                                <button @click="removeLandItem(lIdx)" class="text-rose-400 hover:text-rose-500 text-sm p-1 cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 總統計 & 分區類別 -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#0B132B]/20 p-4 rounded-xl border border-[#3A506B]/50">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">土地總坪數統計</label>
-                            <div class="text-sm font-semibold text-white space-y-1 bg-[#0B132B] p-2.5 rounded-lg border border-[#3A506B]">
-                                <div><span class="text-slate-400">總平方公尺：</span>{{ totalLandSqm }} ㎡</div>
-                                <div><span class="text-slate-400">總總坪數：</span>{{ totalLandPing }} 坪</div>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">土地型態 (都市計畫內使用分區)</label>
-                            <input type="text" v-model="activeItem.urbanZone" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400" placeholder="如：工業區、農業區">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">土地型態 (都市計畫外使用地類別)</label>
-                            <input type="text" v-model="activeItem.nonUrbanZone" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400" placeholder="如：丁種建築用地">
-                        </div>
-                        <div class="md:col-span-3">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">備註 (土地描述)</label>
-                            <input type="text" v-model="activeItem.landNote" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 四、建物基本資料 -->
-                <section>
-                    <div class="flex items-center justify-between border-b border-[#3A506B]/60 pb-3 mb-4">
-                        <div class="flex items-center space-x-2">
-                            <span class="w-1.5 h-5 bg-cyan-400 rounded-full"></span>
-                            <h3 class="text-base font-bold text-white tracking-wide">四、建物基本資料</h3>
-                        </div>
-                        <button @click="addBuildItem" class="text-xs bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 py-1 px-3 rounded-lg border border-cyan-500/40 transition no-print cursor-pointer">
-                            <i class="fa-solid fa-plus mr-1"></i> 新增建號
-                        </button>
-                    </div>
-
-                    <!-- 建號動態群組 -->
-                    <div class="space-y-3 mb-4">
-                        <div v-for="(build, bIdx) in activeItem.buildings" :key="bIdx" class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-[#0B132B]/40 p-3 rounded-xl items-end border border-[#3A506B]/30">
-                            <div>
-                                <label class="block text-[11px] text-slate-500 mb-1">建號</label>
-                                <input type="text" v-model="build.id" placeholder="填寫建號" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-cyan-400">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] text-slate-500 mb-1">平方公尺</label>
-                                <input type="number" v-model="build.sqm" @input="convertBuildArea(bIdx, 'sqm')" placeholder="面積" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-cyan-400">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] text-slate-500 mb-1">坪數</label>
-                                <input type="number" v-model="build.ping" @input="convertBuildArea(bIdx, 'ping')" placeholder="坪" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-cyan-400">
-                            </div>
-                            <div class="flex items-center justify-between no-print pb-1">
-                                <span class="text-xs text-slate-500">建號 #{{ bIdx+1 }}</span>
-                                <button @click="removeBuildItem(bIdx)" class="text-rose-400 hover:text-rose-500 text-sm p-1 cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">建造年份</label>
-                            <input type="text" v-model="activeItem.buildYear" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400" placeholder="民國或西元年">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">合法建物坪數</label>
-                            <input type="text" v-model="activeItem.legalBuildPing" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">違章建物坪數</label>
-                            <input type="text" v-model="activeItem.illegalBuildPing" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                        <div class="md:col-span-3">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">備註</label>
-                            <input type="text" v-model="activeItem.buildNote" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 五、ESG 評估 -->
-                <section>
-                    <div class="flex items-center space-x-2 border-b border-[#3A506B]/60 pb-3 mb-4">
-                        <span class="w-1.5 h-5 bg-cyan-400 rounded-full"></span>
-                        <h3 class="text-base font-bold text-white tracking-wide">五、ESG評估</h3>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">是否有接班人</label>
-                            <select v-model="activeItem.esgSuccessor" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-400">
-                                <option value="是">是</option>
-                                <option value="否">否</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">產品是否外銷</label>
-                            <select v-model="activeItem.esgExport" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-400">
-                                <option value="是">是</option>
-                                <option value="否">否</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">是否受歐盟減碳要求</label>
-                            <select v-model="activeItem.esgCarbonRequire" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-400">
-                                <option value="是">是</option>
-                                <option value="否">否</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- 用電現況子分層 -->
-                    <div class="mt-6 bg-[#0B132B]/40 rounded-xl p-5 border border-[#3A506B]/40 space-y-4">
-                        <h4 class="text-sm font-bold text-cyan-400"><i class="fa-solid fa-bolt mr-1"></i> 用電狀況詳細規格</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1.5">每月平均電費</label>
-                                <input type="text" v-model="activeItem.elecCost" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1.5">馬力</label>
-                                <input type="text" v-model="activeItem.elecHp" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1.5">契約容量 (kW)</label>
-                                <input type="text" v-model="activeItem.elecCapacity" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1.5">是否為高壓用電</label>
-                                <select v-model="activeItem.elecHighVolt" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
-                                    <option value="是">是</option>
-                                    <option value="否">否</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1.5">是否為時間電價</label>
-                                <select v-model="activeItem.elecTimePrice" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
-                                    <option value="是">是</option>
-                                    <option value="否">否</option>
-                                    <option value="不清楚">不清楚</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1.5">用電時段（可複選多選）</label>
-                                <div class="flex flex-wrap gap-3 mt-1.5">
-                                    <label class="flex items-center space-x-1.5 text-sm cursor-pointer text-slate-300">
-                                        <input type="checkbox" value="白天為主" v-model="activeItem.elecPeriods" class="rounded bg-[#0B132B] border-[#3A506B] text-cyan-500 focus:ring-0">
-                                        <span>白天為主</span>
-                                    </label>
-                                    <label class="flex items-center space-x-1.5 text-sm cursor-pointer text-slate-300">
-                                        <input type="checkbox" value="夜間為主" v-model="activeItem.elecPeriods" class="rounded bg-[#0B132B] border-[#3A506B] text-cyan-500 focus:ring-0">
-                                        <span>夜間為主</span>
-                                    </label>
-                                    <label class="flex items-center space-x-1.5 text-sm cursor-pointer text-slate-300">
-                                        <input type="checkbox" value="平均分佈" v-model="activeItem.elecPeriods" class="rounded bg-[#0B132B] border-[#3A506B] text-cyan-500 focus:ring-0">
-                                        <span>平均分佈</span>
-                                    </label>
+                                <label class="block text-[11px] text-slate-400 mb-1">案件狀態</label>
+                                <div class="flex items-center space-x-2 bg-cosmic-950 px-2.5 py-1 rounded-lg border border-cosmic-700">
+                                    <span class="w-2.5 h-2.5 rounded-full ${currentStatusColor}"></span>
+                                    <select onchange="updateField('${c.id}', 'status', this.value); renderMainForms();" class="bg-transparent text-xs text-white focus:outline-none cursor-pointer">
+                                        ${Object.keys(statusConfig).map(st => `<option value="${st}" class="bg-cosmic-900 text-white" ${c.status === st ? 'selected':''}>${st}</option>`).join('')}
+                                    </select>
                                 </div>
                             </div>
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">專案經理</label>
+                                <select onchange="updateField('${c.id}', 'manager', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded-lg px-2.5 py-1 text-xs text-slate-200">
+                                    ${managersList.map(m => `<option value="${m}" ${c.manager === m ? 'selected':''}>${m}</option>`).join('')}
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs text-slate-400 mb-1.5">ESG 備註</label>
-                            <input type="text" v-model="activeItem.esgNote" class="w-full bg-[#0B132B] border border-[#3A506B] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+                        <button onclick="deleteCase('${c.id}')" class="text-xs bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-900/50 px-3 py-1 rounded-lg">刪除動態案件</button>
+                    </div>
+
+                    <!-- 服務項目層 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2">
+                        <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
+                            <h4 class="text-xs font-bold text-indigo-400">服務項目層 (動態物件陣列)</h4>
+                            <button onclick="addServiceRow('${c.id}')" class="text-[10px] bg-indigo-900/50 border border-indigo-700 px-2 py-0.5 rounded hover:bg-indigo-800 transition">[＋ 新增服務項目]</button>
+                        </div>
+                        <div class="space-y-1.5">
+                            ${c.services.map((srv, idx) => `
+                                <div class="grid grid-cols-4 gap-2 text-xs">
+                                    <input type="text" value="${srv.name||''}" placeholder="服務項目" oninput="updateServiceField('${c.id}', ${idx}, 'name', this.value)" class="bg-cosmic-900 p-1.5 border border-cosmic-700 rounded text-white">
+                                    <input type="text" value="${srv.desc||''}" placeholder="案件說明" oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value)" class="bg-cosmic-900 p-1.5 border border-cosmic-700 rounded text-white">
+                                    <input type="text" value="${srv.result||''}" placeholder="評估結果" oninput="updateServiceField('${c.id}', ${idx}, 'result', this.value)" class="bg-cosmic-900 p-1.5 border border-cosmic-700 rounded text-white">
+                                    <input type="number" value="${srv.quote||''}" placeholder="報價" oninput="updateServiceField('${c.id}', ${idx}, 'quote', this.value)" class="bg-cosmic-900 p-1.5 border border-cosmic-700 rounded text-white">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                            <div><label class="text-[11px] text-slate-400">業務即時狀態備註</label><textarea oninput="updateField('${c.id}', 'remark', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded-lg p-2 text-xs text-white h-16 resize-none">${c.remark||''}</textarea></div>
+                            <div><label class="text-[11px] text-slate-400">案件來源</label><input type="text" value="${c.source||''}" oninput="updateField('${c.id}', 'source', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded-lg p-2 text-xs text-white mt-1"></div>
                         </div>
                     </div>
-                </section>
 
-                <!-- 六、客戶應備文件 -->
-                <section class="no-print">
-                    <div class="flex items-center space-x-2 border-b border-[#3A506B]/60 pb-3 mb-4">
-                        <span class="w-1.5 h-5 bg-cyan-400 rounded-full"></span>
-                        <h3 class="text-base font-bold text-white tracking-wide">六、客戶應備文件</h3>
+                    <!-- 太陽能二、案件試算與戰情室 (太陽能自建專屬) -->
+                    ${isSolar ? `
+                    <div class="border border-amber-500/30 p-4 rounded-xl bg-amber-950/10 space-y-4">
+                        <h4 class="text-xs font-bold text-amber-400 border-b border-cosmic-700/40 pb-1.5"><i class="fa-solid fa-calculator mr-1.5"></i>二、案件試算（數據可自行填寫，自動生成結果）</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                            <div><label class="text-slate-400 block mb-1">評估坪數</label><input type="number" value="${c.calcPing||'0'}" oninput="updateField('${c.id}', 'calcPing', this.value); renderMainForms();" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div><label class="text-slate-400 block mb-1">自訂電價單價 (元)</label><input type="number" step="0.1" value="${c.calcPricePerUnit||'3.5'}" oninput="updateField('${c.id}', 'calcPricePerUnit', this.value); renderMainForms();" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div><label class="text-slate-400 block mb-1">附近租廠坪數</label><input type="number" value="${c.calcNearbyPing||'0'}" oninput="updateField('${c.id}', 'calcNearbyPing', this.value); renderMainForms();" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div><label class="text-slate-400 block mb-1">附近租廠單價 (元)</label><input type="number" value="${c.calcNearbyPrice||'0'}" oninput="updateField('${c.id}', 'calcNearbyPrice', this.value); renderMainForms();" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                        </div>
+                        <div class="p-3 bg-cosmic-950 rounded-xl grid grid-cols-1 md:grid-cols-4 gap-4 text-xs border border-cosmic-700/60">
+                            <div><span class="text-slate-400 block">太陽能自建年收益試算結果:</span><strong class="text-emerald-400 text-sm">$${solarRevenue.toLocaleString()} 元</strong></div>
+                            <div><span class="text-slate-400 block">屋頂出租 10% 年收益:</span><strong class="text-amber-400 font-medium">$${rent10.toLocaleString()} 元</strong></div>
+                            <div><span class="text-slate-400 block">屋頂出租 15% 年收益:</span><strong class="text-amber-300 font-medium">$${rent15.toLocaleString()} 元</strong></div>
+                            <div><span class="text-slate-400 block">附近工廠出租情況估算:</span><strong class="text-blue-400">$${nearbyTotalRent.toLocaleString()} 元</strong></div>
+                        </div>
+                        <div class="pt-2">
+                            <span class="text-[11px] text-slate-400 block mb-1.5">戰情室顯示內容（可打勾複選與自填新增）</span>
+                            <div class="flex flex-wrap gap-4 text-xs text-slate-300">
+                                <label class="flex items-center space-x-1.5"><input type="checkbox" ${c.warRoomRate?'checked':''} onchange="updateWarRoomBool('${c.id}', 'warRoomRate', this.checked)" class="rounded bg-cosmic-900 border-cosmic-700 text-amber-500"><span>太陽能模組發電率</span></label>
+                                <label class="flex items-center space-x-1.5"><input type="checkbox" ${c.warRoomCarbon?'checked':''} onchange="updateWarRoomBool('${c.id}', 'warRoomCarbon', this.checked)" class="rounded bg-cosmic-900 border-cosmic-700 text-amber-500"><span>碳盤查一級數據</span></label>
+                                <label class="flex items-center space-x-1.5"><input type="checkbox" ${c.warRoomMonitor?'checked':''} onchange="updateWarRoomBool('${c.id}', 'warRoomMonitor', this.checked)" class="rounded bg-cosmic-900 border-cosmic-700 text-amber-500"><span>設備用電監控</span></label>
+                                <label class="flex items-center space-x-1.5"><input type="checkbox" ${c.warRoomSafety?'checked':''} onchange="updateWarRoomBool('${c.id}', 'warRoomSafety', this.checked)" class="rounded bg-cosmic-900 border-cosmic-700 text-amber-500"><span>廠區用電安全</span></label>
+                                <button onclick="addWarRoomCustom('${c.id}')" class="text-[10px] bg-cosmic-700 px-2 py-0.5 rounded hover:bg-cosmic-600">[＋ 新增戰情項目]</button>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-1.5">
+                                ${c.warRoomCustom ? c.warRoomCustom.map((item, idx) => `
+                                    <span class="bg-amber-950/50 border border-amber-700/50 text-amber-300 px-2 py-0.5 rounded text-xs flex items-center space-x-1">
+                                        <i class="fa-solid fa-check text-[10px]"></i><span>${item}</span>
+                                        <i onclick="removeWarRoomCustom('${c.id}', ${idx})" class="fa-solid fa-xmark text-[10px] ml-1 cursor-pointer hover:text-red-400"></i>
+                                    </span>
+                                `).join(''):''}
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <!-- 二/三、公司基本資料 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3">
+                        <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-industry mr-1.5"></i>公司基本資料</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                            <div class="md:col-span-2"><label class="text-slate-400">公司名稱</label><input type="text" value="${c.companyName}" oninput="updateField('${c.id}', 'companyName', this.value); renderSidebarSubLists();" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">統編</label><input type="text" value="${c.taxId||''}" oninput="updateField('${c.id}', 'taxId', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">工廠登記證字號</label><input type="text" value="${c.factoryLicense||''}" oninput="updateField('${c.id}', 'factoryLicense', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">產業類型</label><input type="text" value="${c.industryType||''}" oninput="updateField('${c.id}', 'industryType', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">聯絡人</label><input type="text" value="${c.contact||''}" oninput="updateField('${c.id}', 'contact', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">聯絡電話</label><input type="text" value="${c.phone||''}" oninput="updateField('${c.id}', 'phone', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">E-mail</label><input type="text" value="${c.email||''}" oninput="updateField('${c.id}', 'email', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div class="md:col-span-4"><label class="text-slate-400">工廠地址</label><input type="text" value="${c.address||''}" oninput="updateField('${c.id}', 'address', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                        </div>
+                    </div>
+
+                    <!-- 三/四、土地與建物基本資料 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
+                                <h4 class="text-xs font-bold text-emerald-400">土地基本資料 (地段地號陣列)</h4>
+                                <button onclick="addLandRow('${c.id}')" class="text-[10px] bg-emerald-900/50 border border-emerald-700 px-2 py-0.5 rounded hover:bg-emerald-800 transition">[＋ 地段地號]</button>
+                            </div>
+                            <div class="space-y-1.5">
+                                ${c.lands.map((l, idx) => `
+                                    <div class="grid grid-cols-4 gap-1 text-[11px]">
+                                        <input type="text" value="${l.section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="text" value="${l.number||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="updateLandField('${c.id}', ${idx}, 'sqm', this.value)" class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="number" value="${l.ping||''}" placeholder="坪" oninput="updateLandField('${c.id}', ${idx}, 'ping', this.value)" class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-white text-center">
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 pt-1 text-xs border-t border-cosmic-700/30 mt-2">
+                                <div><label class="text-[10px] text-slate-400 block">土地坪數總坪數 (平方公尺)</label><input type="number" value="${c.landTotalSqm||''}" oninput="updateField('${c.id}', 'landTotalSqm', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                <div><label class="text-[10px] text-slate-400 block">土地坪數總坪數 (坪)</label><input type="number" value="${c.landTotalPing||''}" oninput="updateField('${c.id}', 'landTotalPing', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                    <label class="text-[10px] text-slate-400 block">土地型態 (上下排列)</label>
+                                    <select onchange="updateField('${c.id}', 'landPattern', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white">
+                                        <option value="都市計畫內使用分區" ${c.landPattern==='都市計畫內使用分區'?'selected':''}>都市計畫內使用分區</option>
+                                        <option value="都市計畫外使用地類別" ${c.landPattern==='都市計畫外使用地類別'?'selected':''}>都市計畫外使用地類別</option>
+                                    </select>
+                                </div>
+                                <div><label class="text-[10px] text-slate-400 block">土地備註</label><input type="text" value="${c.landRemark||''}" oninput="updateField('${c.id}', 'landRemark', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
+                                <h4 class="text-xs font-bold text-blue-400">建物基本資料 (建號陣列)</h4>
+                                <button onclick="addBuildRow('${c.id}')" class="text-[10px] bg-blue-900/50 border border-blue-700 px-2 py-0.5 rounded hover:bg-blue-800 transition">[＋ 建號]</button>
+                            </div>
+                            <div class="space-y-1.5">
+                                ${c.buildings.map((b, idx) => `
+                                    <div class="grid grid-cols-3 gap-1 text-[11px]">
+                                        <input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="number" value="${b.sqm||''}" placeholder="平方公尺" oninput="updateBuildField('${c.id}', ${idx}, 'sqm', this.value)" class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="number" value="${b.ping||''}" placeholder="坪" oninput="updateBuildField('${c.id}', ${idx}, 'ping', this.value)" class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-white text-center">
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 pt-1 text-xs border-t border-cosmic-700/30 mt-2">
+                                <div><label class="text-[10px] text-slate-400 block">建造年份</label><input type="text" value="${c.buildYear||''}" oninput="updateField('${c.id}', 'buildYear', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                <div><label class="text-[10px] text-slate-400 block">合法建物坪數</label><input type="number" value="${c.legalBuildPing||''}" oninput="updateField('${c.id}', 'legalBuildPing', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                <div><label class="text-[10px] text-slate-400 block">違章建物坪數</label><input type="number" value="${c.illegalBuildPing||''}" oninput="updateField('${c.id}', 'illegalBuildPing', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            </div>
+                            <div><label class="text-[10px] text-slate-400 block">建物備註</label><input type="text" value="${c.buildRemark||''}" oninput="updateField('${c.id}', 'buildRemark', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                        </div>
+                    </div>
+
+                    <!-- 五、用電狀況 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 text-xs">
+                        <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1"><i class="fa-solid fa-bolt mr-1"></i>五、用電狀況</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+                            <div><label class="text-slate-400">每月平均電費</label><input type="number" value="${c.electricBill||''}" oninput="updateField('${c.id}', 'electricBill', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div><label class="text-slate-400">馬力</label><input type="text" value="${c.horsepower||''}" oninput="updateField('${c.id}', 'horsepower', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div><label class="text-slate-400">契約容量(kW)</label><input type="number" value="${c.contractCapacity||''}" oninput="updateField('${c.id}', 'contractCapacity', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div>
+                                <label class="text-slate-400">是否為高壓用電</label>
+                                <select onchange="updateField('${c.id}', 'isHighVoltage', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white">
+                                    <option value="是" ${c.isHighVoltage==='是'?'selected':''}>是</option>
+                                    <option value="否" ${c.isHighVoltage==='否'?'selected':''}>否</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-slate-400">是否為時間電價</label>
+                                <select onchange="updateField('${c.id}', 'isTimeRate', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white">
+                                    <option value="是" ${c.isTimeRate==='是'?'selected':''}>是</option>
+                                    <option value="否" ${c.isTimeRate==='否'?'selected':''}>否</option>
+                                    <option value="不清楚" ${c.isTimeRate==='不清楚'?'selected':''}>不清楚</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-slate-400">用電時段（下拉）</label>
+                                <select onchange="updateField('${c.id}', 'timePeriod', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white">
+                                    <option value="白天為主" ${c.timePeriod==='白天為主'?'selected':''}>白天為主</option>
+                                    <option value="夜間為主" ${c.timePeriod==='夜間為主'?'selected':''}>夜間為主</option>
+                                    <option value="平均分佈" ${c.timePeriod==='平均分佈'?'selected':''}>平均分佈</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pt-1"><label class="text-slate-400 block mb-0.5">用電備註</label><input type="text" value="${c.electricRemark||''}" oninput="updateField('${c.id}', 'electricRemark', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                    </div>
+
+                    <!-- 六、ESG評估 (擴充為五項完整評估，支援是/否/評估中三態) -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 text-xs">
+                        <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1"><i class="fa-solid fa-leaf mr-1"></i>六、ESG評估</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                            ${[['esgHasSuccessor', '是否有接班人'], ['esgIsExport', '產品是否外銷'], ['esgEuCarbon', '是否受歐盟減碳要求'], ['esgGreenCert', '是否需要綠電憑證'], ['esgStorage', '是否需要儲能系統']].map(([key, label]) => `
+                                <div>
+                                    <label class="text-slate-400 block mb-0.5">${label}</label>
+                                    <select onchange="updateField('${c.id}', '${key}', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white">
+                                        <option value="是" ${c[key]==='是'?'selected':''}>是</option>
+                                        <option value="否" ${c[key]==='否'?'selected':''}>否</option>
+                                        <option value="評估中" ${c[key]==='評估中'?'selected':''}>評估中</option>
+                                    </select>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div><label class="text-slate-400 block mb-0.5">ESG備註說明</label><input type="text" value="${c.esgRemark||''}" oninput="updateField('${c.id}', 'esgRemark', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                    </div>
+
+                    <!-- 太陽能屋頂與結構評估 (太陽能自建專屬增修區) -->
+                    ${isSolar ? `
+                    <div class="border border-amber-500/30 p-4 rounded-xl bg-amber-950/5 space-y-3 text-xs">
+                        <h4 class="text-xs font-bold text-amber-400 border-b border-cosmic-700/30 pb-1">九、建物條件（屋頂、周遭、結構專業資訊與說明）</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="text-slate-400">屋頂型態</label>
+                                <select onchange="updateField('${c.id}', 'roofType', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white">
+                                    <option value="鋼構鐵皮屋" ${c.roofType==='鋼構鐵皮屋'?'selected':''}>鋼構鐵皮屋</option>
+                                    <option value="RC混凝土" ${c.roofType==='RC混凝土'?'selected':''}>RC混凝土</option>
+                                    <option value="浪板" ${c.roofType==='浪板'?'selected':''}>浪板</option>
+                                    <option value="其他" ${c.roofType==='其他'?'selected':''}>其他</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">屋頂使用年限(約)</label><input type="text" value="${c.roofAge||''}" oninput="updateField('${c.id}', 'roofAge', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div>
+                                <label class="text-slate-400">是否有漏水問題</label>
+                                <select onchange="updateField('${c.id}', 'roofLeak', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white"><option value="是" ${c.roofLeak==='是'?'selected':''}>是</option><option value="否" ${c.roofLeak==='否'?'selected':''}>否</option></select>
+                            </div>
+                            <div>
+                                <label class="text-slate-400">廠內生產或排放化學氣體</label>
+                                <select onchange="updateField('${c.id}', 'hasChemical', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white"><option value="是" ${c.hasChemical==='是'?'selected':''}>是</option><option value="否" ${c.hasChemical==='否'?'selected':''}>否</option></select>
+                            </div>
+                            <div>
+                                <label class="text-slate-400">附近有化學製品產業</label>
+                                <select onchange="updateField('${c.id}', 'nearbyChemical', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white"><option value="是" ${c.nearbyChemical==='是'?'selected':''}>是</option><option value="否" ${c.nearbyChemical==='否'?'selected':''}>否</option></select>
+                            </div>
+                            <div>
+                                <label class="text-slate-400">廠區是否臨海</label>
+                                <select onchange="updateField('${c.id}', 'isNearSea', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white"><option value="是" ${c.isNearSea==='是'?'selected':''}>是</option><option value="否" ${c.isNearSea==='否'?'selected':''}>否</option></select>
+                            </div>
+                            <div>
+                                <label class="text-slate-400">臨海距離</label>
+                                <select onchange="updateField('${c.id}', 'nearSeaDist', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white"><option value="1公里內" ${c.nearSeaDist==='1公里內'?'selected':''}>1公里內</option><option value="1-5公里" ${c.nearSeaDist==='1-5公里'?'selected':''}>1-5公里</option></select>
+                            </div>
+                            <div>
+                                <label class="text-slate-400">遮蔽狀況</label>
+                                <select onchange="updateField('${c.id}', 'shadowStatus', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white"><option value="是" ${c.shadowStatus==='是'?'selected':''}>是</option><option value="否" ${c.shadowStatus==='否'?'selected':''}>否</option></select>
+                            </div>
+                        </div>
+                        <div class="pt-1.5 border-t border-cosmic-700/30">
+                            <label class="text-slate-400 block mb-1">屋頂現有設備及結構計算資訊</label>
+                            <div class="flex flex-wrap gap-4 text-slate-300 bg-cosmic-900/40 p-2 rounded-lg">
+                                <label class="flex items-center space-x-1"><input type="checkbox" ${c.roofAir?'checked':''} onchange="updateField('${c.id}', 'roofAir', this.checked)" class="rounded bg-cosmic-950"><span>空調設備</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" ${c.roofExhaust?'checked':''} onchange="updateField('${c.id}', 'roofExhaust', this.checked)" class="rounded bg-cosmic-950"><span>排氣設備</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" ${c.roofWater?'checked':''} onchange="updateField('${c.id}', 'roofWater', this.checked)" class="rounded bg-cosmic-950"><span>水塔</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" ${c.roofPipe?'checked':''} onchange="updateField('${c.id}', 'roofPipe', this.checked)" class="rounded bg-cosmic-950"><span>管線密集</span></label>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 pt-2">
+                                <div><label class="text-slate-400">是否有結構計算書</label><select onchange="updateField('${c.id}', 'hasStructReport', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white"><option value="是" ${c.hasStructReport==='開是'?'selected':''}>是</option><option value="否" ${c.hasStructReport==='否'?'selected':''}>否</option></select></div>
+                                <div><label class="text-slate-400">可接受結構檢測</label><select onchange="updateField('${c.id}', 'acceptStructTest', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white"><option value="是" ${c.acceptStructTest==='是'?'selected':''}>是</option><option value="否" ${c.acceptStructTest==='否'?'selected':''}>否</option></select></div>
+                                <div><label class="text-slate-400">做過結構補強</label><select onchange="updateField('${c.id}', 'hasStructReinforce', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-1.5 py-1 text-white"><option value="是" ${c.hasStructReinforce==='是'?'selected':''}>是</option><option value="否" ${c.hasStructReinforce==='否'?'selected':''}>否</option></select></div>
+                                <div><label class="text-slate-400">補強年份</label><input type="text" value="${c.reinforceYear||''}" oninput="updateField('${c.id}', 'reinforceYear', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            </div>
+                            <div class="pt-2"><label class="text-slate-400 block mb-0.5">建物條件評估專業說明（工程方回覆）</label><textarea oninput="updateField('${c.id}', 'roofTechRemark', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded p-1.5 h-12 text-white resize-none">${c.roofTechRemark||''}</textarea></div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <!-- 七、應備文件與八、檔案上傳 (雙端完全隔離且支援行級刪除與新增) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
+                                <h4 class="font-bold text-violet-400"><i class="fa-solid fa-list-check mr-1"></i>七、客戶應備文件清單 (可打勾與刪除)</h4>
+                                <button onclick="addCustomDocItem('${c.id}', 'client')" class="text-[10px] bg-violet-900/50 border border-violet-700 px-2 py-0.5 rounded">[＋ 新增自選文件]</button>
+                            </div>
+                            <div class="space-y-1.5">
+                                ${c.customDocsClient.map((doc, idx) => `
+                                    <div class="flex items-center justify-between bg-cosmic-900/40 p-1 rounded border border-cosmic-700/40">
+                                        <label class="flex items-center space-x-2"><input type="checkbox" checked class="rounded bg-cosmic-950 text-violet-500"><span>${doc}</span></label>
+                                        <i onclick="removeCustomDocItem('${c.id}', 'client', ${idx})" class="fa-solid fa-trash-can text-red-400 cursor-pointer hover:text-red-300 px-1 text-[11px]"></i>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="pt-2 border-t border-cosmic-700/30">
+                                <div class="flex justify-between items-center pb-1"><span class="text-[11px] text-slate-400">八、客戶端應備檔案鏈結</span><button onclick="addFileLink('${c.id}', 'client')" class="text-[9px] bg-cosmic-700 px-1.5 rounded">[＋ 上傳/附言]</button></div>
+                                <div class="space-y-1">${c.clientFiles.map((f, i) => `<div class="bg-cosmic-950 p-1 rounded text-[11px] border border-cosmic-700 truncate">📎 檔案連結: ${f}</div>`).join('')}</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
+                                <h4 class="font-bold text-cyan-400"><i class="fa-solid fa-building-shield mr-1"></i>七、睿立調閱文件清單</h4>
+                                <button onclick="addCustomDocItem('${c.id}', 'ruili')" class="text-[10px] bg-cosmic-700 px-2 py-0.5 rounded">[＋ 增調文件]</button>
+                            </div>
+                            <div class="space-y-1.5">
+                                ${c.customDocsRuili.map((doc, idx) => `
+                                    <div class="flex items-center justify-between bg-cosmic-900/40 p-1 rounded border border-cosmic-700/40">
+                                        <label class="flex items-center space-x-2"><input type="checkbox" checked class="rounded bg-cosmic-950 text-cyan-500"><span>${doc}</span></label>
+                                        <i onclick="removeCustomDocItem('${c.id}', 'ruili', ${idx})" class="fa-solid fa-trash-can text-red-400 cursor-pointer text-[11px]"></i>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="pt-2 border-t border-cosmic-700/30">
+                                <div class="flex justify-between items-center pb-1"><span class="text-[11px] text-slate-400">八、睿立調閱端內部檔案鏈結</span><button onclick="addFileLink('${c.id}', 'ruili')" class="text-[9px] bg-cosmic-700 px-1.5 rounded">[＋ 增錄存檔]</button></div>
+                                <div class="space-y-1">${c.ruiliFiles.map((f, i) => `<div class="bg-cosmic-950 p-1 rounded text-[11px] border border-cosmic-700 truncate">📁 歷史卷宗: ${f}</div>`).join('')}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${generateFooterHTML()}
+                </div>
+            `;
+        }
+
+        // ==================== 2. 會議記錄外部表單產生器 (四、會議記錄) ====================
+        function generateMeetingFormHTML(c) {
+            return `
+                <div class="bg-cosmic-800/70 border border-purple-500/40 rounded-2xl p-6 space-y-4 shadow-xl">
+                    <h3 class="text-base font-bold text-purple-300 border-b border-cosmic-700 pb-2"><i class="fa-solid fa-users mr-2"></i>外部主題會議記錄</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                        <div><label class="text-slate-400">會議主題</label><input type="text" value="${c.meetSubject||''}" oninput="updateField('${c.id}', 'meetSubject', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                        <div><label class="text-slate-400">日期 / 時間</label><input type="datetime-local" value="${c.date}" onchange="updateField('${c.id}', 'date', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                        <div>
+                            <label class="text-slate-400 block mb-0.5">睿立與會人員（多選核取）</label>
+                            <div class="flex flex-wrap gap-2 pt-1">${attendeesOptions.map(p => `<label class="flex items-center space-x-1"><input type="checkbox" ${c.attendees.includes(p)?'checked':''} onchange="toggleAttendee('${c.id}', '${p}')" class="rounded text-purple-500"><span>${p}</span></label>`).join('')}</div>
+                        </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- 打勾清單 -->
-                        <div class="bg-[#0B132B]/40 p-4 rounded-xl border border-[#3A506B]/30">
-                            <span class="text-xs font-semibold text-slate-400 block mb-3">應備文件核對（可打勾控制）</span>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <label v-for="doc in defaultDocs" :key="doc" class="flex items-center space-x-2 p-1.5 hover:bg-[#1C2541] rounded-lg transition text-sm cursor-pointer">
-                                    <input type="checkbox" :value="doc" v-model="activeItem.checkedDocs" class="rounded bg-[#0B132B] border-[#3A506B] text-cyan-500 focus:ring-0">
-                                    <span :class="activeItem.checkedDocs.includes(doc) ? 'text-cyan-400 font-medium' : 'text-slate-400'">{{ doc }}</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- 檔案存取欄位區 -->
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">應備文件檔案上傳（支援各類型檔案鏈結）</label>
-                                <div class="flex gap-2">
-                                    <input type="text" v-model="activeItem.uploadDocUrl" placeholder="請輸入雲端資料夾連結或檔案路徑..." class="flex-1 bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
-                                    <button class="bg-[#3A506B] px-3 rounded-xl text-xs hover:bg-[#4E6A8E] cursor-pointer">瀏覽</button>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1.5">睿立調閱檔案機制庫</label>
-                                <input type="text" v-model="activeItem.ruiliInternalUrl" placeholder="內部審查調閱專用編號/連結..." class="w-full bg-[#0B132B] border border-[#3A506B] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
-                            </div>
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 text-xs">
+                        <span class="font-semibold text-slate-300 block border-b border-cosmic-700 pb-1">與會外部機構/基本資訊</span>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            <div><label class="text-slate-400">公司名稱</label><input type="text" value="${c.companyName||''}" oninput="updateField('${c.id}', 'companyName', this.value); renderSidebarSubLists();" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div><label class="text-slate-400">姓名</label><input type="text" value="${c.baseInfoContact||''}" oninput="updateField('${c.id}', 'baseInfoContact', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div><label class="text-slate-400">電話</label><input type="text" value="${c.baseInfoPhone||''}" oninput="updateField('${c.id}', 'baseInfoPhone', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div><label class="text-slate-400">網址連結</label><input type="text" value="${c.baseInfoLink||''}" oninput="updateField('${c.id}', 'baseInfoLink', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                         </div>
                     </div>
-                </section>
 
-                <!-- 每一頁底部必顯示之睿立公司資訊 -->
-                <footer class="pt-6 border-t border-[#3A506B] text-xs text-slate-400 space-y-4 mt-8">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#0B132B]/60 p-4 rounded-xl border border-[#3A506B]/40">
-                        <div>
-                            <span class="block font-bold text-white mb-2"><i class="fa-solid fa-square-poll-horizontal text-cyan-400 mr-1"></i> 發文與建議組織（複選）：</span>
-                            <div class="space-y-1.5">
-                                <label class="flex items-start space-x-2 cursor-pointer">
-                                    <input type="checkbox" value="睿立資產" v-model="activeItem.footerCompanies" class="mt-0.5 rounded text-cyan-500 bg-[#0B132B] border-[#3A506B]">
-                                    <span>睿立資產管理顧問有限公司<br><span class="text-[11px] text-slate-500">統編：90411790</span></span>
-                                </label>
-                                <label class="flex items-start space-x-2 cursor-pointer">
-                                    <input type="checkbox" value="元業綠能" v-model="activeItem.footerCompanies" class="mt-0.5 rounded text-cyan-500 bg-[#0B132B] border-[#3A506B]">
-                                    <span>元業綠能驗證有限公司<br><span class="text-[11px] text-slate-500">統編：90000831</span></span>
-                                </label>
-                                <label class="flex items-start space-x-2 cursor-pointer">
-                                    <input type="checkbox" value="天梁不動產" v-model="activeItem.footerCompanies" class="mt-0.5 rounded text-cyan-500 bg-[#0B132B] border-[#3A506B]">
-                                    <span>天梁不動產股份有限公司<br><span class="text-[11px] text-slate-500">統編：93628169</span></span>
-                                </label>
+                    <div class="border border-cosmic-700/60 p-4 rounded-xl bg-cosmic-950/20 space-y-2">
+                        <div class="flex justify-between items-center"><span class="text-xs font-bold text-purple-400">會議內容層 (動態物件陣列)</span><button onclick="addMeetContentRow('${c.id}')" class="text-[10px] bg-purple-900/50 border border-purple-700 px-2 py-0.5 rounded">[＋ 新增簡報內容]</button></div>
+                        <div class="space-y-2 text-xs">${c.meetContents.map((mc, i) => `
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-2 bg-cosmic-900/40 p-2 rounded border border-cosmic-700/40">
+                                <input type="text" value="${mc.reporter}" placeholder="會議報告人" oninput="updateMeetContent('${c.id}', ${i}, 'reporter', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white">
+                                <input type="text" value="${mc.text}" placeholder="會議內容" oninput="updateMeetContent('${c.id}', ${i}, 'text', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white">
+                                <input type="text" value="${mc.discuss}" placeholder="共識討論" oninput="updateMeetContent('${c.id}', ${i}, 'discuss', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white">
+                                <input type="text" value="${mc.conclusion}" placeholder="結論" oninput="updateMeetContent('${c.id}', ${i}, 'conclusion', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white">
                             </div>
-                        </div>
-                        <div class="space-y-1 md:border-l md:border-r border-[#3A506B]/50 md:px-4">
-                            <p class="font-bold text-slate-300">聯絡資訊 Contact Info</p>
-                            <p><span class="text-slate-500">TEL：</span>07-222-5595</p>
-                            <p><span class="text-slate-500">FAX：</span>07-269-3091</p>
-                            <p><span class="text-slate-500">E-mail：</span>ruilu1101108@gmail.com</p>
-                        </div>
+                        `).join('')}</div>
+                    </div>
+                    <div class="text-xs"><label class="text-slate-400 font-bold block mb-1">會議總結論</label><textarea oninput="updateField('${c.id}', 'meetFinalConclusion', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded p-2 text-white h-12 resize-none">${c.meetFinalConclusion||''}</textarea></div>
+                    ${generateFooterHTML()}
+                </div>
+            `;
+        }
+
+        // ==================== 3. 公司內部會議記錄表單產生器 (五、公司會議記錄) ====================
+        function generateInternalMeetingFormHTML(c) {
+            return `
+                <div class="bg-cosmic-800/70 border border-indigo-500/40 rounded-2xl p-6 space-y-4 shadow-xl">
+                    <h3 class="text-base font-bold text-indigo-300 border-b border-cosmic-700 pb-2"><i class="fa-solid fa-building-user mr-2"></i>睿立公司內部戰略會議記錄</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                        <div><label class="text-slate-400">會議主題</label><input type="text" value="${c.meetSubject||''}" oninput="updateField('${c.id}', 'meetSubject', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                        <div><label class="text-slate-400">日期 / 時間</label><input type="datetime-local" value="${c.date}" onchange="updateField('${c.id}', 'date', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                         <div>
-                            <p class="font-bold text-slate-300 mb-1">聯絡地址 Address</p>
-                            <p class="leading-relaxed">高雄市苓雅區新光路38號30樓之2</p>
-                            <div class="mt-3 p-2 bg-amber-500/10 rounded border border-amber-500/20 text-amber-400 font-medium">
-                                ⚠️ 備註說明：此文件報價及建議有效期限一個月。
-                            </div>
+                            <label class="text-slate-400 block mb-0.5">與會同仁（可多選複選）</label>
+                            <div class="flex flex-wrap gap-2 pt-1">${attendeesOptions.map(p => `<label class="flex items-center space-x-1"><input type="checkbox" ${c.attendees.includes(p)?'checked':''} onchange="toggleAttendee('${c.id}', '${p}')" class="rounded text-indigo-500"><span>${p}</span></label>`).join('')}</div>
                         </div>
                     </div>
+
+                    <!-- 財務報告與核心共識目標層 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs bg-cosmic-950/40 p-3 rounded-xl border border-cosmic-700/50">
+                        <div><label class="text-amber-400 block mb-0.5">財務報告</label><input type="text" value="${c.financeReport||''}" oninput="updateField('${c.id}', 'financeReport', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                        <div><label class="text-indigo-400 block mb-0.5">共識</label><input type="text" value="${c.consensus||''}" oninput="updateField('${c.id}', 'consensus', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                        <div><label class="text-cyan-400 block mb-0.5">目標</label><input type="text" value="${c.target||''}" oninput="updateField('${c.id}', 'target', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                    </div>
+
+                    <!-- 案件報告層 (動態陣列) -->
+                    <div class="border border-cosmic-700/60 p-3 rounded-xl bg-cosmic-950/20 space-y-2">
+                        <div class="flex justify-between items-center text-xs"><span class="font-bold text-cyan-400">案件報告層 (動態物件)</span><button onclick="addReportRow('${c.id}', 'caseReports')" class="text-[10px] bg-cyan-900/50 border border-cyan-700 px-2 rounded">[＋ 新增案件報告]</button></div>
+                        <div class="space-y-2 text-xs">${c.caseReports.map((cr, i) => `
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-2 bg-cosmic-900/40 p-2 rounded border border-cosmic-700/40">
+                                <select onchange="updateInternalReport('${c.id}', 'caseReports', ${i}, 'reporter', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white">
+                                    ${managersList.map(m => `<option value="${m}" ${cr.reporter===m?'selected':''}>${m}</option>`).join('')}
+                                </select>
+                                <input type="text" value="${cr.caseName}" placeholder="案件名稱" oninput="updateInternalReport('${c.id}', 'caseReports', ${i}, 'caseName', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white col-span-1">
+                                <input type="text" value="${cr.desc}" placeholder="案件進度說明" oninput="updateInternalReport('${c.id}', 'caseReports', ${i}, 'desc', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white col-span-1">
+                                <input type="text" value="${cr.conclusion}" placeholder="結論" oninput="updateInternalReport('${c.id}', 'caseReports', ${i}, 'conclusion', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white col-span-1">
+                            </div>
+                        `).join('')}</div>
+                    </div>
+
+                    <!-- 提案報告層 (動態陣列) -->
+                    <div class="border border-cosmic-700/60 p-3 rounded-xl bg-cosmic-950/20 space-y-2">
+                        <div class="flex justify-between items-center text-xs"><span class="font-bold text-teal-400">提案報告層 (動態物件)</span><button onclick="addReportRow('${c.id}', 'proposalReports')" class="text-[10px] bg-teal-900/50 border border-teal-700 px-2 rounded">[＋ 新增提案報告]</button></div>
+                        <div class="space-y-2 text-xs">${c.proposalReports.map((pr, i) => `
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-2 bg-cosmic-900/40 p-2 rounded border border-cosmic-700/40">
+                                <select onchange="updateInternalReport('${c.id}', 'proposalReports', ${i}, 'reporter', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white">
+                                    ${managersList.map(m => `<option value="${m}" ${pr.reporter===m?'selected':''}>${m}</option>`).join('')}
+                                </select>
+                                <input type="text" value="${pr.item}" placeholder="項目" oninput="updateInternalReport('${c.id}', 'proposalReports', ${i}, 'item', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white">
+                                <input type="text" value="${pr.content}" placeholder="內容" oninput="updateInternalReport('${c.id}', 'proposalReports', ${i}, 'content', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white">
+                                <input type="text" value="${pr.conclusion}" placeholder="結論" oninput="updateInternalReport('${c.id}', 'proposalReports', ${i}, 'conclusion', this.value)" class="bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white">
+                            </div>
+                        `).join('')}</div>
+                    </div>
+
+                    <div class="text-xs"><label class="text-slate-400 font-bold block mb-1">會議總結論</label><textarea oninput="updateField('${c.id}', 'meetFinalConclusion', this.value)" class="w-full bg-cosmic-900 border border-cosmic-700 rounded p-2 text-white h-12 resize-none">${c.meetFinalConclusion||''}</textarea></div>
+                    ${generateFooterHTML()}
+                </div>
+            `;
+        }
+
+        function generateFooterHTML() {
+            return `
+                <footer class="bg-cosmic-950 px-6 py-4 border-t border-cosmic-700/40 text-[11px] text-slate-400 flex flex-wrap justify-between items-center gap-4">
+                    <div class="flex flex-wrap gap-x-6">
+                        <div><strong>睿立資產管理顧問有限公司</strong> (統編: 90411790)</div>
+                        <div><strong>元業綠能驗證有限公司</strong> (統編: 90000831)</div>
+                        <div><strong>天梁不動產股份有限公司</strong> (統編: 93628169)</div>
+                    </div>
+                    <div class="flex gap-x-4"><span>TEL: 07-222-5595</span><span>FAX: 07-269-3091</span><span>E-mail: ruilu1101108@gmail.com</span></div>
+                    <div class="w-full text-center text-amber-500 font-medium border-t border-cosmic-700/20 pt-1.5">⚠️ 備註說明：此文件報價及建議有效期限一個月（每一頁匯出的A4最下面必需顯示）</div>
                 </footer>
+            `;
+        }
 
-            </div>
-        </main>
-    </div>
+        // ==================== 核心數據更新與動態行級增減機制群 ====================
+        function updateField(id, field, value) {
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
+            if (target) target[field] = value;
+        }
 
-    <!-- 系統控制邏輯核心 -->
-    <script>
-        const { createApp, ref, computed, watch } = Vue;
+        function updateServiceField(id, idx, field, value) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target && target.services[idx]) target.services[idx][field] = value;
+        }
 
-        createApp({
-            setup() {
-                // 當前主功能頁籤
-                const currentTab = ref('caseEval');
-                // 控制左側大分類展開狀態
-                const expandedCategory = ref('caseEval');
-                // 目前選中的具體案件 ID
-                const activeItemId = ref(null);
+        function updateLandField(id, idx, field, value) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target && target.lands[idx]) target.lands[idx][field] = value;
+        }
 
-                // 專案經理名單固定陣列
-                const managers = ['樊靖畇', '鄭家承', '陳宥騰', '楊裕憲', '黃逸豪', '李宜璇', '王瑋聆', '許先生'];
+        function updateBuildField(id, idx, field, value) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target && target.buildings[idx]) target.buildings[idx][field] = value;
+        }
 
-                // 預設客戶應備文件清單
-                const defaultDocs = ['電費單', '屋頂現況照片（多角度）', '屋頂平面圖', '使用執照', '建築圖', '場域線路分佈圖', '廠區空拍圖'];
+        function updateWarRoomBool(id, field, isChecked) {
+            let target = solarData.find(c => c.id === id);
+            if (target) target[field] = isChecked;
+        }
 
-                // 1. 狀態管理層 - 專屬存放【案件評估】動態陣列
-                const caseEvalData = ref([
-                    {
-                        id: 101,
-                        dateTime: '2026-07-18T14:30',
-                        status: '初期評估',
-                        projectManager: '樊靖畇',
-                        businessNote: '初步接洽，廠房欲做低碳轉型與特定工廠補辦規劃。',
-                        source: '客戶介紹',
-                        companyName: '睿立示範一號智慧工廠',
-                        taxId: '90411790',
-                        factoryRegId: 'F12345678',
-                        industryType: '金屬製品製造業',
-                        contactPerson: '陳總經理',
-                        contactPhone: '0912-345678',
-                        contactEmail: 'factory1@ruili.com',
-                        factoryAddress: '高雄市岡山區本工路X號',
-                        lands: [{ section: '岡山段', number: '0815-0000', sqm: 1200, ping: 363 }],
-                        urbanZone: '甲種工業區',
-                        nonUrbanZone: '',
-                        landNote: '地勢平坦，產權清晰',
-                        buildings: [{ id: '建號001', sqm: 800, ping: 242 }],
-                        buildYear: '110年',
-                        legalBuildPing: '242',
-                        illegalBuildPing: '0',
-                        buildNote: '結構良好，適合鋪設太陽能頂棚',
-                        esgSuccessor: '是',
-                        esgExport: '是',
-                        esgCarbonRequire: '是',
-                        elecCost: '350,000',
-                        elecHp: '150',
-                        elecCapacity: '200',
-                        elecHighVolt: '是',
-                        elecTimePrice: '是',
-                        elecPeriods: ['白天為主'],
-                        esgNote: '二代已接班，急需做碳足跡管理。',
-                        checkedDocs: ['電費單', '屋頂現況照片（多角度）', '使用執照'],
-                        uploadDocUrl: '',
-                        ruiliInternalUrl: '',
-                        footerCompanies: ['睿立資產', '元業綠能']
-                    }
-                ]);
-
-                // 2. 狀態管理層 - 專屬存放【工廠太陽能自建】動態陣列 (完全數據隔離)
-                const solarData = ref([
-                    {
-                        id: 201,
-                        dateTime: '2026-07-15T10:00',
-                        status: '準備簽約',
-                        projectManager: '鄭家承',
-                        businessNote: '綠能發電容量與饋線已初步評估完成，客戶考慮全額自建。',
-                        source: '網路諮詢',
-                        companyName: '元業能源高科技廠房',
-                        taxId: '90000831',
-                        factoryRegId: 'S98765432',
-                        industryType: '電子零組件製造業',
-                        contactPerson: '林廠長',
-                        contactPhone: '0988-111222',
-                        contactEmail: 'solar_tech@domain.com',
-                        factoryAddress: '屏東市加工出口區園西路',
-                        lands: [{ section: '加工區段', number: '0421-0000', sqm: 3000, ping: 907.5 }],
-                        urbanZone: '科技產業園區',
-                        nonUrbanZone: '',
-                        landNote: '無遮蔽物，日照時數佳',
-                        buildings: [{ id: '主廠房A棟', sqm: 2500, ping: 756.2 }],
-                        buildYear: '112年',
-                        legalBuildPing: '756.2',
-                        illegalBuildPing: '50',
-                        buildNote: '部分鋼構遮棚屬於免計容積，不影響建照評估。',
-                        esgSuccessor: '是',
-                        esgExport: '是',
-                        esgCarbonRequire: '是',
-                        elecCost: '1,200,000',
-                        elecHp: '500',
-                        elecCapacity: '450',
-                        elecHighVolt: '是',
-                        elecTimePrice: '是',
-                        elecPeriods: ['白天為主', '平均分佈'],
-                        esgNote: '規劃建置400kW太陽能，自發自用。',
-                        checkedDocs: ['電費單', '屋頂現況照片（多角度）', '屋頂平面圖', '場域線路分佈圖'],
-                        uploadDocUrl: '',
-                        ruiliInternalUrl: '',
-                        footerCompanies: ['元業綠能']
-                    }
-                ]);
-
-                // 點選左側主要功能時切換
-                function toggleCategory(cat) {
-                    currentTab.value = cat;
-                    if (['caseEval', 'solar'].includes(cat)) {
-                        expandedCategory.value = cat;
-                        // 預設帶入第一筆
-                        const list = cat === 'caseEval' ? caseEvalData.value : solarData.value;
-                        if (list.length > 0) activeItemId.value = list[0].id;
-                        else activeItemId.value = null;
-                    } else {
-                        expandedCategory.value = expandedCategory.value === cat ? '' : cat;
-                        activeItemId.value = null;
-                    }
+        function toggleAttendee(id, person) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                if(target.attendees.includes(person)) {
+                    target.attendees = target.attendees.filter(p => p !== person);
+                } else {
+                    target.attendees.push(person);
                 }
-
-                // 點選子名單
-                function selectActiveItem(tab, id) {
-                    currentTab.value = tab;
-                    activeItemId.value = id;
-                }
-
-                // 取得當前工作對象陣列資料物件
-                const activeItem = computed(() => {
-                    if (currentTab.value === 'caseEval') {
-                        return caseEvalData.value.find(i => i.id === activeItemId.value);
-                    } else if (currentTab.value === 'solar') {
-                        return solarData.value.find(i => i.id === activeItemId.value);
-                    }
-                    return null;
-                });
-
-                // 動態計算土地總面積 (平方公尺)
-                const totalLandSqm = computed(() => {
-                    if (!activeItem.value || !activeItem.value.lands) return 0;
-                    return activeItem.value.lands.reduce((sum, item) => sum + (Number(item.sqm) || 0), 0);
-                });
-
-                // 動態計算土地總坪數 (坪)
-                const totalLandPing = computed(() => {
-                    if (!activeItem.value || !activeItem.value.lands) return 0;
-                    return activeItem.value.lands.reduce((sum, item) => sum + (Number(item.ping) || 0), 0);
-                });
-
-                // 新增一筆全新空白案件到當前陣列的最前端 (隔離儲存)
-                function addNewCase() {
-                    const newId = Date.now();
-                    const emptyTemplate = {
-                        id: newId,
-                        dateTime: new Date().toISOString().slice(0, 16),
-                        status: '初期評估',
-                        projectManager: '樊靖畇',
-                        businessNote: '',
-                        source: '',
-                        companyName: '',
-                        taxId: '',
-                        factoryRegId: '',
-                        industryType: '',
-                        contactPerson: '',
-                        contactPhone: '',
-                        contactEmail: '',
-                        factoryAddress: '',
-                        lands: [{ section: '', number: '', sqm: '', ping: '' }],
-                        urbanZone: '',
-                        nonUrbanZone: '',
-                        landNote: '',
-                        buildings: [{ id: '', sqm: '', ping: '' }],
-                        buildYear: '',
-                        legalBuildPing: '',
-                        illegalBuildPing: '',
-                        buildNote: '',
-                        esgSuccessor: '否',
-                        esgExport: '否',
-                        esgCarbonRequire: '否',
-                        elecCost: '',
-                        elecHp: '',
-                        elecCapacity: '',
-                        elecHighVolt: '否',
-                        elecTimePrice: '否',
-                        elecPeriods: [],
-                        esgNote: '',
-                        checkedDocs: [],
-                        uploadDocUrl: '',
-                        ruiliInternalUrl: '',
-                        footerCompanies: ['睿立資產']
-                    };
-
-                    if (currentTab.value === 'caseEval') {
-                        caseEvalData.value.unshift(emptyTemplate);
-                        activeItemId.value = newId;
-                    } else if (currentTab.value === 'solar') {
-                        solarData.value.unshift(emptyTemplate);
-                        activeItemId.value = newId;
-                    } else {
-                        alert('當前分類不支援直接新增表單案件');
-                    }
-                }
-
-                // 服務項目子陣列控制
-                function addServiceItem() {
-                    if (activeItem.value) {
-                        activeItem.value.services = activeItem.value.services || [];
-                        activeItem.value.services.push({ title: '', desc: '', result: '', quote: '' });
-                    }
-                }
-                function removeServiceItem(idx) {
-                    activeItem.value.services.splice(idx, 1);
-                }
-
-                // 土地面積換算 (1平方公尺 = 0.3025坪)
-                function convertLandArea(idx, type) {
-                    const item = activeItem.value.lands[idx];
-                    if (type === 'sqm') {
-                        item.ping = item.sqm ? Math.round(item.sqm * 0.3025 * 100) / 100 : '';
-                    } else {
-                        item.sqm = item.ping ? Math.round(item.ping / 0.3025 * 100) / 100 : '';
-                    }
-                }
-                function addLandItem() {
-                    activeItem.value.lands.push({ section: '', number: '', sqm: '', ping: '' });
-                }
-                function removeLandItem(idx) {
-                    activeItem.value.lands.splice(idx, 1);
-                }
-
-                // 建物面積換算
-                function convertBuildArea(idx, type) {
-                    const item = activeItem.value.buildings[idx];
-                    if (type === 'sqm') {
-                        item.ping = item.sqm ? Math.round(item.sqm * 0.3025 * 100) / 100 : '';
-                    } else {
-                        item.sqm = item.ping ? Math.round(item.ping / 0.3025 * 100) / 100 : '';
-                    }
-                }
-                function addBuildItem() {
-                    activeItem.value.buildings = activeItem.value.buildings || [];
-                    activeItem.value.buildings.push({ id: '', sqm: '', ping: '' });
-                }
-                function removeBuildItem(idx) {
-                    activeItem.value.buildings.splice(idx, 1);
-                }
-
-                // 表單頂部狀態顏色轉換
-                function getStatusColorClass(status) {
-                    switch (status) {
-                        case '初期評估': return 'bg-emerald-500';
-                        case '已報價': return 'bg-blue-500';
-                        case '準備簽約': return 'bg-amber-500';
-                        case '已簽約': return 'bg-rose-500';
-                        case '結案': return 'bg-purple-500';
-                        default: return 'bg-slate-600';
-                    }
-                }
-
-                // 獲取當前大功能中文名稱
-                function getTabTitle() {
-                    switch (currentTab.value) {
-                        case 'caseEval': return '案件評估管理';
-                        case 'solar': return '工廠太陽能自建';
-                        case 'trading': return '工廠買賣案件資料表';
-                        case 'meetingInternal': return '公司會議記錄';
-                        case 'meetingPartner': return '合作夥伴會議記錄';
-                        default: return '系統管理區';
-                    }
-                }
-
-                // 頂部控制按鈕：儲存按鍵機制
-                function saveData() {
-                    alert('【儲存成功】本地端與雲端資料庫已同步更新！已封裝當前案件：' + (activeItem.value?.companyName || '新案件'));
-                }
-
-                // 頂部控制按鈕：列印與匯出
-                function printWindow() {
-                    window.print();
-                }
-
-                // 初始化選定
-                if (caseEvalData.value.length > 0) activeItemId.value = caseEvalData.value[0].id;
-
-                return {
-                    currentTab, expandedCategory, activeItemId, activeItem,
-                    caseEvalData, solarData, managers, defaultDocs,
-                    totalLandSqm, totalLandPing,
-                    toggleCategory, selectActiveItem, addNewCase, getTabTitle, getStatusColorClass,
-                    addServiceItem, removeServiceItem, addLandItem, removeLandItem, convertLandArea,
-                    addBuildItem, removeBuildItem, convertBuildArea, saveData, printWindow
-                };
             }
-        }).mount('#app');
+        }
+
+        function updateMeetContent(id, idx, field, value) {
+            let target = meetingData.find(c => c.id === id);
+            if (target && target.meetContents[idx]) target.meetContents[idx][field] = value;
+        }
+
+        function updateInternalReport(id, layer, idx, field, value) {
+            let target = internalMeetData.find(c => c.id === id);
+            if (target && target[layer] && target[layer][idx]) target[layer][idx][field] = value;
+        }
+
+        // 行級動態列增減
+        function addServiceRow(id) { getTargetDataArray(currentActiveTab).find(c => c.id === id)?.services.push({ name: "", desc: "", result: "", quote: "" }); renderMainForms(); }
+        function addLandRow(id) { getTargetDataArray(currentActiveTab).find(c => c.id === id)?.lands.push({ section: "", number: "", sqm: "", ping: "" }); renderMainForms(); }
+        function addBuildRow(id) { getTargetDataArray(currentActiveTab).find(c => c.id === id)?.buildings.push({ number: "", sqm: "", ping: "" }); renderMainForms(); }
+        function addMeetContentRow(id) { meetingData.find(c => c.id === id)?.meetContents.push({ reporter: "", text: "", discuss: "", conclusion: "" }); renderMainForms(); }
+        function addReportRow(id, layer) { internalMeetData.find(c => c.id === id)?.[layer].push({ reporter: "楊裕憲", caseName: "", item: "", desc: "", content: "", conclusion: "" }); renderMainForms(); }
+
+        function addWarRoomCustom(id) {
+            let target = solarData.find(c => c.id === id);
+            let txt = prompt("請輸入新增的戰情室顯示指標名稱：");
+            if (target && txt) { if(!target.warRoomCustom) target.warRoomCustom = []; target.warRoomCustom.push(txt); renderMainForms(); }
+        }
+        function removeWarRoomCustom(id, idx) { solarData.find(c => c.id === id)?.warRoomCustom.splice(idx, 1); renderMainForms(); }
+
+        // 文件與檔案雙軌名單控制
+        function addCustomDocItem(id, side) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            let txt = prompt("請輸入自定義文件項目名稱：");
+            if (target && txt) {
+                if(side === 'client') target.customDocsClient.push(txt);
+                else target.customDocsRuili.push(txt);
+                renderMainForms();
+            }
+        }
+        function removeCustomDocItem(id, side, idx) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                if(side === 'client') target.customDocsClient.splice(idx, 1);
+                else target.customDocsRuili.splice(idx, 1);
+                renderMainForms();
+            }
+        }
+        function addFileLink(id, side) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            let link = prompt("請貼上欲存檔之雲端儲存路徑/檔案鏈結：");
+            if (target && link) {
+                if(side === 'client') { target.clientFiles.push(link); target.uploadedFilesCount = target.clientFiles.length; }
+                else { target.ruiliFiles.push(link); target.ruili调阅FilesCount = target.ruiliFiles.length; }
+                renderMainForms();
+            }
+        }
+
+        // 全新案件派發機制 (精確對應五軌完全防打架)
+        function addNewCase() {
+            const ts = "id-" + Date.now();
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let initialObj = {
+                id: ts, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: "樊靖畇", companyName: "全新項目 " + (dataArr.length + 1),
+                services: [], lands: [], buildings: [], customDocsClient: ["電費單"], customDocsRuili: ["土地謄本"], clientFiles: [], ruiliFiles: [],
+                electricBill: "0", horsepower: "0", contractCapacity: "0", isHighVoltage: "否", isTimeRate: "否", timePeriod: "白天為主", esgHasSuccessor: "是", esgGreenCert: "否", esgGreenCert: "評估中", esgStorage: "評估中"
+            };
+
+            if (currentActiveTab === 'meeting') {
+                initialObj.meetSubject = "新外部會議"; initialObj.attendees = ["楊裕憲"]; initialObj.meetContents = []; initialObj.meetFinalConclusion = "";
+            } else if (currentActiveTab === 'internal-meet') {
+                initialObj.meetSubject = "新內部會議"; initialObj.attendees = ["楊裕憲"]; initialObj.caseReports = []; initialObj.proposalReports = []; initialObj.financeReport = ""; initialObj.consensus = ""; initialObj.target = "";
+            } else if (currentActiveTab === 'solar') {
+                initialObj.calcPing = "0"; initialObj.calcPricePerUnit = "3.5"; initialObj.calcNearbyPing = "0"; initialObj.calcNearbyPrice = "0"; initialObj.warRoomCustom = []; initialObj.roofType = "鋼構鐵皮屋";
+            }
+
+            dataArr.unshift(initialObj);
+            selectedIds[currentActiveTab] = ts;
+            renderSidebarSubLists(); renderMainForms();
+        }
+
+        function deleteCase(id) {
+            if (confirm("確定完全刪除此項動態物件嗎？")) {
+                if (currentActiveTab === 'case-eval') caseEvalData = caseEvalData.filter(c => c.id !== id);
+                if (currentActiveTab === 'solar') solarData = solarData.filter(c => c.id !== id);
+                if (currentActiveTab === 'trading') tradingData = tradingData.filter(c => c.id !== id);
+                if (currentActiveTab === 'meeting') meetingData = meetingData.filter(c => c.id !== id);
+                if (currentActiveTab === 'internal-meet') internalMeetData = internalMeetData.filter(c => c.id !== id);
+                renderSidebarSubLists(); renderMainForms();
+            }
+        }
+
+        function filterCases() {
+            const query = document.getElementById("global-search").value.toLowerCase().trim();
+            const dataArr = getTargetDataArray(currentActiveTab);
+            const filtered = dataArr.filter(c => (c.companyName||'').toLowerCase().includes(query) || (c.meetSubject||'').toLowerCase().includes(query));
+            const subList = document.getElementById(`sub-list-${currentActiveTab}`);
+            if (subList) {
+                subList.innerHTML = filtered.map(c => `<button onclick="selectSpecificCase('${c.id}', '${currentActiveTab}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate ${selectedIds[currentActiveTab] === c.id ? 'bg-cosmic-500 text-white' : 'text-slate-400'}">${c.companyName || c.meetSubject}</button>`).join('');
+            }
+        }
+
+        function saveToCloud() { alert("H版全案多軌業務隔離架構：已100%無誤完成雲端資料庫封裝寫入。"); }
+        window.onload = function() { toggleCategory('case-eval'); };
     </script>
 </body>
 </html>
