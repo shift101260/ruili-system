@@ -180,6 +180,7 @@
         let caseEvalData = [
             {
                 id: "eval-1", companyName: "大鼎精密工業股份有限公司", taxId: "83746291", factoryLicense: "64009876", industryType: "金屬製品製造業", contact: "王大鼎", phone: "0912-345678", email: "tading@precision.com", address: "高雄市岡山區本工路88號", website: "https://www.tading.com",
+                city: "高雄市", region: "岡山區",
                 services: [{ date: "2026-07-18T16:00", manager: "樊靖畇", status: "初期評估", source: "公會引介", name: "特定工廠轉型諮詢", desc: "改善計畫編製與變更審查手續", remark: "落實接班企業諮詢體系。", quote: "350000", contract: "350000", p1: "100000", d1: "", p2: "150000", d2: "", p3: "100000", d3: "", p4: "", d4: "" }],
                 lands: [{ section: "岡山段", number: "105-02", pattern: "都市計畫使用分區", customPattern: "工業區特定目的專用", currentPrice: "12000", sqm: "1500", ping: "453.75" }],
                 buildingsLegal: [{ number: "402", type: "鋼構廠房", year: "2005", sqm: "800", ping: "242" }],
@@ -308,7 +309,7 @@
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                                        <div><label class="text-slate-400 block mb-0.5">服務項目</label><input type="text" value="${srv.name||''}" oninput="updateServiceField('${c.id}', ${idx}, 'name', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text White"></div>
+                                        <div><label class="text-slate-400 block mb-0.5">服務項目</label><input type="text" value="${srv.name||''}" oninput="updateServiceField('${c.id}', ${idx}, 'name', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                         <div><label class="text-slate-400 block mb-0.5">報價金額</label><input type="number" value="${srv.quote||''}" oninput="updateServiceField('${c.id}', ${idx}, 'quote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                         <div><label class="text-slate-400 block mb-0.5">簽約金額</label><input type="number" value="${srv.contract||''}" oninput="updateServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                     </div>
@@ -318,7 +319,9 @@
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
 
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] pt-2 border-t border-cosmic-700/20">
+                                    <!-- 付款期程標籤區 -->
+                                    <div class="text-[11px] text-slate-400 font-semibold mb-0.5 tracking-wider">付款期程</div>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] pt-1 border-t border-cosmic-700/20">
                                         ${[1,2,3,4].map(p => `
                                             <div class="bg-cosmic-950/50 p-1.5 rounded border border-cosmic-700/30">
                                                 <input type="number" value="${srv['p'+p]||''}" placeholder="第${p}期金額" oninput="updateServiceField('${c.id}', ${idx}, 'p${p}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center mb-1">
@@ -353,6 +356,13 @@
                             <h4 class="text-xs font-bold text-emerald-400">三、土地基本資料 (平方公尺自動乘*0.3025帶入坪數)</h4>
                             <button onclick="addLandRow('${c.id}')" class="text-[10px] bg-emerald-900 border border-emerald-700 px-2 py-0.5 rounded no-print">[＋ 地段地號]</button>
                         </div>
+                        
+                        <!-- 縣市、區域新空格 -->
+                        <div class="grid grid-cols-2 gap-3 text-xs pt-1 pb-2">
+                            <div><label class="text-slate-400 block mb-0.5">縣市</label><input type="text" value="${c.city||''}" oninput="updateField('${c.id}', 'city', this.value)" placeholder="例如：高雄市" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div><label class="text-slate-400 block mb-0.5">區域</label><input type="text" value="${c.region||''}" oninput="updateField('${c.id}', 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                        </div>
+
                         <div class="space-y-1.5">
                             ${c.lands.map((l, idx) => `
                                 <div class="grid grid-cols-7 gap-1 text-[11px]">
@@ -457,7 +467,7 @@
                                     <option value="是" ${c.esgEuCarbon==='是'?'selected':''}>是</option>
                                 </select>
                             </div>
-                            <div><label class="text-slate-400 block mb-1">綠電憑證</label>
+                            <div><label class="text-slate-400 block mb-1">是否需要綠電憑證</label>
                                 <select onchange="updateField('${c.id}', 'esgGreenCert', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                                     <option value="否" ${c.esgGreenCert==='否'?'selected':''}>否</option>
                                     <option value="是" ${c.esgGreenCert==='是'?'selected':''}>是</option>
@@ -641,6 +651,7 @@
                 obj.companyName = "全新公司案件 " + (dataArr.length + 1); obj.services = []; obj.lands = []; obj.buildingsLegal = []; obj.buildingsIllegal = []; obj.customDocsClient = ["電費單"]; obj.customDocsRuili = ["土地謄本"]; obj.clientFiles = []; obj.ruiliFiles = [];
                 obj.electricBill = ""; obj.horsepower = ""; obj.contractCapacity = ""; obj.isHighVoltage = "否"; obj.isTimeRate = "否"; obj.timePeriod = "白天為主";
                 obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = "否"; obj.esgStorage = "否";
+                obj.city = ""; obj.region = "";
             } else {
                 obj.companyName = "新自建項目 " + (dataArr.length + 1); obj.meetSubject = "新研討主題";
             }
