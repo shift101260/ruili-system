@@ -9,438 +9,625 @@
     <!-- FontAwesome 圖標 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen font-sans" id="app">
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
 
     <!-- 頂部導覽列 -->
-    <header class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white shadow-md px-6 py-4 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-layer-group text-2xl text-cyan-400"></i>
-                <div>
-                    <h1 class="text-xl font-bold tracking-wider">睿立業務系統</h1>
-                    <p class="text-xs text-slate-400">核心業務流轉與自動化管理平台</p>
-                </div>
+    <header class="bg-gradient-to-r align-middle from-blue-900 to-indigo-900 text-white shadow-md px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-layer-group text-2xl text-cyan-400"></i>
+            <h1 class="text-xl font-bold tracking-wider">睿立業務系統 <span class="text-xs bg-cyan-500 text-slate-900 px-2 py-0.5 rounded-full ml-2">案件評估 V1.0</span></h1>
+        </div>
+        <!-- 頂部控制列 -->
+        <div class="flex items-center space-x-3">
+            <div class="relative">
+                <input type="text" id="searchBar" oninput="filterCases()" placeholder="搜尋公司、專案經理、服務..." class="w-64 px-4 py-1.5 pl-10 rounded-lg text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-xs"></i>
             </div>
-            
-            <!-- 頂部控制列 -->
-            <div class="flex flex-wrap items-center gap-3">
-                <!-- 關鍵字動態篩選 -->
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
-                    <input type="text" id="searchInput" oninput="filterCases()" placeholder="搜尋公司名稱、專案經理..." class="pl-9 pr-4 py-1.5 rounded-lg text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 w-60">
-                </div>
-                <button onclick="addNewCase()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg shadow transition flex items-center gap-1">
-                    <i class="fa-solid fa-plus"></i> 新增公司案件
-                </button>
-                <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow transition flex items-center gap-1">
-                    <i class="fa-solid fa-print"></i> 匯出/列印
-                </button>
-                <button onclick="saveToCloud()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold px-4 py-1.5 rounded-lg shadow transition flex items-center gap-1">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> 儲存按鍵
-                </button>
-            </div>
+            <button onclick="openModal()" class="bg-emerald-500 hover:bg-emerald-600 px-4 py-1.5 rounded-lg text-sm font-semibold shadow flex items-center space-x-1.5 transition-all">
+                <i class="fa-solid fa-plus"></i> <span>新增公司案件</span>
+            </button>
+            <button onclick="exportCSV()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center space-x-1.5 transition-all">
+                <i class="fa-solid fa-file-export"></i> <span>匯出 CSV</span>
+            </button>
+            <button onclick="saveToCloud()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-900 px-4 py-1.5 rounded-lg text-sm font-bold shadow flex items-center space-x-1.5 transition-all">
+                <i class="fa-solid fa-cloud-arrow-up"></i> <span>儲存更新</span>
+            </button>
         </div>
     </header>
 
-    <!-- 主內容區 -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <!-- 案件動態表渲染容器 -->
-        <div id="casesContainer" class="space-y-8">
-            <!-- 預設動態生成的物件會經由 JS 渲染到這裡 -->
+    <!-- 主區塊 -->
+    <main class="p-6 max-w-7xl mx-auto">
+        <!-- 統計看版 -->
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6" id="statsContainer">
+            <!-- 動態渲染統計數字 -->
+        </div>
+
+        <!-- 案件清單表格 -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-4 bg-slate-100 border-b border-slate-200 flex justify-between items-center">
+                <h2 class="font-bold text-slate-700 flex items-center space-x-2">
+                    <i class="fa-solid fa-list-check text-indigo-500"></i>
+                    <span>動態案件管理清單</span>
+                </h2>
+                <span id="caseCount" class="text-sm bg-slate-200 px-2 py-0.5 rounded text-slate-600 font-medium">共 0 筆案件</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-200">
+                            <th class="py-3 px-4">狀態</th>
+                            <th class="py-3 px-4">公司名稱 (統編)</th>
+                            <th class="py-3 px-4">專案經理</th>
+                            <th class="py-3 px-4">服務項目</th>
+                            <th class="py-3 px-4">土地/建物總坪</th>
+                            <th class="py-3 px-4">ESG (外銷/接班)</th>
+                            <th class="py-3 px-4 text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="caseTableBody" class="divide-y divide-slate-100 text-sm">
+                        <!-- 動態案件名單 -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 
-    <!-- 頁尾與聲明（每一頁最下面必需顯示） -->
-    <footer class="bg-white border-t border-slate-200 mt-12 py-8 px-6 text-sm text-slate-500">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-2">
-                <div class="flex flex-wrap gap-x-4 gap-y-1 text-slate-700 font-semibold">
-                    <span>睿立資產管理顧問有限公司 <span class="text-xs font-normal text-slate-400">統編：90411790</span></span>
-                    <span>元業綠能驗證有限公司 <span class="text-xs font-normal text-slate-400">統編：90000831</span></span>
-                    <span>天梁不動產股份有限公司 <span class="text-xs font-normal text-slate-400">統編：93628169</span></span>
+    <!-- 新增/編輯彈窗 (Modal) -->
+    <div id="caseModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <!-- Header -->
+            <div class="p-5 border-b border-slate-200 flex justify-between items-center sticky top-0 bg-white z-10">
+                <h3 id="modalTitle" class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                    <i class="fa-solid fa-pen-to-square text-blue-600"></i> <span>新增公司案件評估</span>
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Form Body -->
+            <form id="caseForm" onsubmit="handleFormSubmit(event)" class="p-6 space-y-6">
+                <input type="hidden" id="editCaseId">
+
+                <!-- 一、專案人員與狀態 -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-700 text-sm mb-3 flex items-center space-x-1.5"><span class="w-1 h-4 bg-indigo-600 rounded-full inline-block"></span><span>一、專案負責與狀態</span></h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">案件狀態 *</label>
+                            <select id="caseStatus" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                                <option value="初期評估">初期評估 (綠色)</option>
+                                <option value="已報價">已報價 (藍色)</option>
+                                <option value="準備簽約">準備簽約 (金色)</option>
+                                <option value="已簽約">已簽約 (紅色)</option>
+                                <option value="結案">結案 (紫色)</option>
+                                <option value="沒下文">沒下文 (黑色)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">專案經理 *</label>
+                            <select id="projectManager" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                                <option value="樊靖畇">樊靖畇</option>
+                                <option value="鄭家承">鄭家承</option>
+                                <option value="陳宥騰">陳宥騰</option>
+                                <option value="楊裕憲">楊裕憲</option>
+                                <option value="黃逸豪">黃逸豪</option>
+                                <option value="李宜璇">李宜璇</option>
+                                <option value="王瑋聆">王瑋聆</option>
+                                <option value="許先生">許先生</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">案件來源</label>
+                            <input type="text" id="caseSource" placeholder="例如：介紹、開發" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">業務即時狀態備註</label>
+                        <textarea id="statusRemark" rows="2" placeholder="請輸入當前進度備註..." class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500"></textarea>
+                    </div>
                 </div>
-                <p class="text-xs">
-                    TEL：07-222-5595 &nbsp;|&nbsp; FAX：07-269-3091 &nbsp;|&nbsp; 
-                    E-mail：ruilu1101108@gmail.com &nbsp;|&nbsp; 
-                    ADD：高雄市苓雅區新光路38號30樓之2
-                </p>
-            </div>
-            <div class="md:text-right flex flex-col justify-end">
-                <p class="text-amber-600 font-bold flex items-center md:justify-end gap-1">
-                    <i class="fa-solid fa-triangle-exclamation"></i> 備註說明：此文件報價及建議有效期限一個月。
-                </p>
-            </div>
-        </div>
-    </footer>
 
-    <!-- 前端邏輯核心：1.狀態管理層 2.使用者介面層 -->
-    <script>
-        // 專案經理與狀態選單資料庫
-        const MANAGERS = ["樊靖畇", "鄭家承", "陳宥騰", "楊裕憲", "黃逸豪", "李宜璇", "王瑋聆", "許先生"];
-        const STATUSES = [
-            { name: "初期評估", bg: "bg-green-100 text-green-800 border-green-300" },
-            { name: "已報價", bg: "bg-blue-100 text-blue-800 border-blue-300" },
-            { name: "準備簽約", bg: "bg-amber-100 text-amber-800 border-amber-300" },
-            { name: "已簽約", bg: "bg-red-100 text-red-800 border-red-300" },
-            { name: "結案", bg: "bg-purple-100 text-purple-800 border-purple-300" },
-            { name: "沒下文", bg: "bg-slate-200 text-slate-800 border-slate-400" }
-        ];
-        const REQUIRED_DOCS = ["電費單", "屋頂現況照片（多角度）", "屋頂平面圖", "使用執照", "建築圖", "場域線路分佈圖", "廠區空拍圖"];
+                <!-- 二、公司基本資料 -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-700 text-sm mb-3 flex items-center space-x-1.5"><span class="w-1 h-4 bg-indigo-600 rounded-full inline-block"></span><span>二、公司基本資料</span></h4>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">公司名稱 *</label>
+                            <input type="text" id="companyName" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">統一編號</label>
+                            <input type="text" id="companyTaxId" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">工廠登記證字號</label>
+                            <input type="text" id="factoryRegId" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">產業類型</label>
+                            <input type="text" id="industryType" placeholder="如: 金屬製品製造業" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">聯絡人</label>
+                            <input type="text" id="contactPerson" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">聯絡電話</label>
+                            <input type="text" id="contactPhone" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">E-mail</label>
+                            <input type="email" id="contactEmail" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="md:col-span-4">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">工廠地址</label>
+                            <input type="text" id="factoryAddress" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
 
-        // 1. 狀態管理層：初始動態案件陣列
-        let casesState = [
-            {
-                id: "case-1",
-                date: "2026-07-18",
-                status: "初期評估",
-                manager: "樊靖畇",
-                companyName: "睿立綠能轉型示範廠",
-                taxId: "90411790",
-                factoryCert: "F1234567",
-                industryType: "金屬加工業",
-                contact: "王經理",
-                phone: "0912-345678",
-                email: "service@ruili.com",
-                address: "高雄市小港區工業路88號",
-                remark: "積極轉型中，預計評估屋頂太陽能與低碳轉型",
-                lands: [{ id: "l-1", section: "新光段", num: "101", sqm: 330.5, ping: 100 }],
-                buildings: [{ id: "b-1", num: "888", sqm: 165.2, ping: 50, year: "2015", legal: 50, illegal: 0 }],
-                esg: { successor: "是", export: "是", euCarbon: "是", electricity: "120,000", hp: "50", capacity: "99", isHighVoltage: "是", isTimeRate: "是", peakTime: "白天為主" },
-                docs: ["電費單", "使用執照", "建築圖"]
-            }
-        ];
+                <!-- 動態增減：服務項目層 -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-slate-700 text-sm flex items-center space-x-1.5"><span class="w-1 h-4 bg-indigo-600 rounded-full inline-block"></span><span>服務項目明細</span></h4>
+                        <button type="button" onclick="addServiceRow()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded flex items-center space-x-1"><i class="fa-solid fa-plus"></i> <span>新增服務項目</span></button>
+                    </div>
+                    <div id="servicesContainer" class="space-y-2">
+                        <!-- 動態列插入處 -->
+                    </div>
+                </div>
 
-        // 渲染動態表格
-        function renderCases() {
-            const container = document.getElementById('casesContainer');
-            container.innerHTML = '';
-
-            if (casesState.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-slate-400 bg-white rounded-xl shadow-sm border border-dashed border-slate-300">目前無匹配的案件名單，請點擊上方新增。</div>`;
-                return;
-            }
-
-            casesState.forEach((c) => {
-                // 計算總坪數
-                let totalLandPing = c.lands.reduce((sum, l) => sum + Number(l.ping || 0), 0);
-                let totalLandSqm = c.lands.reduce((sum, l) => sum + Number(l.sqm || 0), 0);
-
-                let caseHtml = `
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 transition hover:shadow-md relative" id="${c.id}">
-                    <!-- 刪除按鈕 -->
-                    <button onclick="deleteCase('${c.id}')" class="absolute top-5 right-6 text-slate-400 hover:text-red-500 transition text-sm">
-                        <i class="fa-regular fa-trash-can"></i> 可刪除動態案件名單的按鈕
-                    </button>
-
-                    <div class="border-b border-slate-100 pb-4 mb-6">
-                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">案件評估單</span>
-                        <h2 class="text-xl font-bold text-slate-800 mt-2 flex items-center gap-2">
-                            <i class="fa-solid fa-industry text-slate-400"></i> ${c.companyName || '未命名公司案件'}
-                        </h2>
+                <!-- 三、土地基本資料 -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-slate-700 text-sm flex items-center space-x-1.5"><span class="w-1 h-4 bg-indigo-600 rounded-full inline-block"></span><span>三、土地基本資料</span></h4>
+                        <button type="button" onclick="addLandRow()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded flex items-center space-x-1"><i class="fa-solid fa-plus"></i> <span>地段地號</span></button>
+                    </div>
+                    
+                    <div id="landsContainer" class="space-y-2 mb-4">
+                        <!-- 地段地號動態列 -->
                     </div>
 
-                    <!-- 一、專案人員 -->
-                    <div class="bg-slate-50/80 rounded-xl p-4 border border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-200 pt-3">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">一、專案人員 / 日期時間</label>
-                            <input type="date" value="${c.date}" onchange="updateField('${c.id}', 'date', this.value)" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">土地總坪數 (坪)</label>
+                            <input type="number" step="0.01" id="totalLandPing" class="w-full bg-slate-100 border border-slate-300 rounded-lg p-2 text-sm font-bold text-indigo-700" readonly placeholder="由下方自動加總">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">案件狀態（下拉選單）</label>
-                            <div class="flex flex-wrap gap-1.5">
-                                ${STATUSES.map(st => `
-                                    <button onclick="updateField('${c.id}', 'status', '${st.name}')" class="text-xs px-2.5 py-1 rounded-md border font-medium transition ${c.status === st.name ? st.bg + ' ring-2 ring-offset-1 ring-indigo-500 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}">
-                                        ${st.name}
-                                    </button>
-                                `).join('')}
-                            </div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">土地型態 (都市計畫內使用分區)</label>
+                            <input type="text" id="urbanZone" placeholder="如: 工業區、農業區" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">專案經理（下拉選單）</label>
-                            <select onchange="updateField('${c.id}', 'manager', this.value)" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                                ${MANAGERS.map(m => `<option value="${m}" ${c.manager === m ? 'selected' : ''}>${m}</option>`).join('')}
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">土地型態 (都市計畫外使用地類別)</label>
+                            <input type="text" id="nonUrbanZone" placeholder="如: 丁種建築用地" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 四、建物基本資料 -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-slate-700 text-sm flex items-center space-x-1.5"><span class="w-1 h-4 bg-indigo-600 rounded-full inline-block"></span><span>四、建物基本資料</span></h4>
+                        <button type="button" onclick="addBuildingRow()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded flex items-center space-x-1"><i class="fa-solid fa-plus"></i> <span>建號</span></button>
+                    </div>
+                    
+                    <div id="buildingsContainer" class="space-y-2 mb-4">
+                        <!-- 建號動態列 -->
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-200 pt-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">建造年份</label>
+                            <input type="text" id="buildYear" placeholder="如: 1995" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">合法建物坪數 (坪)</label>
+                            <input type="number" step="0.01" id="legalBuildPing" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">違章建物坪數 (坪)</label>
+                            <input type="number" step="0.01" id="illegalBuildPing" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 五、ESG 評估 -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-700 text-sm mb-3 flex items-center space-x-1.5"><span class="w-1 h-4 bg-indigo-600 rounded-full inline-block"></span><span>五、ESG 評估與能耗狀況</span></h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">是否有接班人</label>
+                            <select id="esgSuccessor" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                                <option value="是">是</option>
+                                <option value="否">否</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">產品是否外銷</label>
+                            <select id="esgExport" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                                <option value="是">是</option>
+                                <option value="否">否</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">是否受歐盟減碳要求</label>
+                            <select id="esgCarbon" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                                <option value="是">是</option>
+                                <option value="否">否</option>
                             </select>
                         </div>
                     </div>
-
-                    <!-- 二、公司基本資料 -->
-                    <div class="mb-6">
-                        <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1"><i class="fa-regular fa-address-card text-indigo-500"></i> 二、公司基本資料</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                            <div><label class="text-xs text-slate-400">公司名稱</label><input type="text" value="${c.companyName}" oninput="updateField('${c.id}', 'companyName', this.value)" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm"></div>
-                            <div><label class="text-xs text-slate-400">統編</label><input type="text" value="${c.taxId}" oninput="updateField('${c.id}', 'taxId', this.value)" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm"></div>
-                            <div><label class="text-xs text-slate-400">工廠登記證字號</label><input type="text" value="${c.factoryCert}" oninput="updateField('${c.id}', 'factoryCert', this.value)" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm"></div>
-                            <div><label class="text-xs text-slate-400">產業類型</label><input type="text" value="${c.industryType}" oninput="updateField('${c.id}', 'industryType', this.value)" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm"></div>
-                            <div><label class="text-xs text-slate-400">聯絡人</label><input type="text" value="${c.contact}" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm"></div>
-                            <div><label class="text-xs text-slate-400">聯絡電話</label><input type="text" value="${c.phone}" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm"></div>
-                            <div><label class="text-xs text-slate-400">E-mail</label><input type="text" value="${c.email}" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm"></div>
-                            <div><label class="text-xs text-slate-400">工廠地址</label><input type="text" value="${c.address}" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-200 pt-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">每月平均電費 (元)</label>
+                            <input type="number" id="esgElectricity" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
                         </div>
-                        <div class="mt-3">
-                            <label class="text-xs text-slate-400">業務即時狀態備註</label>
-                            <textarea oninput="updateField('${c.id}', 'remark', this.value)" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm h-12">${c.remark || ''}</textarea>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">馬力 (HP)</label>
+                            <input type="number" id="esgHp" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
                         </div>
-                    </div>
-
-                    <!-- 三、土地基本資料 -->
-                    <div class="mb-6 bg-slate-50/40 p-4 rounded-xl border border-slate-200/60">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-sm font-bold text-slate-700 flex items-center gap-1"><i class="fa-solid fa-map-location-dot text-emerald-500"></i> 三、土地基本資料</h3>
-                            <button onclick="addLand('${c.id}')" class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-md hover:bg-emerald-100 transition">
-                                <i class="fa-solid fa-plus"></i> ［＋ 地段地號］按鈕
-                            </button>
-                        </div>
-                        <div class="space-y-2">
-                            ${c.lands.map((l, index) => `
-                                <div class="grid grid-cols-2 md:grid-cols-5 gap-3 bg-white p-2.5 rounded-lg border border-slate-200 text-xs">
-                                    <div>地段: <input type="text" value="${l.section}" oninput="updateSubField('${c.id}', 'lands', '${l.id}', 'section', this.value)" class="border px-1.5 py-0.5 rounded w-full mt-0.5"></div>
-                                    <div>地號: <input type="text" value="${l.num}" oninput="updateSubField('${c.id}', 'lands', '${l.id}', 'num', this.value)" class="border px-1.5 py-0.5 rounded w-full mt-0.5"></div>
-                                    <div>平方公尺: <input type="number" value="${l.sqm}" oninput="updateSubField('${c.id}', 'lands', '${l.id}', 'sqm', this.value); syncArea('${c.id}', 'lands', '${l.id}', 'sqm', this.value)" class="border px-1.5 py-0.5 rounded w-full mt-0.5"></div>
-                                    <div>坪: <input type="number" value="${l.ping}" oninput="updateSubField('${c.id}', 'lands', '${l.id}', 'ping', this.value); syncArea('${c.id}', 'lands', '${l.id}', 'ping', this.value)" class="border px-1.5 py-0.5 rounded w-full mt-0.5"></div>
-                                    <div class="flex items-end justify-end"><button onclick="deleteSubItem('${c.id}', 'lands', '${l.id}')" class="text-red-400 hover:text-red-600 py-1">刪除</button></div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="text-xs text-slate-500 mt-2 flex gap-4 font-medium px-1">
-                            <span>土地型態: 都市計畫內使用分區 / 都市計畫外使用地類別</span>
-                            <span class="ml-auto text-slate-700">總計: <strong class="text-emerald-600">${totalLandSqm.toFixed(2)}</strong> 平方公尺 / <strong class="text-emerald-600">${totalLandPing.toFixed(2)}</strong> 坪</span>
-                        </div>
-                    </div>
-
-                    <!-- 四、建物基本資料 -->
-                    <div class="mb-6 bg-slate-50/40 p-4 rounded-xl border border-slate-200/60">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-sm font-bold text-slate-700 flex items-center gap-1"><i class="fa-solid fa-tents text-cyan-600"></i> 四、建物基本資料</h3>
-                            <button onclick="addBuilding('${c.id}')" class="text-xs bg-cyan-50 text-cyan-700 border border-cyan-200 px-2.5 py-1 rounded-md hover:bg-cyan-100 transition">
-                                <i class="fa-solid fa-plus"></i> ［＋ 建號］按鈕
-                            </button>
-                        </div>
-                        <div class="space-y-2">
-                            ${c.buildings.map((b) => `
-                                <div class="grid grid-cols-2 md:grid-cols-6 gap-3 bg-white p-2.5 rounded-lg border border-slate-200 text-xs">
-                                    <div>建號: <input type="text" value="${b.num}" oninput="updateSubField('${c.id}', 'buildings', '${b.id}', 'num', this.value)" class="border px-1.5 py-0.5 rounded w-full mt-0.5"></div>
-                                    <div>建造年份: <input type="text" value="${b.year}" oninput="updateSubField('${c.id}', 'buildings', '${b.id}', 'year', this.value)" class="border px-1.5 py-0.5 rounded w-full mt-0.5"></div>
-                                    <div>合法坪數: <input type="number" value="${b.legal}" oninput="updateSubField('${c.id}', 'buildings', '${b.id}', 'legal', this.value)" class="border px-1.5 py-0.5 rounded w-full mt-0.5"></div>
-                                    <div>違章坪數: <input type="number" value="${b.illegal}" oninput="updateSubField('${c.id}', 'buildings', '${b.id}', 'illegal', this.value)" class="border px-1.5 py-0.5 rounded w-full mt-0.5"></div>
-                                    <div>總坪數: <span class="block mt-1.5 font-bold text-slate-600">${(Number(b.legal || 0) + Number(b.illegal || 0))} 坪</span></div>
-                                    <div class="flex items-end justify-end"><button onclick="deleteSubItem('${c.id}', 'buildings', '${b.id}')" class="text-red-400 hover:text-red-600 py-1">刪除</button></div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    <!-- 五、ESG 評估 -->
-                    <div class="mb-6 border border-teal-100 bg-teal-50/20 p-4 rounded-xl">
-                        <h3 class="text-sm font-bold text-teal-800 mb-3 flex items-center gap-1"><i class="fa-solid fa-leaf text-teal-600"></i> 五、ESG 評估與企業永續現況</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs mb-4">
-                            <div>
-                                <label class="text-slate-500">是否有接班人</label>
-                                <select onchange="updateEsg('${c.id}', 'successor', this.value)" class="w-full border bg-white p-1.5 rounded mt-1">
-                                    <option value="是" ${c.esg.successor === '是' ? 'selected' : ''}>是</option>
-                                    <option value="否" ${c.esg.successor === '否' ? 'selected' : ''}>否</option>
-                                    <option value="不清楚" ${c.esg.successor === '不清楚' ? 'selected' : ''}>不清楚</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-slate-500">產品是否外銷</label>
-                                <select onchange="updateEsg('${c.id}', 'export', this.value)" class="w-full border bg-white p-1.5 rounded mt-1">
-                                    <option value="是" ${c.esg.export === '是' ? 'selected' : ''}>是</option>
-                                    <option value="否" ${c.esg.export === '否' ? 'selected' : ''}>否</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-slate-500">是否受歐盟減碳要求</label>
-                                <select onchange="updateEsg('${c.id}', 'euCarbon', this.value)" class="w-full border bg-white p-1.5 rounded mt-1">
-                                    <option value="是" ${c.esg.euCarbon === '是' ? 'selected' : ''}>是</option>
-                                    <option value="否" ${c.esg.euCarbon === '否' ? 'selected' : ''}>否</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="border-t border-teal-100/70 pt-3 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                            <div>每月平均電費: <input type="text" value="${c.esg.electricity}" oninput="updateEsg('${c.id}', 'electricity', this.value)" class="w-full border px-2 py-1 rounded mt-0.5 bg-white"></div>
-                            <div>馬力: <input type="text" value="${c.esg.hp}" oninput="updateEsg('${c.id}', 'hp', this.value)" class="w-full border px-2 py-1 rounded mt-0.5 bg-white"></div>
-                            <div>契約容量(kW): <input type="text" value="${c.esg.capacity}" oninput="updateEsg('${c.id}', 'capacity', this.value)" class="w-full border px-2 py-1 rounded mt-0.5 bg-white"></div>
-                            <div>用電時段（複選機制）: 
-                                <select onchange="updateEsg('${c.id}', 'peakTime', this.value)" class="w-full border px-2 py-1 rounded mt-0.5 bg-white">
-                                    <option value="白天為主" ${c.esg.peakTime === '白天為主' ? 'selected' : ''}>白天為主</option>
-                                    <option value="夜間為主" ${c.esg.peakTime === '夜間為主' ? 'selected' : ''}>夜間為主</option>
-                                    <option value="平均分佈" ${c.esg.peakTime === '平均分佈' ? 'selected' : ''}>平均分佈</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 六、客戶應備文件 -->
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-700 mb-2 flex items-center gap-1"><i class="fa-regular fa-folder-open text-amber-500"></i> 六、客戶應備文件清單（可打勾）</h3>
-                        <div class="flex flex-wrap gap-3 mb-3">
-                            ${REQUIRED_DOCS.map(doc => {
-                                const checked = c.docs.includes(doc) ? 'checked' : '';
-                                return `
-                                    <label class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200/80 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition select-none">
-                                        <input type="checkbox" ${checked} onchange="toggleDoc('${c.id}', '${doc}')" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
-                                        <span>${doc}</span>
-                                    </label>
-                                `;
-                            }).join('')}
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mt-2">
-                            <div class="p-3 border border-dashed rounded-xl bg-slate-50/50">
-                                <span class="font-bold text-slate-600 block mb-1">應備文件檔案上傳（可存任何類型檔案）</span>
-                                <input type="file" class="w-full text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                            </div>
-                            <div class="p-3 border border-dashed rounded-xl bg-slate-50/50">
-                                <span class="font-bold text-slate-600 block mb-1">睿立調閱內部檔案區</span>
-                                <button class="bg-slate-200 hover:bg-slate-300 px-3 py-1 rounded text-slate-700 font-medium transition">載入內部地政及地籍圖檔資料</button>
-                            </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">契約容量 (kW)</label>
+                            <input type="number" id="esgKw" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
                         </div>
                     </div>
                 </div>
+
+                <!-- Footer 控制 -->
+                <div class="border-t border-slate-200 pt-4 flex justify-end space-x-2 bg-white sticky bottom-0">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">取消</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold shadow">確認儲存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 核心運作 JavaScript -->
+    <script>
+        // 初始化空白資料庫結構
+        let casesData = JSON.parse(localStorage.getItem('ruili_cases')) || [];
+
+        // 核心狀態樣式表
+        const statusConfig = {
+            '初期評估': { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-300', dot: 'bg-emerald-500' },
+            '已報價': { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300', dot: 'bg-blue-500' },
+            '準備簽約': { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-400', dot: 'bg-amber-500' },
+            '已簽約': { bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-300', dot: 'bg-rose-500' },
+            '結案': { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300', dot: 'bg-purple-500' },
+            '沒下文': { bg: 'bg-slate-800', text: 'text-white', border: 'border-slate-900', dot: 'bg-slate-400' }
+        };
+
+        // 網頁載入執行
+        document.addEventListener("DOMContentLoaded", () => {
+            renderTable(casesData);
+            updateStats();
+        });
+
+        // 渲染主要案件表格
+        function renderTable(data) {
+            const tbody = document.getElementById('caseTableBody');
+            document.getElementById('caseCount').innerText = `共 ${data.length} 筆案件`;
+            tbody.innerHTML = '';
+
+            if(data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400"><i class="fa-solid fa-folder-open text-3xl mb-2 block"></i>目前無任何案件資料，點選右上角新增。</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const cfg = statusConfig[item.status] || statusConfig['初期評估'];
+                
+                // 加總土地與建物資訊
+                const totalLand = item.lands.reduce((acc, l) => acc + (parseFloat(l.ping) || 0), 0).toFixed(1);
+                const totalBuild = ((parseFloat(item.legalBuildPing) || 0) + (parseFloat(item.illegalBuildPing) || 0)).toFixed(1);
+                
+                // 串接服務項目名稱
+                const serviceNames = item.services.map(s => s.name).join(', ') || '無項目';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3 px-4">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.text} border ${cfg.border}">
+                            <span class="w-1.5 h-1.5 rounded-full ${cfg.dot} mr-1.5"></span>${item.status}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 font-medium text-slate-900">
+                        <div>${item.companyName}</div>
+                        <div class="text-xs text-slate-400">${item.companyTaxId || '無統編'}</div>
+                    </td>
+                    <td class="py-3 px-4 text-slate-600 font-medium">${item.projectManager}</td>
+                    <td class="py-3 px-4"><span class="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded border border-indigo-100 max-w-[180px] inline-block truncate" title="${serviceNames}">${serviceNames}</span></td>
+                    <td class="py-3 px-4 text-xs text-slate-600">
+                        <div>地: ${totalLand} 坪</div>
+                        <div>建: ${totalBuild} 坪</div>
+                    </td>
+                    <td class="py-3 px-4 text-xs">
+                        <span class="px-1.5 py-0.5 rounded ${item.esgExport === '是' ? 'bg-cyan-100 text-cyan-800' : 'bg-slate-100'}">外銷: ${item.esgExport}</span>
+                        <span class="px-1.5 py-0.5 rounded ${item.esgSuccessor === '是' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100'} ml-1">接班: ${item.esgSuccessor}</span>
+                    </td>
+                    <td class="py-3 px-4 text-center space-x-1">
+                        <button onclick="editCase('${item.id}')" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-marker"></i></button>
+                        <button onclick="deleteCase('${item.id}')" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
                 `;
-                container.innerHTML += caseHtml;
+                tbody.appendChild(tr);
             });
         }
 
-        // 新增公司案件
-        function addNewCase() {
-            const newId = "case-" + Date.now();
-            const newObj = {
-                id: newId,
-                date: new Date().toISOString().split('T')[0],
-                status: "初期評估",
-                manager: "樊靖畇",
-                companyName: "新増工廠案件-" + casesState.length,
-                taxId: "", factoryCert: "", industryType: "", contact: "", phone: "", email: "", address: "", remark: "",
-                lands: [],
-                buildings: [],
-                esg: { successor: "不清楚", export: "否", euCarbon: "否", electricity: "", hp: "", capacity: "", isHighVoltage: "否", isTimeRate: "否", peakTime: "白天為主" },
-                docs: []
+        // 統計看板動態更新
+        function updateStats() {
+            const statsContainer = document.getElementById('statsContainer');
+            const counts = { '初期評估': 0, '已報價': 0, '準備簽約': 0, '已簽約': 0, '結案': 0, '沒下文': 0 };
+            casesData.forEach(c => { if(counts[c.status] !== undefined) counts[c.status]++; });
+
+            statsContainer.innerHTML = Object.keys(counts).map(key => {
+                const cfg = statusConfig[key];
+                return `
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400">${key}</p>
+                            <p class="text-xl font-bold text-slate-800 mt-0.5">${counts[key]}</p>
+                        </div>
+                        <span class="w-3 h-3 rounded-full ${cfg.dot}"></span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 開啟彈窗（新增模式）
+        function openModal() {
+            document.getElementById('caseForm').reset();
+            document.getElementById('editCaseId').value = '';
+            document.getElementById('modalTitle').innerText = '新增公司案件評估';
+            document.getElementById('servicesContainer').innerHTML = '';
+            document.getElementById('landsContainer').innerHTML = '';
+            document.getElementById('buildingsContainer').innerHTML = '';
+            
+            // 預設各帶一筆動態空白列
+            addServiceRow();
+            addLandRow();
+            addBuildingRow();
+
+            document.getElementById('caseModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('caseModal').classList.add('hidden');
+        }
+
+        // 動態新增列控制：服務項目
+        function addServiceRow(data = {name:'', desc:'', quote:''}) {
+            const div = document.createElement('div');
+            div.className = "flex space-x-2 items-center service-row bg-white p-2 rounded border border-slate-200";
+            div.innerHTML = `
+                <input type="text" placeholder="項目名稱 (如: 特定工廠變更)" value="${data.name}" class="w-1/3 border border-slate-300 rounded p-1.5 text-xs focus:ring-1 focus:ring-indigo-500" required>
+                <input type="text" placeholder="案件說明/評估結果" value="${data.desc}" class="w-5/12 border border-slate-300 rounded p-1.5 text-xs focus:ring-1 focus:ring-indigo-500">
+                <input type="number" placeholder="報價" value="${data.quote}" class="w-2/12 border border-slate-300 rounded p-1.5 text-xs focus:ring-1 focus:ring-indigo-500">
+                <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-rose-600 text-sm px-1"><i class="fa-solid fa-trash"></i></button>
+            `;
+            document.getElementById('servicesContainer').appendChild(div);
+        }
+
+        // 動態新增列控制：土地地段地號
+        function addLandRow(data = {section:'', no:'', m2:'', ping:''}) {
+            const div = document.createElement('div');
+            div.className = "flex space-x-2 items-center land-row bg-white p-2 rounded border border-slate-200";
+            div.innerHTML = `
+                <input type="text" placeholder="地段" value="${data.section}" class="w-1/4 border border-slate-300 rounded p-1.5 text-xs focus:ring-1 focus:ring-indigo-500">
+                <input type="text" placeholder="地號" value="${data.no}" class="w-1/4 border border-slate-300 rounded p-1.5 text-xs focus:ring-1 focus:ring-indigo-500">
+                <input type="number" step="0.01" placeholder="平方公尺" value="${data.m2}" oninput="calcPing(this, 'm2')" class="w-1/4 border border-slate-300 rounded p-1.5 text-xs focus:ring-1 focus:ring-indigo-500">
+                <input type="number" step="0.01" placeholder="坪數" value="${data.ping}" oninput="calcPing(this, 'ping')" class="w-1/4 border border-slate-300 rounded p-1.5 text-xs font-semibold text-indigo-600 focus:ring-1 focus:ring-indigo-500 land-ping-input">
+                <button type="button" onclick="this.parentElement.remove(); sumTotalLandPing();" class="text-slate-400 hover:text-rose-600 text-sm px-1"><i class="fa-solid fa-trash"></i></button>
+            `;
+            document.getElementById('landsContainer').appendChild(div);
+        }
+
+        // 動態新增列控制：建號
+        function addBuildingRow(data = {no:'', m2:'', ping:''}) {
+            const div = document.createElement('div');
+            div.className = "flex space-x-2 items-center building-row bg-white p-2 rounded border border-slate-200";
+            div.innerHTML = `
+                <input type="text" placeholder="建號" value="${data.no}" class="w-1/3 border border-slate-300 rounded p-1.5 text-xs focus:ring-1 focus:ring-indigo-500">
+                <input type="number" step="0.01" placeholder="平方公尺" value="${data.m2}" oninput="calcBuildingPing(this, 'm2')" class="w-1/3 border border-slate-300 rounded p-1.5 text-xs focus:ring-1 focus:ring-indigo-500">
+                <input type="number" step="0.01" placeholder="坪數" value="${data.ping}" oninput="calcBuildingPing(this, 'ping')" class="w-1/3 border border-slate-300 rounded p-1.5 text-xs focus:ring-1 focus:ring-indigo-500 building-ping-input">
+                <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-rose-600 text-sm px-1"><i class="fa-solid fa-trash"></i></button>
+            `;
+            document.getElementById('buildingsContainer').appendChild(div);
+        }
+
+        // 自動換算與坪數加總公式
+        function calcPing(element, type) {
+            const row = element.parentElement;
+            const m2Input = row.querySelectorAll('input')[2];
+            const pingInput = row.querySelectorAll('input')[3];
+            if(type === 'm2' && m2Input.value) {
+                pingInput.value = (parseFloat(m2Input.value) * 0.3025).toFixed(2);
+            } else if(type === 'ping' && pingInput.value) {
+                m2Input.value = (parseFloat(pingInput.value) / 0.3025).toFixed(2);
+            }
+            sumTotalLandPing();
+        }
+
+        function calcBuildingPing(element, type) {
+            const row = element.parentElement;
+            const m2Input = row.querySelectorAll('input')[1];
+            const pingInput = row.querySelectorAll('input')[2];
+            if(type === 'm2' && m2Input.value) {
+                pingInput.value = (parseFloat(m2Input.value) * 0.3025).toFixed(2);
+            } else if(type === 'ping' && pingInput.value) {
+                m2Input.value = (parseFloat(pingInput.value) / 0.3025).toFixed(2);
+            }
+        }
+
+        function sumTotalLandPing() {
+            let total = 0;
+            document.querySelectorAll('.land-ping-input').forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            document.getElementById('totalLandPing').value = total.toFixed(2);
+        }
+
+        // 提交與儲存表單
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // 蒐集動態陣列資料
+            const services = [];
+            document.querySelectorAll('.service-row').forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                if(inputs[0].value) services.push({ name: inputs[0].value, desc: inputs[1].value, quote: inputs[2].value });
+            });
+
+            const lands = [];
+            document.querySelectorAll('.land-row').forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                if(inputs[0].value || inputs[1].value) lands.push({ section: inputs[0].value, no: inputs[1].value, m2: inputs[2].value, ping: inputs[3].value });
+            });
+
+            const buildings = [];
+            document.querySelectorAll('.building-row').forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                if(inputs[0].value) buildings.push({ no: inputs[0].value, m2: inputs[1].value, ping: inputs[2].value });
+            });
+
+            const caseId = document.getElementById('editCaseId').value;
+            const caseObject = {
+                id: caseId || 'case_' + Date.now(),
+                status: document.getElementById('caseStatus').value,
+                projectManager: document.getElementById('projectManager').value,
+                caseSource: document.getElementById('caseSource').value,
+                statusRemark: document.getElementById('statusRemark').value,
+                companyName: document.getElementById('companyName').value,
+                companyTaxId: document.getElementById('companyTaxId').value,
+                factoryRegId: document.getElementById('factoryRegId').value,
+                industryType: document.getElementById('industryType').value,
+                contactPerson: document.getElementById('contactPerson').value,
+                contactPhone: document.getElementById('contactPhone').value,
+                contactEmail: document.getElementById('contactEmail').value,
+                factoryAddress: document.getElementById('factoryAddress').value,
+                urbanZone: document.getElementById('urbanZone').value,
+                nonUrbanZone: document.getElementById('nonUrbanZone').value,
+                buildYear: document.getElementById('buildYear').value,
+                legalBuildPing: document.getElementById('legalBuildPing').value,
+                illegalBuildPing: document.getElementById('illegalBuildPing').value,
+                esgSuccessor: document.getElementById('esgSuccessor').value,
+                esgExport: document.getElementById('esgExport').value,
+                esgCarbon: document.getElementById('esgCarbon').value,
+                esgElectricity: document.getElementById('esgElectricity').value,
+                esgHp: document.getElementById('esgHp').value,
+                esgKw: document.getElementById('esgKw').value,
+                services: services,
+                lands: lands,
+                buildings: buildings,
+                updatedAt: new Date().toLocaleString()
             };
-            casesState.unshift(newObj);
-            renderCases();
-            document.getElementById(newId).scrollIntoView({ behavior: 'smooth' });
+
+            if(caseId) {
+                // 編輯模式
+                const idx = casesData.findIndex(c => c.id === caseId);
+                casesData[idx] = caseObject;
+            } else {
+                // 全新新增
+                casesData.unshift(caseObject);
+            }
+
+            localStorage.setItem('ruili_cases', JSON.stringify(casesData));
+            renderTable(casesData);
+            updateStats();
+            closeModal();
+        }
+
+        // 編輯案件讀取
+        function editCase(id) {
+            const item = casesData.find(c => c.id === id);
+            if(!item) return;
+
+            openModal();
+            document.getElementById('modalTitle').innerText = '編輯案件評估 - ' + item.companyName;
+            document.getElementById('editCaseId').value = item.id;
+            
+            document.getElementById('caseStatus').value = item.status;
+            document.getElementById('projectManager').value = item.projectManager;
+            document.getElementById('caseSource').value = item.caseSource || '';
+            document.getElementById('statusRemark').value = item.statusRemark || '';
+            document.getElementById('companyName').value = item.companyName;
+            document.getElementById('companyTaxId').value = item.companyTaxId || '';
+            document.getElementById('factoryRegId').value = item.factoryRegId || '';
+            document.getElementById('industryType').value = item.industryType || '';
+            document.getElementById('contactPerson').value = item.contactPerson || '';
+            document.getElementById('contactPhone').value = item.contactPhone || '';
+            document.getElementById('contactEmail').value = item.contactEmail || '';
+            document.getElementById('factoryAddress').value = item.factoryAddress || '';
+            document.getElementById('urbanZone').value = item.urbanZone || '';
+            document.getElementById('nonUrbanZone').value = item.nonUrbanZone || '';
+            document.getElementById('buildYear').value = item.buildYear || '';
+            document.getElementById('legalBuildPing').value = item.legalBuildPing || '';
+            document.getElementById('illegalBuildPing').value = item.illegalBuildPing || '';
+            document.getElementById('esgSuccessor').value = item.esgSuccessor || '是';
+            document.getElementById('esgExport').value = item.esgExport || '是';
+            document.getElementById('esgCarbon').value = item.esgCarbon || '是';
+            document.getElementById('esgElectricity').value = item.esgElectricity || '';
+            document.getElementById('esgHp').value = item.esgHp || '';
+            document.getElementById('esgKw').value = item.esgKw || '';
+
+            // 填入動態列
+            document.getElementById('servicesContainer').innerHTML = '';
+            if(item.services && item.services.length > 0) item.services.forEach(s => addServiceRow(s)); else addServiceRow();
+
+            document.getElementById('landsContainer').innerHTML = '';
+            if(item.lands && item.lands.length > 0) item.lands.forEach(l => addLandRow(l)); else addLandRow();
+
+            document.getElementById('buildingsContainer').innerHTML = '';
+            if(item.buildings && item.buildings.length > 0) item.buildings.forEach(b => addBuildingRow(b)); else addBuildingRow();
+
+            sumTotalLandPing();
         }
 
         // 刪除案件
         function deleteCase(id) {
-            if (confirm("確定要移除此筆動態案件資料嗎？")) {
-                casesState = casesState.filter(c => c.id !== id);
-                renderCases();
+            if(confirm('確定要刪除此筆公司案件評估資料嗎？刪除後無法復原。')) {
+                casesData = casesData.filter(c => c.id !== id);
+                localStorage.setItem('ruili_cases', JSON.stringify(casesData));
+                renderTable(casesData);
+                updateStats();
             }
         }
 
-        // 更新一級欄位
-        function updateField(caseId, field, value) {
-            const index = casesState.findIndex(c => c.id === caseId);
-            if (index !== -1) {
-                casesState[index][field] = value;
-                if (field === 'status' || field === 'manager') renderCases(); // 狀態或人員更換重新渲染
-            }
-        }
-
-        // 更新子數組欄位（地段地號、建號）
-        function updateSubField(caseId, subArray, subId, field, value) {
-            const cIndex = casesState.findIndex(c => c.id === caseId);
-            if (cIndex !== -1) {
-                const sIndex = casesState[cIndex][subArray].findIndex(s => s.id === subId);
-                if (sIndex !== -1) {
-                    casesState[cIndex][subArray][sIndex][field] = value;
-                }
-            }
-        }
-
-        // 平方公尺與坪數自動同步自動換算
-        function syncArea(caseId, subArray, subId, triggerField, value) {
-            const cIndex = casesState.findIndex(c => c.id === caseId);
-            if (cIndex !== -1) {
-                const sIndex = casesState[cIndex][subArray].findIndex(s => s.id === subId);
-                if (sIndex !== -1) {
-                    if (triggerField === 'sqm') {
-                        casesState[cIndex][subArray][sIndex]['ping'] = (Number(value) * 0.3025).toFixed(2);
-                    } else if (triggerField === 'ping') {
-                        casesState[cIndex][subArray][sIndex]['sqm'] = (Number(value) / 0.3025).toFixed(2);
-                    }
-                    // 為了不讓焦點消失，手動更新統計總數而不用完整刷新
-                    renderCases();
-                }
-            }
-        }
-
-        // 更新ESG欄位
-        function updateEsg(caseId, field, value) {
-            const index = casesState.findIndex(c => c.id === caseId);
-            if (index !== -1) {
-                casesState[index].esg[field] = value;
-            }
-        }
-
-        // 客戶文件打勾機制
-        function toggleDoc(caseId, docName) {
-            const index = casesState.findIndex(c => c.id === caseId);
-            if (index !== -1) {
-                let currentDocs = casesState[index].docs;
-                if (currentDocs.includes(docName)) {
-                    casesState[index].docs = currentDocs.filter(d => d !== docName);
-                } else {
-                    casesState[index].docs.push(docName);
-                }
-            }
-        }
-
-        // 新增土地地號
-        function addLand(caseId) {
-            const index = casesState.findIndex(c => c.id === caseId);
-            if (index !== -1) {
-                casesState[index].lands.push({ id: "l-" + Date.now(), section: "", num: "", sqm: 0, ping: 0 });
-                renderCases();
-            }
-        }
-
-        // 新增建物建號
-        function addBuilding(caseId) {
-            const index = casesState.findIndex(c => c.id === caseId);
-            if (index !== -1) {
-                casesState[index].buildings.push({ id: "b-" + Date.now(), num: "", year: "", legal: 0, illegal: 0 });
-                renderCases();
-            }
-        }
-
-        // 刪除子項目
-        function deleteSubItem(caseId, subArray, subId) {
-            const index = casesState.findIndex(c => c.id === caseId);
-            if (index !== -1) {
-                casesState[index][subArray] = casesState[index][subArray].filter(s => s.id !== subId);
-                renderCases();
-            }
-        }
-
-        // 關鍵字動態篩選
+        // 搜尋篩選功能
         function filterCases() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            const originalState = [...casesState];
-            
-            // 進行簡易的前端顯示控制
-            casesState.forEach(c => {
-                const element = document.getElementById(c.id);
-                if (element) {
-                    const match = c.companyName.toLowerCase().includes(term) || c.manager.toLowerCase().includes(term);
-                    if (match) {
-                        element.classList.remove('hidden');
-                    } else {
-                        element.classList.add('hidden');
-                    }
-                }
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const filtered = casesData.filter(c => {
+                const sNames = c.services.map(s => s.name).join(' ').toLowerCase();
+                return c.companyName.toLowerCase().includes(query) || 
+                       (c.companyTaxId && c.companyTaxId.includes(query)) ||
+                       c.projectManager.toLowerCase().includes(query) ||
+                       sNames.includes(query);
             });
+            renderTable(filtered);
         }
 
-        // 儲存雲端資料庫模擬
+        // 本地儲存與雲端存取提示
         function saveToCloud() {
-            alert("✅ [寫入完成] 正在將目前的動態案件資料串流，一次性同步「寫入/更新」至雲端資料庫 (PostgreSQL/MySQL)！");
-            console.log("儲存的資料結構主體：", casesState);
+            localStorage.setItem('ruili_cases', JSON.stringify(casesData));
+            alert('【睿立提示】資料已成功保存至本地瀏覽器資料庫中！\n如需對接雲端 PostgreSQL/MySQL 資料庫，請設定 API 節點進行異步連線。');
         }
 
-        // 初始渲染
-        renderCases();
+        // 匯出 CSV 報表
+        function exportCSV() {
+            if(casesData.length === 0) { alert('目前無資料可匯出！'); return; }
+            let csvContent = "\uFEFF案件狀態,公司名稱,統一編號,專案經理,主要服務,ESG外銷,ESG接班,最後更新時間\n";
+            casesData.forEach(c => {
+                const sNames = c.services.map(s => s.name).join('/');
+                csvContent += `"${c.status}","${c.companyName}","${c.companyTaxId || ''}","${c.projectManager}","${sNames}","${c.esgExport}","${c.esgSuccessor}","${c.updatedAt}"\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `睿立業務案件明細表_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 </body>
 </html>
