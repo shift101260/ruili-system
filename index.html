@@ -54,6 +54,7 @@
 
             <!-- 導覽功能列表 -->
             <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-200px)]">
+                
                 <!-- 一、主功能：[案件評估] 按鈕 -->
                 <div>
                     <button onclick="toggleCategory('case-eval')" id="btn-case-eval" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
@@ -79,22 +80,40 @@
                 </div>
 
                 <!-- 三、主功能：[工廠買賣案件資料表] 按鈕 -->
-                <button onclick="switchTab('trading')" id="btn-trading" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60 text-left">
-                    <i class="fa-solid fa-building-circle-arrow-right w-5 text-center text-emerald-400"></i>
-                    <span class="font-medium text-sm tracking-wide">工廠買賣案件資料表</span>
-                </button>
+                <div>
+                    <button onclick="toggleCategory('trading')" id="btn-trading" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-building-circle-arrow-right w-5 text-center text-emerald-400"></i>
+                            <span class="font-medium text-sm tracking-wide">工廠買賣案件資料表</span>
+                        </div>
+                        <i id="arrow-trading" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-200"></i>
+                    </button>
+                    <div id="sub-list-trading" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
+                </div>
 
                 <!-- 四、主功能：[公司會議記錄] 按鈕 -->
-                <button onclick="switchTab('internal-meet')" id="btn-internal-meet" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60 text-left">
-                    <i class="fa-solid fa-comments w-5 text-center text-indigo-400"></i>
-                    <span class="font-medium text-sm tracking-wide">公司會議記錄</span>
-                </button>
+                <div>
+                    <button onclick="toggleCategory('internal-meet')" id="btn-internal-meet" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-comments w-5 text-center text-indigo-400"></i>
+                            <span class="font-medium text-sm tracking-wide">公司會議記錄</span>
+                        </div>
+                        <i id="arrow-internal-meet" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-200"></i>
+                    </button>
+                    <div id="sub-list-internal-meet" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
+                </div>
 
                 <!-- 五、主功能：[合作夥伴會議記錄] 按鈕 -->
-                <button onclick="switchTab('partner-meet')" id="btn-partner-meet" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60 text-left">
-                    <i class="fa-solid fa-handshake w-5 text-center text-purple-400"></i>
-                    <span class="font-medium text-sm tracking-wide">合作夥伴會議記錄</span>
-                </button>
+                <div>
+                    <button onclick="toggleCategory('partner-meet')" id="btn-partner-meet" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-handshake w-5 text-center text-purple-400"></i>
+                            <span class="font-medium text-sm tracking-wide">合作夥伴會議記錄</span>
+                        </div>
+                        <i id="arrow-partner-meet" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-200"></i>
+                    </button>
+                    <div id="sub-list-partner-meet" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
+                </div>
 
                 <div class="pt-4 border-t border-cosmic-700/30 my-2"></div>
 
@@ -145,21 +164,29 @@
 
         <!-- ROUTING VIEWPORT -->
         <div class="flex-1 overflow-y-auto p-8">
-            <!-- 案件評估模組視窗 -->
+            
+            <!-- 大模組共用渲染容器區（高度對稱防錯） -->
             <section id="tab-case-eval" class="tab-content active space-y-6">
-                <div id="cases-loop-container" class="space-y-8"></div>
+                <div id="case-eval-container" class="space-y-8"></div>
             </section>
-
-            <!-- 工廠太陽能自建視窗 -->
             <section id="tab-solar" class="tab-content space-y-6">
-                <div id="solar-loop-container" class="space-y-8"></div>
+                <div id="solar-container" class="space-y-8"></div>
+            </section>
+            <section id="tab-trading" class="tab-content space-y-6">
+                <div id="trading-container" class="space-y-8"></div>
+            </section>
+            <section id="tab-internal-meet" class="tab-content space-y-6">
+                <div id="internal-meet-container" class="space-y-8"></div>
+            </section>
+            <section id="tab-partner-meet" class="tab-content space-y-6">
+                <div id="partner-meet-container" class="space-y-8"></div>
             </section>
 
             <!-- 系統組織架構圖頁面 -->
             <section id="tab-sys-architecture" class="tab-content space-y-6">
                 <div>
                     <h2 class="text-2xl font-bold text-teal-300 tracking-wide"><i class="fa-solid fa-sitemap mr-2"></i>睿立業務系統 - 組織架構藍圖</h2>
-                    <p class="text-xs text-slate-400 mt-1">底層邏輯完全對應儲存格動態渲染與雙軌陣列隔離機制</p>
+                    <p class="text-xs text-slate-400 mt-1">底層邏輯完全對應儲存格動態渲染與五軌獨立陣列隔離機制</p>
                 </div>
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
                     <div class="bg-cosmic-900/60 border border-teal-500/30 p-5 rounded-2xl space-y-4">
@@ -167,54 +194,36 @@
                             <span class="w-2.5 h-2.5 rounded-full bg-teal-400"></span>
                             <h3 class="font-bold text-white text-sm">1. 狀態管理層 (Global State)</h3>
                         </div>
-                        <div class="space-y-2.5 text-xs">
-                            <div class="bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/60">
-                                <span class="text-teal-400 font-mono block mb-1">caseEvalData []</span>
-                                <p class="text-slate-400">專屬存放「案件評估」的工廠名單與完整表格欄位。</p>
-                            </div>
-                            <div class="bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/60">
-                                <span class="text-amber-400 font-mono block mb-1">solarData []</span>
-                                <p class="text-slate-400">專屬存放「工廠太陽能自建」的獨立工廠數據，確保數據隔離。</p>
-                            </div>
+                        <div class="space-y-2.5 text-xs text-slate-400 font-mono">
+                            <p class="text-cyan-400">caseEvalData [] (儲存案件評估)</p>
+                            <p class="text-amber-400">solarData [] (儲存太陽能自建)</p>
+                            <p class="text-emerald-400">tradingData [] (工廠買賣數據)</p>
+                            <p class="text-indigo-400">internalMeetData [] (內部會議)</p>
+                            <p class="text-purple-400">partnerMeetData [] (夥伴聯席)</p>
                         </div>
                     </div>
-                    <div class="bg-cosmic-900/60 border border-cosmic-700 p-5 rounded-2xl space-y-4">
-                        <div class="flex items-center space-x-2 border-b border-cosmic-700 pb-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-                            <h3 class="font-bold text-white text-sm">2. 使用者介面層 (UI - 左側導覽)</h3>
-                        </div>
-                        <div class="space-y-2 text-xs text-slate-400">
-                            <p>主功能按鈕開啟折疊元件，用迴圈渲染產出子按鈕。點擊後載入特定案件 ID 的詳細資料表。</p>
-                        </div>
+                    <div class="bg-cosmic-900/60 border border-cosmic-700 p-5 rounded-2xl space-y-2 text-xs text-slate-400">
+                        <h3 class="font-bold text-white text-sm border-b border-cosmic-700 pb-1.5">2. 使用者介面層 (UI Sidebar)</h3>
+                        <p>每個主功能皆各自綁定對應的動態子陣列，點擊切換主頁面並迴圈渲染專屬子名單按鈕。</p>
                     </div>
-                    <div class="bg-cosmic-900/60 border border-cosmic-700 p-5 rounded-2xl space-y-4">
-                        <div class="flex items-center space-x-2 border-b border-cosmic-700 pb-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
-                            <h3 class="font-bold text-white text-sm">3. 案件動態表層 (完美對稱)</h3>
-                        </div>
-                        <div class="space-y-1 text-xs text-slate-400">
-                            <p>不論點選哪一個大項目，右側均調用結構完全對齊的一致化表單組件，包含動態行列增減陣列、地籍、建物、ESG、打勾文件清單等。</p>
-                        </div>
+                    <div class="bg-cosmic-900/60 border border-cosmic-700 p-5 rounded-2xl space-y-2 text-xs text-slate-400">
+                        <h3 class="font-bold text-white text-sm border-b border-cosmic-700 pb-1.5">3. 案件動態表層 (高度對稱)</h3>
+                        <p>所有子項目右側詳細表單，均採取完全一模一樣的 6 大模組化規格與檔案鏈結存取設計，杜絕打架錯誤。</p>
                     </div>
                 </div>
             </section>
-
-            <!-- 其他 Mock 視窗 -->
-            <section id="tab-trading" class="tab-content text-slate-400 p-8 text-center bg-cosmic-800/20 rounded-xl">工廠買賣案件資料表平台模組已就緒。</section>
-            <section id="tab-internal-meet" class="tab-content text-slate-400 p-8 text-center bg-cosmic-800/20 rounded-xl">公司內部會議記錄系統。</section>
-            <section id="tab-partner-meet" class="tab-content text-slate-400 p-8 text-center bg-cosmic-800/20 rounded-xl">合作夥伴聯席決議資料庫。</section>
         </div>
     </main>
 
     <script>
-        // 1. 全局狀態管理層 - 隔離的雙軌獨立數據 (包含完整的 Excel 架構欄位)
+        // 1. 全局狀態管理層 - 五大模組數據高度隔離 (各自有預設範例資料)
         let caseEvalData = [
             {
-                id: "eval-1", date: "2026-07-18T10:00", status: "初期評估", manager: "樊靖畇", remark: "急需特定工廠變更與法規合規性評估。", source: "公會轉介",
+                id: "eval-1", date: "2026-07-18T10:00", status: "初期評估", manager: "樊靖畇", remark: "急需特定工廠變更與轉型合規審查。", source: "公會轉介",
                 companyName: "大鼎精密工業股份有限公司（評估案）", taxId: "83746291", factoryLicense: "64009876", industryType: "金屬製品製造業", contact: "王大鼎", phone: "0912-345678", email: "tading@precision.com", address: "高雄市岡山區本工路88號",
-                services: [{ name: "特定工廠合法化轉型諮詢", desc: "登記申請與改善計畫編製", result: "完全可行", quote: "350000" }],
+                services: [{ name: "特定工廠合法化轉型諮詢", desc: "改善計畫編製與登記變更", result: "完全可行", quote: "350000" }],
                 lands: [{ section: "岡山段", number: "105-002", sqm: "1500", ping: "453.75" }], landTotalSqm: "1500", landTotalPing: "453.75", landPattern: "都市計畫外使用地類別", landRemark: "丁建",
-                buildings: [{ number: "建號 402", sqm: "800", ping: "242" }], buildYear: "2005", legalBuildPing: "242", illegalBuildPing: "120", buildRemark: "",
+                buildings: [{ number: "建號 402", sqm: "800", ping: "242" }], buildYear: "2005", legalBuildPing: "242", illegalBuildPing: "120", buildRemark: "既存違章雨遮",
                 esg: { hasSuccessor: "是", isExport: "是", euCarbonRequired: "是", avgElectricBill: "185000", horsepower: "150", contractCapacity: "120", isHighVoltage: "否", isTimeRate: "是", electricTimePeriods: ["白天為主"] },
                 docsChecked: ["電費單", "使用執照"], customDocs: [], uploadedFilesCount: 2, ruili调阅FilesCount: 1
             }
@@ -222,22 +231,33 @@
 
         let solarData = [
             {
-                id: "solar-1", date: "2026-07-18T15:00", status: "已報價", manager: "陳宥騰", remark: "屋頂結構良好，高壓用電廠自建效益極高。", source: "綠能開發組",
-                companyName: "國泰鋼鐵工業廠房（光電案）", taxId: "12457896", factoryLicense: "64002233", industryType: "鋼鐵冶煉業", contact: "陳廠長", phone: "0988-555666", email: "ct@steel.com", address: "高雄市小港區中鋼路1號",
-                services: [{ name: "屋頂型太陽能光電自建案", desc: "400kWp 一體化併網設計", result: "饋線核准通過", quote: "220000" }],
+                id: "solar-1", date: "2026-07-18T15:00", status: "已報價", manager: "陳宥騰", remark: "高壓鋼鐵廠房屋頂光電自建效益優良。", source: "綠能開發組",
+                companyName: "國泰鋼鐵工業廠房（光電自建）", taxId: "12457896", factoryLicense: "64002233", industryType: "鋼鐵冶煉業", contact: "陳廠長", phone: "0988-555666", email: "ct@steel.com", address: "高雄市小港區中鋼路1號",
+                services: [{ name: "屋頂型太陽能光電自建", desc: "400kWp 一體化倂網系統", result: "饋線核准通過", quote: "220000" }],
                 lands: [{ section: "小港段", number: "99-1", sqm: "4500", ping: "1361.2" }], landTotalSqm: "4500", landTotalPing: "1361.2", landPattern: "都市計畫內使用分區", landRemark: "甲工",
                 buildings: [{ number: "建號 881", sqm: "3000", ping: "907.5" }], buildYear: "2010", legalBuildPing: "907.5", illegalBuildPing: "0", buildRemark: "",
                 esg: { hasSuccessor: "是", isExport: "是", euCarbonRequired: "是", avgElectricBill: "950000", horsepower: "600", contractCapacity: "450", isHighVoltage: "是", isTimeRate: "是", electricTimePeriods: ["白天為主", "夜間為主"] },
-                docsChecked: ["電費單", "屋頂現況照片（多角度）", "屋頂平面圖"], customDocs: [], uploadedFilesCount: 3, ruili调阅FilesCount: 0
+                docsChecked: ["電費單", "屋頂平面圖"], customDocs: [], uploadedFilesCount: 3, ruili调阅FilesCount: 0
             }
         ];
 
-        let currentEvalSelectedId = "eval-1";
-        let currentSolarSelectedId = "solar-1";
+        let tradingData = [
+            { id: "trading-1", date: "2026-07-18T11:00", status: "準備簽約", manager: "鄭家承", remark: "買方正進行資產價值評估。", source: "地政引介", companyName: "瑞昱工業地產買賣案", taxId: "54238167", factoryLicense: "64001155", industryType: "電子零組件業", contact: "林經理", phone: "0933-111222", email: "realtek@ind.com", address: "台南市科學園區工業路12號", services: [], lands: [], buildings: [], esg: { hasSuccessor: "否", isExport: "是", euCarbonRequired: "否", avgElectricBill: "450000", horsepower: "200", contractCapacity: "180", isHighVoltage: "是", isTimeRate: "否", electricTimePeriods: ["平均分佈"] }, docsChecked: [], customDocs: [], uploadedFilesCount: 1, ruili调阅FilesCount: 2 }
+        ];
+
+        let internalMeetData = [
+            { id: "internal-1", date: "2026-07-18T09:00", status: "結案", manager: "楊裕憲", remark: "召開主管週會：決議加速自動化表單系統迭代與地籍關聯測試。", source: "內部排程", companyName: "睿立集團內部戰略會議", taxId: "", factoryLicense: "", industryType: "顧問諮詢業", contact: "全體同仁", phone: "", email: "", address: "高雄市苓雅區新光路38號30樓之2", services: [], lands: [], buildings: [], esg: { hasSuccessor: "是", isExport: "否", euCarbonRequired: "否", avgElectricBill: "12000", horsepower: "0", contractCapacity: "20", isHighVoltage: "否", isTimeRate: "否", electricTimePeriods: [] }, docsChecked: [], customDocs: [], uploadedFilesCount: 0, ruili调阅FilesCount: 0 }
+        ];
+
+        let partnerMeetData = [
+            { id: "partner-1", date: "2026-07-18T14:00", status: "初期評估", manager: "黃逸豪", remark: "與綠能驗證機構及地政士聯席商討ESG碳盤查外銷工廠之應備文件標準化。", source: "外部戰略合作", companyName: "元業綠能與天梁不動產聯席研討會", taxId: "", factoryLicense: "", industryType: "聯合會商", contact: "各方負責人", phone: "", email: "", address: "會商總部大樓", services: [], lands: [], buildings: [], esg: { hasSuccessor: "是", isExport: "否", euCarbonRequired: "否", avgElectricBill: "0", horsepower: "0", contractCapacity: "0", isHighVoltage: "否", isTimeRate: "否", electricTimePeriods: [] }, docsChecked: [], customDocs: [], uploadedFilesCount: 0, ruili调阅FilesCount: 0 }
+        ];
+
+        // 各個大分項當前鎖定的動態選擇 ID 快照
+        let selectedIds = { "case-eval": "eval-1", "solar": "solar-1", "trading": "trading-1", "internal-meet": "internal-1", "partner-meet": "partner-1" };
         let currentActiveTab = "case-eval";
 
         const managersList = ["樊靖畇", "鄭家承", "陳宥騰", "楊裕憲", "黃逸豪", "李宜璇", "王瑋聆", "許先生"];
-        
         const statusConfig = {
             "初期評估": { bg: "bg-emerald-500" },
             "已報價": { bg: "bg-blue-500" },
@@ -249,66 +269,81 @@
 
         function toggleCategory(catId) {
             const subList = document.getElementById(`sub-list-${catId}`);
-            const arrow = document.getElementById(`arrow-${catId}`);
-            const isHidden = subList.classList.contains('hidden');
+            const isHidden = subList ? subList.classList.contains('hidden') : true;
 
-            document.getElementById('sub-list-case-eval').classList.add('hidden');
-            document.getElementById('sub-list-solar').classList.add('hidden');
-            document.getElementById('arrow-case-eval').classList.remove('rotate-180');
-            document.getElementById('arrow-solar').classList.remove('rotate-180');
+            // 把所有的子選單先全部收合起來
+            ["case-eval", "solar", "trading", "internal-meet", "partner-meet"].forEach(id => {
+                const sl = document.getElementById(`sub-list-${id}`);
+                const ar = document.getElementById(`arrow-${id}`);
+                if (sl) sl.classList.add('hidden');
+                if (ar) ar.classList.remove('rotate-180');
+            });
 
-            if (isHidden) {
+            if (isHidden && subList) {
                 subList.classList.remove('hidden');
-                arrow.classList.add('rotate-180');
+                const arrow = document.getElementById(`arrow-${catId}`);
+                if (arrow) arrow.classList.add('rotate-180');
             }
             switchTab(catId);
         }
 
-        function renderSidebarSubLists() {
-            document.getElementById('sub-list-case-eval').innerHTML = caseEvalData.map(c => `
-                <button onclick="selectSpecificCase('${c.id}', 'case-eval')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition ${currentEvalSelectedId === c.id && currentActiveTab === 'case-eval' ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}">
-                    <i class="fa-solid fa-folder mr-2 text-cyan-400"></i>${c.companyName}
-                </button>
-            `).join('');
+        function getTargetDataArray(tabId) {
+            if (tabId === 'case-eval') return caseEvalData;
+            if (tabId === 'solar') return solarData;
+            if (tabId === 'trading') return tradingData;
+            if (tabId === 'internal-meet') return internalMeetData;
+            if (tabId === 'partner-meet') return partnerMeetData;
+            return [];
+        }
 
-            document.getElementById('sub-list-solar').innerHTML = solarData.map(c => `
-                <button onclick="selectSpecificCase('${c.id}', 'solar')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition ${currentSolarSelectedId === c.id && currentActiveTab === 'solar' ? 'bg-amber-600 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}">
-                    <i class="fa-solid fa-sun mr-2 text-amber-400"></i>${c.companyName}
-                </button>
-            `).join('');
+        function renderSidebarSubLists() {
+            ["case-eval", "solar", "trading", "internal-meet", "partner-meet"].forEach(tabId => {
+                const container = document.getElementById(`sub-list-${tabId}`);
+                if (!container) return;
+                const dataArr = getTargetDataArray(tabId);
+                const currentSelId = selectedIds[tabId];
+                const iconClass = tabId === 'solar' ? 'fa-sun text-amber-400' : 'fa-folder text-cyan-400';
+
+                container.innerHTML = dataArr.map(c => `
+                    <button onclick="selectSpecificCase('${c.id}', '${tabId}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition ${currentSelId === c.id && currentActiveTab === tabId ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}">
+                        <i class="fa-solid ${iconClass} mr-2"></i>${c.companyName || '未命名案件'}
+                    </button>
+                `).join('');
+            });
         }
 
         function selectSpecificCase(id, tabId) {
-            if (tabId === 'case-eval') currentEvalSelectedId = id;
-            if (tabId === 'solar') currentSolarSelectedId = id;
+            selectedIds[tabId] = id;
             switchTab(tabId);
         }
 
         function switchTab(tabId) {
             currentActiveTab = tabId;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${tabId}`).classList.add('active');
+            const targetSection = document.getElementById(`tab-${tabId}`);
+            if (targetSection) targetSection.classList.add('active');
             
             document.querySelectorAll('nav button[id^="btn-"]').forEach(el => el.classList.remove('bg-cosmic-800', 'text-white'));
             const activeBtn = document.getElementById(`btn-${tabId}`);
-            if(activeBtn) activeBtn.classList.add('bg-cosmic-800', 'text-white');
+            if (activeBtn) activeBtn.classList.add('bg-cosmic-800', 'text-white');
 
             renderSidebarSubLists();
             renderMainForms();
         }
 
         function renderMainForms() {
-            if (currentActiveTab === 'case-eval') {
-                const activeCase = caseEvalData.find(c => c.id === currentEvalSelectedId) || caseEvalData[0];
-                document.getElementById("cases-loop-container").innerHTML = activeCase ? generateFormHTML(activeCase, 'eval') : '';
-            }
-            if (currentActiveTab === 'solar') {
-                const activeCase = solarData.find(c => c.id === currentSolarSelectedId) || solarData[0];
-                document.getElementById("solar-loop-container").innerHTML = activeCase ? generateFormHTML(activeCase, 'solar') : '';
-            }
+            const containerMap = { "case-eval": "case-eval-container", "solar": "solar-container", "trading": "trading-container", "internal-meet": "internal-meet-container", "partner-meet": "partner-meet-container" };
+            const activeContainerId = containerMap[currentActiveTab];
+            if (!activeContainerId) return;
+
+            const dataArr = getTargetDataArray(currentActiveTab);
+            const activeId = selectedIds[currentActiveTab];
+            const activeCase = dataArr.find(c => c.id === activeId) || dataArr[0];
+
+            document.getElementById(activeContainerId).innerHTML = activeCase ? generateFormHTML(activeCase, currentActiveTab) : '<p class="text-xs text-slate-500">暫無子案件名單。</p>';
         }
 
-        // 統一調用高度對稱的表單產生器
+        // 統一調用高度對稱與隔離的動態表單產生器
         function generateFormHTML(c, mode) {
             const isSolarMode = mode === 'solar';
             const currentStatusColor = statusConfig[c.status]?.bg || 'bg-slate-500';
@@ -513,7 +548,6 @@
                                             <span>${d}</span>
                                         </label>
                                     `).join('')}
-                                    <!-- 自行填寫新增（動態控制的打勾子項目陣列） -->
                                     ${c.customDocs ? c.customDocs.map((cd, idx) => `
                                         <div class="flex items-center space-x-2 text-violet-300 col-span-1">
                                             <input type="checkbox" checked class="rounded bg-cosmic-900 border-cosmic-700 shrink-0">
@@ -543,9 +577,10 @@
             `;
         }
 
-        // --- 核心邏輯陣列更新機制群 ---
+        // --- 核心邏輯處理函數群（多軌動態精確映射） ---
         function updateField(id, field, value) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target) {
                 if(field.startsWith('esg_')) {
                     target.esg[field.replace('esg_', '')] = value;
@@ -556,12 +591,14 @@
         }
 
         function updateEsgField(id, field, value) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target && target.esg) target.esg[field] = value;
         }
 
         function toggleElectricPeriod(id, period) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target && target.esg) {
                 let arr = target.esg.electricTimePeriods;
                 if(arr.includes(period)) {
@@ -573,7 +610,8 @@
         }
 
         function toggleDocChecked(id, doc) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target) {
                 if(target.docsChecked.includes(doc)) {
                     target.docsChecked = target.docsChecked.filter(d => d !== doc);
@@ -583,39 +621,42 @@
             }
         }
 
-        // 服務項目嵌套控制
         function addServiceRow(id) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target) { target.services.push({ name: "", desc: "", result: "", quote: "" }); renderMainForms(); }
         }
         function updateServiceField(id, idx, field, value) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target && target.services[idx]) target.services[idx][field] = value;
         }
 
-        // 地籍嵌套控制
         function addLandRow(id) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target) { target.lands.push({ section: "", number: "", sqm: "", ping: "" }); renderMainForms(); }
         }
         function updateLandField(id, idx, field, value) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target && target.lands[idx]) target.lands[idx][field] = value;
         }
 
-        // 建號嵌套控制
         function addBuildRow(id) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target) { target.buildings.push({ number: "", sqm: "", ping: "" }); renderMainForms(); }
         }
         function updateBuildField(id, idx, field, value) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target && target.buildings[idx]) target.buildings[idx][field] = value;
         }
 
-        // 【應備文件自填陣列動態控制】
         function addCustomDocRow(id) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target) {
                 if (!target.customDocs) target.customDocs = [];
                 target.customDocs.push("");
@@ -623,55 +664,59 @@
             }
         }
         function updateCustomDocField(id, idx, value) {
-            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === id);
             if (target && target.customDocs) target.customDocs[idx] = value;
         }
 
         function addNewCase() {
-            const ts = Date.now();
-            if (currentActiveTab === 'case-eval') {
-                const newId = "eval-" + ts;
-                caseEvalData.unshift({ id: newId, companyName: "新架構評估案 " + (caseEvalData.length + 1), date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: "樊靖畇", services: [], lands: [], buildings: [], esg: { hasSuccessor: "是", isExport: "否", euCarbonRequired: "否", avgElectricBill: "0", horsepower: "0", contractCapacity: "0", isHighVoltage: "否", isTimeRate: "否", electricTimePeriods: [] }, docsChecked: [], landTotalSqm: "0", landTotalPing: "0", legalBuildPing: "0", illegalBuildPing: "0", uploadedFilesCount: 0, ruili调阅FilesCount: 0, customDocs: [] });
-                currentEvalSelectedId = newId;
-                document.getElementById('sub-list-case-eval').classList.remove('hidden');
-            } else if (currentActiveTab === 'solar') {
-                const newId = "solar-" + ts;
-                solarData.unshift({ id: newId, companyName: "新光電自建案 " + (solarData.length + 1), date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: "樊靖畇", services: [], lands: [], buildings: [], esg: { hasSuccessor: "是", isExport: "否", euCarbonRequired: "否", avgElectricBill: "0", horsepower: "0", contractCapacity: "0", isHighVoltage: "否", isTimeRate: "否", electricTimePeriods: [] }, docsChecked: [], landTotalSqm: "0", landTotalPing: "0", legalBuildPing: "0", illegalBuildPing: "0", uploadedFilesCount: 0, ruili调阅FilesCount: 0, customDocs: [] });
-                currentSolarSelectedId = newId;
-                document.getElementById('sub-list-solar').classList.remove('hidden');
-            }
+            const ts = "case-" + Date.now();
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let moduleNames = { "case-eval": "新版評估案 ", "solar": "新版光電自建案 ", "trading": "新版買賣案件 ", "internal-meet": "新會議記錄 ", "partner-meet": "新夥伴決議案 " };
+            
+            dataArr.unshift({
+                id: ts, companyName: (moduleNames[currentActiveTab] || "全新案件 ") + (dataArr.length + 1), date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: "樊靖畇",
+                services: [], lands: [], buildings: [], esg: { hasSuccessor: "是", isExport: "否", euCarbonRequired: "否", avgElectricBill: "0", horsepower: "0", contractCapacity: "0", isHighVoltage: "否", isTimeRate: "否", electricTimePeriods: [] }, docsChecked: [], customDocs: [], landTotalSqm: "0", landTotalPing: "0", legalBuildPing: "0", illegalBuildPing: "0", uploadedFilesCount: 0, ruili调阅FilesCount: 0
+            });
+            
+            selectedIds[currentActiveTab] = ts;
+            const subList = document.getElementById(`sub-list-${currentActiveTab}`);
+            if (subList) subList.classList.remove('hidden');
+            
             renderSidebarSubLists(); renderMainForms();
         }
 
         function deleteCase(id) {
             if (confirm("確定刪除此動態案件嗎？")) {
-                if (id.startsWith('eval-')) {
-                    caseEvalData = caseEvalData.filter(c => c.id !== id);
-                    if(caseEvalData.length > 0) currentEvalSelectedId = caseEvalData[0].id;
-                } else {
-                    solarData = solarData.filter(c => c.id !== id);
-                    if(solarData.length > 0) currentSolarSelectedId = solarData[0].id;
-                }
+                let dataArr = getTargetDataArray(currentActiveTab);
+                let filtered = dataArr.filter(c => c.id !== id);
+                
+                if (currentActiveTab === 'case-eval') caseEvalData = filtered;
+                if (currentActiveTab === 'solar') solarData = filtered;
+                if (currentActiveTab === 'trading') tradingData = filtered;
+                if (currentActiveTab === 'internal-meet') internalMeetData = filtered;
+                if (currentActiveTab === 'partner-meet') partnerMeetData = filtered;
+
+                if(filtered.length > 0) selectedIds[currentActiveTab] = filtered[0].id;
                 renderSidebarSubLists(); renderMainForms();
             }
         }
 
         function filterCases() {
             const query = document.getElementById("global-search").value.toLowerCase().trim();
-            if (currentActiveTab === 'case-eval') {
-                const filtered = caseEvalData.filter(c => c.companyName.toLowerCase().includes(query));
-                document.getElementById('sub-list-case-eval').innerHTML = filtered.map(c => `
-                    <button onclick="selectSpecificCase('${c.id}', 'case-eval')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate ${currentEvalSelectedId === c.id ? 'bg-cosmic-500 text-white' : 'text-slate-400'}"><i class="fa-solid fa-folder mr-2 text-cyan-400"></i>${c.companyName}</button>
-                `).join('');
-            } else if (currentActiveTab === 'solar') {
-                const filtered = solarData.filter(c => c.companyName.toLowerCase().includes(query));
-                document.getElementById('sub-list-solar').innerHTML = filtered.map(c => `
-                    <button onclick="selectSpecificCase('${c.id}', 'solar')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate ${currentSolarSelectedId === c.id ? 'bg-amber-600 text-white' : 'text-slate-400'}"><i class="fa-solid fa-sun mr-2 text-amber-400"></i>${c.companyName}</button>
+            const dataArr = getTargetDataArray(currentActiveTab);
+            const filtered = dataArr.filter(c => c.companyName.toLowerCase().includes(query));
+            const iconClass = currentActiveTab === 'solar' ? 'fa-sun text-amber-400' : 'fa-folder text-cyan-400';
+            
+            const subList = document.getElementById(`sub-list-${currentActiveTab}`);
+            if (subList) {
+                subList.innerHTML = filtered.map(c => `
+                    <button onclick="selectSpecificCase('${c.id}', '${currentActiveTab}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate ${selectedIds[currentActiveTab] === c.id ? 'bg-cosmic-500 text-white' : 'text-slate-400'}"><i class="fa-solid ${iconClass} mr-2"></i>${c.companyName}</button>
                 `).join('');
             }
         }
 
-        function saveToCloud() { alert("已依照最新精確架構：將資料一次性寫入/更新至雲端資料庫。"); }
+        function saveToCloud() { alert("已依照最新E版五軌大項目隔離機制：一次性「寫入/更新」至雲端數據庫。"); }
         window.onload = function() { toggleCategory('case-eval'); };
     </script>
 </body>
