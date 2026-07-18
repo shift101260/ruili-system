@@ -54,7 +54,6 @@
 
             <!-- 導覽功能列表 -->
             <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-200px)]">
-                
                 <!-- 一、主功能：[案件評估] 按鈕 -->
                 <div>
                     <button onclick="toggleCategory('case-eval')" id="btn-case-eval" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
@@ -126,7 +125,7 @@
             <div class="flex items-center space-x-4">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" id="global-search" oninput="filterCases()" placeholder="綁定關鍵字，動態篩選下方的清單顯示..." class="w-80 bg-cosmic-950 border border-cosmic-700 rounded-xl pl-10 pr-4 py-1.5 text-sm focus:outline-none focus:border-cosmic-500 text-white placeholder-slate-500">
+                    <input type="text" id="global-search" oninput="filterCases()" placeholder="關鍵字動態篩選..." class="w-80 bg-cosmic-950 border border-cosmic-700 rounded-xl pl-10 pr-4 py-1.5 text-sm focus:outline-none focus:border-cosmic-500 text-white placeholder-slate-500">
                 </div>
             </div>
             <div class="flex items-center space-x-3">
@@ -146,22 +145,13 @@
 
         <!-- ROUTING VIEWPORT -->
         <div class="flex-1 overflow-y-auto p-8">
-            
-            <!-- 案件評估模組視窗容器 -->
+            <!-- 案件評估模組視窗 -->
             <section id="tab-case-eval" class="tab-content active space-y-6">
-                <div>
-                    <h2 class="text-2xl font-bold text-white tracking-wide">案件評估管理層</h2>
-                    <p class="text-xs text-slate-400 mt-1">即時維護與評估工廠基礎資料、地籍與法規合規性變更指標</p>
-                </div>
                 <div id="cases-loop-container" class="space-y-8"></div>
             </section>
 
-            <!-- 工廠太陽能自建視窗容器 -->
+            <!-- 工廠太陽能自建視窗 -->
             <section id="tab-solar" class="tab-content space-y-6">
-                <div>
-                    <h2 class="text-2xl font-bold text-amber-400 tracking-wide">工廠太陽能自建工程模組</h2>
-                    <p class="text-xs text-slate-400 mt-1">專注於光電建置效益、綠電併網、馬力與能源數據盤點</p>
-                </div>
                 <div id="solar-loop-container" class="space-y-8"></div>
             </section>
 
@@ -184,7 +174,7 @@
                             </div>
                             <div class="bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/60">
                                 <span class="text-amber-400 font-mono block mb-1">solarData []</span>
-                                <p class="text-slate-400">專屬存放「工廠太陽能自建」的獨立工廠數據，確保數據完全隔離。</p>
+                                <p class="text-slate-400">專屬存放「工廠太陽能自建」的獨立工廠數據，確保數據隔離。</p>
                             </div>
                         </div>
                     </div>
@@ -194,16 +184,16 @@
                             <h3 class="font-bold text-white text-sm">2. 使用者介面層 (UI - 左側導覽)</h3>
                         </div>
                         <div class="space-y-2 text-xs text-slate-400">
-                            <p>主功能按鈕分別開啟折疊元件，用迴圈渲染產出子按鈕。點擊後載入特定案件 ID 的詳細資料表。</p>
+                            <p>主功能按鈕開啟折疊元件，用迴圈渲染產出子按鈕。點擊後載入特定案件 ID 的詳細資料表。</p>
                         </div>
                     </div>
                     <div class="bg-cosmic-900/60 border border-cosmic-700 p-5 rounded-2xl space-y-4">
                         <div class="flex items-center space-x-2 border-b border-cosmic-700 pb-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
-                            <h3 class="font-bold text-white text-sm">3. 案件動態表層 (高度對稱)</h3>
+                            <h3 class="font-bold text-white text-sm">3. 案件動態表層 (完美對稱)</h3>
                         </div>
                         <div class="space-y-1 text-xs text-slate-400">
-                            <p>不論點選哪一個區塊，右側均調用結構完全對齊的一致化表單組件，包含新版圓圈圖示、地籍、建物、ESG、應備文件清單等。</p>
+                            <p>不論點選哪一個大項目，右側均調用結構完全對齊的一致化表單組件，包含動態行列增減陣列、地籍、建物、ESG、打勾文件清單等。</p>
                         </div>
                     </div>
                 </div>
@@ -217,28 +207,28 @@
     </main>
 
     <script>
-        // 1. 全局狀態管理層 - 雙軌隔離獨立資料
+        // 1. 全局狀態管理層 - 隔離的雙軌獨立數據 (包含完整的 Excel 架構欄位)
         let caseEvalData = [
             {
-                id: "eval-1", date: "2026-07-18T10:00", status: "初期評估", manager: "樊靖畇", remark: "急需特定工廠法規合規性與工廠轉型評估。", source: "公會轉介",
+                id: "eval-1", date: "2026-07-18T10:00", status: "初期評估", manager: "樊靖畇", remark: "急需特定工廠變更與法規合規性評估。", source: "公會轉介",
                 companyName: "大鼎精密工業股份有限公司（評估案）", taxId: "83746291", factoryLicense: "64009876", industryType: "金屬製品製造業", contact: "王大鼎", phone: "0912-345678", email: "tading@precision.com", address: "高雄市岡山區本工路88號",
-                services: [{ name: "特定工廠合法化轉型諮詢", desc: "特定工廠登記申請及實質改善計畫", result: "完全可行", quote: "350000" }],
-                lands: [{ section: "岡山段", number: "105-002", sqm: "1500", ping: "453.75" }], landTotalSqm: "1500", landTotalPing: "453.75", landPattern: "都市計畫外使用地類別", landRemark: "丁種建築用地",
-                buildings: [{ number: "建號 402", sqm: "800", ping: "242" }], buildYear: "2005", legalBuildPing: "242", illegalBuildPing: "120", buildRemark: "既存違章雨遮",
+                services: [{ name: "特定工廠合法化轉型諮詢", desc: "登記申請與改善計畫編製", result: "完全可行", quote: "350000" }],
+                lands: [{ section: "岡山段", number: "105-002", sqm: "1500", ping: "453.75" }], landTotalSqm: "1500", landTotalPing: "453.75", landPattern: "都市計畫外使用地類別", landRemark: "丁建",
+                buildings: [{ number: "建號 402", sqm: "800", ping: "242" }], buildYear: "2005", legalBuildPing: "242", illegalBuildPing: "120", buildRemark: "",
                 esg: { hasSuccessor: "是", isExport: "是", euCarbonRequired: "是", avgElectricBill: "185000", horsepower: "150", contractCapacity: "120", isHighVoltage: "否", isTimeRate: "是", electricTimePeriods: ["白天為主"] },
-                docsChecked: ["電費單", "使用執照"], uploadedFilesCount: 2, ruili调阅FilesCount: 1
+                docsChecked: ["電費單", "使用執照"], customDocs: [], uploadedFilesCount: 2, ruili调阅FilesCount: 1
             }
         ];
 
         let solarData = [
             {
-                id: "solar-1", date: "2026-07-18T15:00", status: "已報價", manager: "陳宥騰", remark: "高壓鋼鐵廠房自建太陽能光電效益極高。", source: "綠能推動組",
+                id: "solar-1", date: "2026-07-18T15:00", status: "已報價", manager: "陳宥騰", remark: "屋頂結構良好，高壓用電廠自建效益極高。", source: "綠能開發組",
                 companyName: "國泰鋼鐵工業廠房（光電案）", taxId: "12457896", factoryLicense: "64002233", industryType: "鋼鐵冶煉業", contact: "陳廠長", phone: "0988-555666", email: "ct@steel.com", address: "高雄市小港區中鋼路1號",
-                services: [{ name: "屋頂型太陽能光電自建案", desc: "400kWp 一體化併網與結構補強工程", result: "饋線核准通過", quote: "220000" }],
-                lands: [{ section: "小港段", number: "99-1", sqm: "4500", ping: "1361.2" }], landTotalSqm: "4500", landTotalPing: "1361.2", landPattern: "都市計畫內使用分區", landRemark: "甲種工業區",
-                buildings: [{ number: "建號 881", sqm: "3000", ping: "907.5" }], buildYear: "2010", legalBuildPing: "907.5", illegalBuildPing: "0", buildRemark: "無違章結構",
+                services: [{ name: "屋頂型太陽能光電自建案", desc: "400kWp 一體化併網設計", result: "饋線核准通過", quote: "220000" }],
+                lands: [{ section: "小港段", number: "99-1", sqm: "4500", ping: "1361.2" }], landTotalSqm: "4500", landTotalPing: "1361.2", landPattern: "都市計畫內使用分區", landRemark: "甲工",
+                buildings: [{ number: "建號 881", sqm: "3000", ping: "907.5" }], buildYear: "2010", legalBuildPing: "907.5", illegalBuildPing: "0", buildRemark: "",
                 esg: { hasSuccessor: "是", isExport: "是", euCarbonRequired: "是", avgElectricBill: "950000", horsepower: "600", contractCapacity: "450", isHighVoltage: "是", isTimeRate: "是", electricTimePeriods: ["白天為主", "夜間為主"] },
-                docsChecked: ["電費單", "屋頂現況照片（多角度）", "屋頂平面圖"], uploadedFilesCount: 3, ruili调阅FilesCount: 0
+                docsChecked: ["電費單", "屋頂現況照片（多角度）", "屋頂平面圖"], customDocs: [], uploadedFilesCount: 3, ruili调阅FilesCount: 0
             }
         ];
 
@@ -380,7 +370,7 @@
                                 <h4 class="text-xs font-bold text-indigo-400">服務項目層 (存放動態案件陣列)</h4>
                                 <button onclick="addServiceRow('${c.id}')" class="text-[10px] bg-indigo-900/50 border border-indigo-700 px-2 py-0.5 rounded hover:bg-indigo-800 transition">[＋ 新增服務項目] 按鈕</button>
                             </div>
-                            <div id="service-rows-${c.id}" class="space-y-1.5">
+                            <div class="space-y-1.5">
                                 ${c.services.map((srv, idx) => `
                                     <div class="grid grid-cols-4 gap-2 text-xs">
                                         <input type="text" value="${srv.name||''}" placeholder="服務項目" oninput="updateServiceField('${c.id}', ${idx}, 'name', this.value)" class="bg-cosmic-900 p-1.5 border border-cosmic-700 rounded text-white">
@@ -400,7 +390,7 @@
                                     <h4 class="text-xs font-bold text-emerald-400">三、土地基本資料 (地段地號陣列)</h4>
                                     <button onclick="addLandRow('${c.id}')" class="text-[10px] bg-emerald-900/50 border border-emerald-700 px-2 py-0.5 rounded hover:bg-emerald-800 transition">[＋ 地段地號] 按鈕</button>
                                 </div>
-                                <div id="land-rows-${c.id}" class="space-y-1.5">
+                                <div class="space-y-1.5">
                                     ${c.lands.map((l, idx) => `
                                         <div class="grid grid-cols-4 gap-1 text-[11px]">
                                             <input type="text" value="${l.section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-white text-center">
@@ -432,7 +422,7 @@
                                     <h4 class="text-xs font-bold text-blue-400">四、建物基本資料 (建號陣列)</h4>
                                     <button onclick="addBuildRow('${c.id}')" class="text-[10px] bg-blue-900/50 border border-blue-700 px-2 py-0.5 rounded hover:bg-blue-800 transition">[＋ 建號] 按鈕</button>
                                 </div>
-                                <div id="build-rows-${c.id}" class="space-y-1.5">
+                                <div class="space-y-1.5">
                                     ${c.buildings.map((b, idx) => `
                                         <div class="grid grid-cols-3 gap-1 text-[11px]">
                                             <input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-white text-center">
@@ -509,26 +499,26 @@
                             </div>
                         </div>
 
-                        <!-- 六、客戶應備文件 -->
+                        <!-- 六、客戶應備文件 (與最新陣列控制深度結合) -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="md:col-span-2 space-y-2">
                                 <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
-                                    <h4 class="text-xs font-bold text-violet-400">六、客戶應備文件清單（可打勾）</h4>
-                                    <button onclick="addCustomDoc('${c.id}')" class="text-[10px] bg-violet-900/50 border border-violet-700 px-2 py-0.5 rounded hover:bg-violet-800 transition">[＋ 自行填寫新增] 按鈕</button>
+                                    <h4 class="text-xs font-bold text-violet-400">六、客戶應備文件 (存放動態案件陣列)</h4>
+                                    <button onclick="addCustomDocRow('${c.id}')" class="text-[10px] bg-violet-900/50 border border-violet-700 px-2 py-0.5 rounded hover:bg-violet-800 transition">[＋ 自行填寫新增] 按鈕</button>
                                 </div>
-                                <div id="doc-checklist-${c.id}" class="grid grid-cols-2 gap-2 text-xs pt-1">
+                                <div class="grid grid-cols-2 gap-2 text-xs pt-1">
                                     ${["電費單", "屋頂現況照片（多角度）", "屋頂平面圖", "使用執照", "建築圖", "場域線路分佈圖", "廠區空拍圖"].map(d => `
                                         <label class="flex items-center space-x-2 cursor-pointer">
                                             <input type="checkbox" ${c.docsChecked.includes(d)?'checked':''} onchange="toggleDocChecked('${c.id}', '${d}')" class="rounded bg-cosmic-900 border-cosmic-700">
                                             <span>${d}</span>
                                         </label>
                                     `).join('')}
-                                    <!-- 動態擴充的自定義打勾項目 -->
-                                    ${c.customDocs ? c.customDocs.map(cd => `
-                                        <label class="flex items-center space-x-2 cursor-pointer text-violet-300">
-                                            <input type="checkbox" checked class="rounded bg-cosmic-900 border-cosmic-700">
-                                            <span>${cd} (自填新增)</span>
-                                        </label>
+                                    <!-- 自行填寫新增（動態控制的打勾子項目陣列） -->
+                                    ${c.customDocs ? c.customDocs.map((cd, idx) => `
+                                        <div class="flex items-center space-x-2 text-violet-300 col-span-1">
+                                            <input type="checkbox" checked class="rounded bg-cosmic-900 border-cosmic-700 shrink-0">
+                                            <input type="text" value="${cd}" placeholder="自行填寫項目名稱" oninput="updateCustomDocField('${c.id}', ${idx}, this.value)" class="bg-cosmic-900/40 border border-cosmic-700/40 rounded px-1.5 py-0.5 text-xs text-white w-full">
+                                        </div>
                                     `).join('') : ''}
                                 </div>
                             </div>
@@ -553,7 +543,7 @@
             `;
         }
 
-        // --- 核心陣列控制與子清單嵌套事件調變函數群 ---
+        // --- 核心邏輯陣列更新機制群 ---
         function updateField(id, field, value) {
             let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
             if (target) {
@@ -593,56 +583,48 @@
             }
         }
 
-        // 動態增減陣列控制：服務項目列
+        // 服務項目嵌套控制
         function addServiceRow(id) {
             let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
-            if (target) {
-                target.services.push({ name: "", desc: "", result: "", quote: "" });
-                renderMainForms();
-            }
+            if (target) { target.services.push({ name: "", desc: "", result: "", quote: "" }); renderMainForms(); }
         }
         function updateServiceField(id, idx, field, value) {
             let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
             if (target && target.services[idx]) target.services[idx][field] = value;
         }
 
-        // 動態增減陣列控制：地籍列
+        // 地籍嵌套控制
         function addLandRow(id) {
             let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
-            if (target) {
-                target.lands.push({ section: "", number: "", sqm: "", ping: "" });
-                renderMainForms();
-            }
+            if (target) { target.lands.push({ section: "", number: "", sqm: "", ping: "" }); renderMainForms(); }
         }
         function updateLandField(id, idx, field, value) {
             let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
             if (target && target.lands[idx]) target.lands[idx][field] = value;
         }
 
-        // 動態增減陣列控制：建號列
+        // 建號嵌套控制
         function addBuildRow(id) {
             let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
-            if (target) {
-                target.buildings.push({ number: "", sqm: "", ping: "" });
-                renderMainForms();
-            }
+            if (target) { target.buildings.push({ number: "", sqm: "", ping: "" }); renderMainForms(); }
         }
         function updateBuildField(id, idx, field, value) {
             let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
             if (target && target.buildings[idx]) target.buildings[idx][field] = value;
         }
 
-        // 動態增減陣列控制：自行填寫文件項目
-        function addCustomDoc(id) {
+        // 【應備文件自填陣列動態控制】
+        function addCustomDocRow(id) {
             let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
             if (target) {
-                if(!target.customDocs) target.customDocs = [];
-                let txt = prompt("請輸入自定義應備文件名稱：");
-                if(txt) {
-                    target.customDocs.push(txt);
-                    renderMainForms();
-                }
+                if (!target.customDocs) target.customDocs = [];
+                target.customDocs.push("");
+                renderMainForms();
             }
+        }
+        function updateCustomDocField(id, idx, value) {
+            let target = id.startsWith('eval-') ? caseEvalData.find(c => c.id === id) : solarData.find(c => c.id === id);
+            if (target && target.customDocs) target.customDocs[idx] = value;
         }
 
         function addNewCase() {
@@ -689,7 +671,7 @@
             }
         }
 
-        function saveToCloud() { alert("已依照新版組織架構：一次性「寫入/更新」至雲端資料庫。"); }
+        function saveToCloud() { alert("已依照最新精確架構：將資料一次性寫入/更新至雲端資料庫。"); }
         window.onload = function() { toggleCategory('case-eval'); };
     </script>
 </body>
