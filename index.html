@@ -260,7 +260,10 @@
 
             if (!activeCase) { container.innerHTML = "<p class='text-xs text-slate-500 p-4'>暫無項目。</p>"; return; }
 
+            // ⚠️ 數據防空安全錨：防堵 GitHub 讀取舊資料快取造成欄位消失
             if (currentActiveTab === 'case-eval') {
+                if (activeCase.city === undefined) activeCase.city = "高雄市";
+                if (activeCase.region === undefined) activeCase.region = "岡山區";
                 container.innerHTML = generateCaseEvalHTML(activeCase);
             } else if (currentActiveTab === 'solar') {
                 container.innerHTML = generateSolarHTML(activeCase);
@@ -319,7 +322,7 @@
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
 
-                                    <!-- 付款期程標籤區 -->
+                                    <!-- 📌 1. 付款期程標籤區 -->
                                     <div class="text-[11px] text-slate-400 font-semibold mb-0.5 tracking-wider">付款期程</div>
                                     <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] pt-1 border-t border-cosmic-700/20">
                                         ${[1,2,3,4].map(p => `
@@ -357,13 +360,13 @@
                             <button onclick="addLandRow('${c.id}')" class="text-[10px] bg-emerald-900 border border-emerald-700 px-2 py-0.5 rounded no-print">[＋ 地段地號]</button>
                         </div>
                         
-                        <!-- 縣市、區域新空格 -->
-                        <div class="grid grid-cols-2 gap-3 text-xs pt-1 pb-2">
-                            <div><label class="text-slate-400 block mb-0.5">縣市</label><input type="text" value="${c.city||''}" oninput="updateField('${c.id}', 'city', this.value)" placeholder="例如：高雄市" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                            <div><label class="text-slate-400 block mb-0.5">區域</label><input type="text" value="${c.region||''}" oninput="updateField('${c.id}', 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                        <!-- 📌 2. 縣市、區域新空格區 -->
+                        <div class="grid grid-cols-2 gap-3 text-xs pt-1 pb-2 border-b border-cosmic-700/20">
+                            <div><label class="text-slate-400 block mb-0.5">縣市</label><input type="text" value="${c.city||''}" oninput="updateField('${c.id}', 'city', this.value)" placeholder="例如：高雄市" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
+                            <div><label class="text-slate-400 block mb-0.5">區域</label><input type="text" value="${c.region||''}" oninput="updateField('${c.id}', 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                         </div>
 
-                        <div class="space-y-1.5">
+                        <div class="space-y-1.5 pt-1">
                             ${c.lands.map((l, idx) => `
                                 <div class="grid grid-cols-7 gap-1 text-[11px]">
                                     <input type="text" value="${l.section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
@@ -467,10 +470,12 @@
                                     <option value="是" ${c.esgEuCarbon==='是'?'selected':''}>是</option>
                                 </select>
                             </div>
+                            
+                            <!-- 📌 3. 是否需要綠電憑證更名區 -->
                             <div><label class="text-slate-400 block mb-1">是否需要綠電憑證</label>
                                 <select onchange="updateField('${c.id}', 'esgGreenCert', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                                     <option value="否" ${c.esgGreenCert==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.esgGreenCert==='是'?'selected':''}>是</option>
+                                    <option value="是" ${c.esgGreenCert==='是'?'selected':''}>集</option>
                                 </select>
                             </div>
                             <div><label class="text-slate-400 block mb-1">儲能系統意願</label>
