@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>睿立業務系統 - M核心管理平台</title>
+    <title>睿立業務系統 - N核心管理平台</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome 圖標 -->
@@ -26,31 +26,46 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        /* 📜 M版直式 A4 列印與一鍵匯出排版優化 */
+        /* 📜 N版極致：專屬直式 A4 滿頁匯出與物理屏蔽排版優化 */
         @media print {
-            body { background: white !important; color: black !important; }
-            aside, header, .no-print { display: none !important; }
-            main { padding: 0 !important; overflow: visible !important; }
+            @page {
+                size: portrait;
+                margin: 10mm !important;
+            }
+            body { background: white !important; color: black !important; overflow: visible !important; }
+            aside, header, .no-print, input[type="file"], label { display: none !important; }
+            main { padding: 0 !important; margin: 0 !important; overflow: visible !important; display: block !important; }
             .print-container { 
                 width: 210mm !important; 
-                min-height: 297mm !important; 
+                max-width: 100% !important;
                 background: white !important; 
                 color: black !important; 
-                padding: 15mm !important;
+                padding: 0mm !important;
                 box-shadow: none !important;
                 border: none !important;
+                display: block !important;
+            }
+            .card-box {
+                background: transparent !important;
+                border: 1px solid #000 !important;
+                color: black !important;
+                padding: 12px !important;
+                border-radius: 8px !important;
+                page-break-inside: avoid !important;
             }
             input, select, textarea { 
                 background: transparent !important; 
                 color: black !important; 
                 border: none !important; 
-                border-bottom: 1px solid #ccc !important;
+                border-bottom: 1px solid #666 !important;
                 border-radius: 0 !important;
                 padding: 2px !important;
+                font-weight: bold !important;
             }
+            .text-white, .text-slate-300, .text-slate-400 { color: black !important; }
             .bg-cosmic-950, .bg-cosmic-900, .bg-cosmic-800, .bg-cosmic-950\/40, .bg-cosmic-900\/60 { background: transparent !important; }
-            footer { border-top: 2px solid black !important; color: black !important; }
-            h3, h4 { color: black !important; border-bottom: 1px solid black !important; }
+            footer { border-top: 1px solid black !important; color: black !important; margin-top: 20px !important; }
+            h3, h4 { color: black !important; border-bottom: 1px solid black !important; padding-bottom: 4px !important; }
         }
     </style>
 </head>
@@ -65,11 +80,11 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wider text-white">睿立集團</h1>
-                    <p class="text-xs text-slate-400">RUILI SYSTEM M</p>
+                    <p class="text-xs text-slate-400">RUILI SYSTEM N</p>
                 </div>
             </div>
 
-            <!-- 五大主功能軌道完全保留不遺漏 -->
+            <!-- 五大軌道 -->
             <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-180px)]">
                 <div>
                     <button onclick="toggleCategory('case-eval')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
@@ -129,19 +144,27 @@
         </div>
     </aside>
 
-    <!-- MAIN CONTAINER -->
+    <!-- MAIN VIEWPORT -->
     <main class="flex-1 flex flex-col overflow-hidden bg-cosmic-950">
-        <!-- TOP BAR -->
-        <header class="h-16 border-b border-cosmic-700/40 px-8 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md">
-            <div><input type="text" id="global-search" oninput="filterCases()" placeholder="按公司關鍵字即時篩選名單..." class="w-80 bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-1.5 text-sm text-white"></div>
+        <!-- 🟢 TOP BAR 按鈕群完美復活與修正位置 -->
+        <header class="h-16 border-b border-cosmic-700/40 px-8 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print">
+            <div>
+                <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司關鍵字即時篩選名單..." class="w-80 bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-1.5 text-sm text-white focus:outline-none">
+            </div>
             <div class="flex items-center space-x-3">
-                <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md"><i class="fa-solid fa-plus"></i><span>[＋ 新增公司案件]</span></button>
-                <button onclick="window.print()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center shadow-lg transition"><i class="fa-solid fa-file-pdf mr-1.5"></i> 一鍵直式A4列印/存檔</button>
-                <button onclick="saveToCloud()" class="bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-xl">儲存按鍵</button>
+                <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md hover:opacity-90 transition">
+                    <i class="fa-solid fa-plus"></i><span>[＋ 新增公司案件]</span>
+                </button>
+                <button onclick="window.print()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center shadow-lg transition">
+                    <i class="fa-solid fa-print mr-1.5"></i> [一鍵直式A4列印/存檔]
+                </button>
+                <button onclick="saveToCloud()" class="bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-emerald-500 transition">
+                    儲存按鍵
+                </button>
             </div>
         </header>
 
-        <!-- ROUTING VIEWPORT -->
+        <!-- ROUTING CONTENT -->
         <div class="flex-1 overflow-y-auto p-8 flex justify-center">
             <div class="w-full max-w-5xl print-container">
                 <section id="tab-case-eval" class="tab-content active"><div id="case-eval-container" class="space-y-6"></div></section>
@@ -154,7 +177,6 @@
     </main>
 
     <script>
-        // 核心隔離狀態管理
         let caseEvalData = [
             {
                 id: "eval-1", companyName: "大鼎精密工業股份有限公司", taxId: "83746291", factoryLicense: "64009876", industryType: "金屬製品製造業", contact: "王大鼎", phone: "0912-345678", email: "tading@precision.com", address: "高雄市岡山區本工路88號", website: "https://www.tading.com",
@@ -164,14 +186,14 @@
                 buildingsIllegal: [{ type: "頂樓鋼棚加蓋", year: "2010", sqm: "400", ping: "121" }],
                 electricBill: "185000", horsepower: "150", contractCapacity: "120", isHighVoltage: "否", isTimeRate: "是", timePeriod: "白天為主",
                 esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "評估中", esgStorage: "否",
-                customDocsClient: ["電費單", "使用執照"], customDocsRuili: ["土地謄本", "地籍圖"], clientFiles: ["客戶廠房圖.pdf"], ruiliFiles: ["睿立核准函.png"]
+                customDocsClient: ["電費單", "使用執照"], customDocsRuili: ["土地謄本", "地籍圖"], clientFiles: ["客戶廠房藍圖.pdf"], ruiliFiles: ["規費核准公文.png"]
             }
         ];
 
         let solarData = [{ id: "solar-1", date: "2026-07-18T16:30", status: "已報價", manager: "陳宥騰", companyName: "國泰鋼鐵工業廠房" }];
         let tradingData = [{ id: "trading-1", date: "2026-07-18T12:00", status: "準備簽約", manager: "鄭家承", companyName: "瑞昱地產買賣工業地案" }];
         let meetingData = [{ id: "meet-1", date: "2026-07-18T14:00", status: "結案", manager: "黃逸豪", meetSubject: "外部公會戰略對接會" }];
-        let internalMeetData = [{ id: "int-1", date: "2026-07-18T09:00", status: "結案", manager: "楊裕憲", meetSubject: "M版新表單流程確認會" }];
+        let internalMeetData = [{ id: "int-1", date: "2026-07-18T09:00", status: "結案", manager: "楊裕憲", meetSubject: "N版全直式 A4 排版驗證會" }];
 
         let selectedIds = { "case-eval": "eval-1", "solar": "solar-1", "trading": "trading-1", "meeting": "meet-1", "internal-meet": "int-1" };
         let currentActiveTab = "case-eval";
@@ -220,7 +242,7 @@
             const container = document.getElementById(currentActiveTab + "-container");
             if (!container) return;
 
-            if (!activeCase) { container.innerHTML = "<p class='text-xs text-slate-500 p-4'>暫無子項目名單。</p>"; return; }
+            if (!activeCase) { container.innerHTML = "<p class='text-xs text-slate-500 p-4'>暫無項目。</p>"; return; }
 
             if (currentActiveTab === 'case-eval') {
                 container.innerHTML = generateCaseEvalHTML(activeCase);
@@ -233,7 +255,7 @@
             }
         }
 
-        // ==================== 1. 一、專案管理 M版完美面板 ====================
+        // ==================== 專案管理 HTML ====================
         function generateCaseEvalHTML(c) {
             let totalLandSqm = c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
             let totalLandPing = c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
@@ -241,18 +263,18 @@
             let totalIllegalPing = c.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0);
 
             return `
-                <div class="bg-cosmic-800/70 border border-cosmic-700/50 rounded-2xl p-6 space-y-6 shadow-xl">
+                <div class="card-box bg-cosmic-800/70 border border-cosmic-700/50 rounded-2xl p-6 space-y-6 shadow-xl">
                     <div class="border-b border-cosmic-700/40 pb-2"><h3 class="text-sm font-bold text-cyan-400"><i class="fa-solid fa-network-wired mr-2"></i>一、專案管理</h3></div>
 
                     <!-- 服務項目層 -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4">
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/40 pb-1.5">
                             <h4 class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-layer-group mr-1.5"></i>服務項目層</h4>
                             <button onclick="addServiceRow('${c.id}')" class="text-[10px] bg-indigo-900 border border-indigo-700 px-2 py-0.5 rounded no-print">[＋ 新增服務項目]</button>
                         </div>
                         <div class="space-y-4">
                             ${c.services.map((srv, idx) => `
-                                <div class="bg-cosmic-900/60 border border-cosmic-700/50 p-4 rounded-xl space-y-3 relative">
+                                <div class="bg-cosmic-900/60 border border-cosmic-700/50 p-4 rounded-xl space-y-3 relative card-box">
                                     <i onclick="removeServiceRow('${c.id}', ${idx})" class="fa-solid fa-circle-xmark text-red-400 absolute top-3 right-3 cursor-pointer text-sm hover:text-red-300 no-print"></i>
                                     
                                     <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -272,16 +294,15 @@
 
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                                         <div><label class="text-slate-400 block mb-0.5">服務項目</label><input type="text" value="${srv.name||''}" oninput="updateServiceField('${c.id}', ${idx}, 'name', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                                        <div><label class="text-slate-400 block mb-0.5">報價金額</label><input type="number" value="${srv.quote||''}" oninput="updateServiceField('${c.id}', ${idx}, 'quote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                        <div><label class="text-slate-400 block mb-0.5">報報金額</label><input type="number" value="${srv.quote||''}" oninput="updateServiceField('${c.id}', ${idx}, 'quote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                         <div><label class="text-slate-400 block mb-0.5">簽約金額</label><input type="number" value="${srv.contract||''}" oninput="updateServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                        <div><label class="text-slate-400 block mb-0.5">案件說明 (文字多行自動換行)</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">案件說明 (自動換行)</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
 
-                                    <!-- 4期付款明細 -->
                                     <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] pt-2 border-t border-cosmic-700/20">
                                         ${[1,2,3,4].map(p => `
                                             <div class="bg-cosmic-950/50 p-1.5 rounded border border-cosmic-700/30">
@@ -296,8 +317,8 @@
                     </div>
 
                     <!-- 二、公司基本資料 -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3">
-                        <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-industry mr-1.5"></i>二、公司基本資料</h4>
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">二、公司基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
                             <div class="md:col-span-2"><label class="text-slate-400">公司名稱</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-medium"></div>
                             <div><label class="text-slate-400">統編</label><input type="text" value="${c.taxId||''}" oninput="updateField('${c.id}', 'taxId', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
@@ -311,10 +332,10 @@
                         </div>
                     </div>
 
-                    <!-- 三、土地基本資料 (對齊M版全新名詞：都市計畫使用分區 與 非都市計畫使用地類別) -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2">
+                    <!-- 三、土地基本資料 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
-                            <h4 class="text-xs font-bold text-emerald-400">三、土地基本資料 (輸入平方公尺自動連動換算 *0.3025 坪數)</h4>
+                            <h4 class="text-xs font-bold text-emerald-400">三、土地基本資料 (平方公尺自動乘*0.3025帶入坪數)</h4>
                             <button onclick="addLandRow('${c.id}')" class="text-[10px] bg-emerald-900 border border-emerald-700 px-2 py-0.5 rounded no-print">[＋ 地段地號]</button>
                         </div>
                         <div class="space-y-1.5">
@@ -329,20 +350,20 @@
                                     </select>
                                     <input type="text" value="${l.customPattern||''}" placeholder="自填細部類別" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center">
                                     
-                                    <input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold focus:border-emerald-400">
+                                    <input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
                                     <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-ping-${idx}" readonly class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
                                 </div>
                             `).join('')}
                         </div>
                         <div class="p-2.5 bg-cosmic-950 rounded text-xs mt-2 flex justify-between border border-cosmic-700/40">
-                            <span>土地總面積平方公尺累加: <strong class="text-emerald-400" id="sum-land-sqm">${totalLandSqm}</strong> ㎡</span>
-                            <span>土地總面積換算總坪數: <strong class="text-emerald-400" id="sum-land-ping">${totalLandPing.toFixed(2)}</strong> 坪</span>
+                            <span>土地總面積: <strong class="text-emerald-400" id="sum-land-sqm">${totalLandSqm}</strong> ㎡</span>
+                            <span>換算總坪數: <strong class="text-emerald-400" id="sum-land-ping">${totalLandPing.toFixed(2)}</strong> 坪</span>
                         </div>
                     </div>
 
-                    <!-- 四、建物基本資料 (有保存登記新增建物類別) -->
+                    <!-- 四、建物基本資料 -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-blue-400">四、有保存登記建物明細</span>
                                 <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
@@ -357,7 +378,7 @@
                             `).join('')}</div>
                             <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping">${totalLegalPing}</strong> 坪</div>
                         </div>
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-red-400">四、違章建物明細</span>
                                 <button onclick="addBuildRow('${c.id}', 'illegal')" class="text-[10px] bg-red-950 border border-red-900 px-1.5 py-0.5 rounded no-print">[＋ 違章建物]</button>
@@ -371,14 +392,14 @@
 
                     <!-- 七、應備文件清單 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
                                 <span class="font-bold text-violet-400">七、客戶應備文件清單</span>
                                 <button onclick="addDocItem('${c.id}', 'client')" class="text-[10px] bg-violet-900 px-2 rounded no-print">[＋ 新增]</button>
                             </div>
                             <div class="space-y-1">${c.customDocsClient.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-violet-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'client', i)" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
                         </div>
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
                                 <span class="font-bold text-cyan-400">七、睿立調閱文件清單</span>
                                 <button onclick="addDocItem('${c.id}', 'ruili')" class="text-[10px] bg-cyan-900 px-2 rounded no-print">[＋ 新增]</button>
@@ -387,9 +408,9 @@
                         </div>
                     </div>
 
-                    <!-- 八、檔案上傳 (🟢 全新升級：捨棄彈窗，直連電腦硬碟、照片與雲端夾) -->
+                    <!-- 八、檔案上傳 (原生連動) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
                                 <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>八、客戶應備檔案上傳</span>
                                 <label class="text-[10px] bg-violet-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-violet-800 transition no-print">
@@ -402,7 +423,7 @@
                             </div>
                         </div>
 
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-cyan-500/30 pb-1">
                                 <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>八、睿立調閱檔案上傳</span>
                                 <label class="text-[10px] bg-cyan-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-cyan-800 transition no-print">
@@ -421,18 +442,17 @@
             `;
         }
 
-        // ==================== 其它模組面板 ====================
+        // ==================== 其它功能面板 ====================
         function generateSolarHTML(c) {
-            return `<div class="bg-cosmic-800/70 border border-amber-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-amber-400"><i class="fa-solid fa-solar-panel mr-2"></i>二、工廠太陽能自建評估</h3><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full">${generateFooterHTML()}</div>`;
+            return `<div class="card-box bg-cosmic-800/70 border border-amber-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-amber-400"><i class="fa-solid fa-solar-panel mr-2"></i>二、工廠太陽能自建評估</h3><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full">${generateFooterHTML()}</div>`;
         }
         function generateTradingHTML(c) {
-            return `<div class="bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full">${generateFooterHTML()}</div>`;
+            return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full">${generateFooterHTML()}</div>`;
         }
         function generateGenericMeetHTML(c) {
-            return `<div class="bg-cosmic-800/70 border border-purple-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-comments mr-2"></i>會議及戰略紀錄</h3><input type="text" value="${c.meetSubject||''}" oninput="let target=getTargetDataArray(currentActiveTab).find(x=>x.id==='${c.id}'); if(target){target.meetSubject=this.value; renderSidebarSubLists();}" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full">${generateFooterHTML()}</div>`;
+            return `<div class="card-box bg-cosmic-800/70 border border-purple-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-comments mr-2"></i>會議及戰略紀錄</h3><input type="text" value="${c.meetSubject||''}" oninput="let target=getTargetDataArray(currentActiveTab).find(x=>x.id==='${c.id}'); if(target){target.meetSubject=this.value; renderSidebarSubLists();}" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full">${generateFooterHTML()}</div>`;
         }
 
-        // ⚠️ 依要求將底部最後一行「備註說明：此文件....」整行拔除的全新淨空頁尾
         function generateFooterHTML() {
             return `
                 <footer class="bg-cosmic-950 px-6 py-4 border-t border-cosmic-700/40 text-[11px] text-slate-400 flex flex-col items-center space-y-1.5 mt-6">
@@ -448,7 +468,7 @@
             `;
         }
 
-        // ==================== 聯動核心函數群 ====================
+        // ==================== 核心控製邏輯 ====================
         function updateField(id, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id)[field] = value; }
         function updateCompanyName(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
@@ -478,7 +498,7 @@
 
         function addServiceRow(id) { caseEvalData.find(c => c.id === id).services.push({ date: "", manager: "樊靖畇", status: "初期評估", source: "", name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
         function removeServiceRow(id, idx) { caseEvalData.find(c => c.id === id).services.splice(idx, 1); renderMainForms(); }
-        function addLandRow(id) { caseEvalData.find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", currentPrice: "", sqm: 0, ping: 0 }); renderMainForms(); }
+        function addLandRow(id) { caseEvalData.find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", sqm: 0, ping: 0 }); renderMainForms(); }
         function addBuildRow(id, side) {
             let target = caseEvalData.find(c => c.id === id);
             if (side === 'legal') target.buildingsLegal.push({ number: "", type: "", year: "", sqm: "", ping: "" });
@@ -502,7 +522,6 @@
             renderMainForms();
         }
 
-        // 🟢 突破性更新：原生檔案瀏覽器選取與照片直連處理機制
         function handleNativeUpload(inputEl, id, side) {
             let target = caseEvalData.find(c => c.id === id);
             if (target && inputEl.files) {
@@ -545,7 +564,7 @@
             renderSidebarSubLists(); renderMainForms();
         }
 
-        function saveToCloud() { alert("M版原生硬碟照片夾直連機制：數據已100%雲端校對完成。"); }
+        function saveToCloud() { alert("N版頂部控制鈕全數復活歸位，列印機制已完成強制直式A4重組。"); }
         window.onload = function() { toggleCategory('case-eval'); };
     </script>
 </body>
