@@ -200,15 +200,14 @@
                 buildingsLegal: [{ number: "1025", type: "高架鋼骨廠房", year: "2012", sqm: "2000", ping: "605" }],
                 buildingsIllegal: [{ type: "後方雨遮擴建", year: "2015", sqm: "300", ping: "90.75" }],
                 electricBill: "450000", horsepower: "300", contractCapacity: "250", isHighVoltage: "是", isTimeRate: "是", timePeriod: "平均分佈",
-                esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "是",
+                esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "開",
                 customDocsClient: ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"], customDocsRuili: ["土地謄本"], clientFiles: [], ruiliFiles: [],
                 solarServices: [{ name: "屋頂型太陽能光電自建案", quote: "8500000", contract: "8500000", desc: "規劃建置屋頂型太陽光電系統，預估容量約 200 kWp。", remark: "客戶對遮陽與結構補強高度關注。", p1: "2550000", d1: "", p2: "3400000", d2: "", p3: "1700000", d3: "", p4: "850000", d4: "" }],
                 
-                // 太陽能全新試算自填結構基礎值
-                calc1Ping: "500", calc1Val: "3.5",
-                calc3Ping: "500", calc3Price: "600",
-                calc4Ping: "500", calc4Panels: "600", calc4Watts: "440", calc4Price: "4.8",
-                calc5Gen: "1000000", calc5Bill: "200000", calc5Maint: "50000",
+                // 【預估】數據結構
+                estPing: "500", estPrice: "3.5", estRentUnit: "600",
+                // 【現勘】數據結構
+                surveyPing: "500", surveyPanels: "600", surveyWatts: "440", surveyPrice: "4.8", surveyIncome: "0", surveyBill: "0", surveyMaint: "0",
 
                 planModule: "雙面雙玻高效率單晶模組", planInverter: "台達高階變流器", planType: "鋼構棚架型式", planNote: "設計高度不影響廠房內部採光。",
                 planPreference: "全部躉售", planPartner: "自建",
@@ -247,6 +246,12 @@
             if (tabId === 'internal-meet') return internalMeetData;
             return [];
         }
+
+        document.addEventListener('input', function(e) {
+            if(e.target && e.target.id && (e.target.id.startsWith('est-') || e.target.id.startsWith('srv-'))) {
+                calculateSolarLive(selectedIds['solar']);
+            }
+        });
 
         function renderSidebarSubLists() {
             ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
@@ -309,7 +314,7 @@
             }
         }
 
-        // ==================== 一、專案管理 HTML (完整封存，字句不刪減更動) ====================
+        // ==================== 一、專案管理 HTML (完整封存，字句絕不更動與刪減) ====================
         function generateCaseEvalHTML(c) {
             let totalLandSqm = c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
             let totalLandPing = c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
@@ -464,7 +469,7 @@
                             <div><label class="text-slate-400">是否時間電價</label>
                                 <select onchange="updateField('${c.id}', 'isTimeRate', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                                     <option value="否" ${c.isTimeRate==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.isTimeRate==='開'?'selected':''}>是</option>
+                                    <option value="是" ${c.isTimeRate==='是'?'selected':''}>是</option>
                                 </select>
                             </div>
                             <div><label class="text-slate-400">用電時段</label>
@@ -490,7 +495,7 @@
                             <div><label class="text-slate-400 block mb-1">產品是否外銷</label>
                                 <select onchange="updateField('${c.id}', 'esgIsExport', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                                     <option value="否" ${c.esgIsExport==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.esgHasSuccessor==='是'?'selected':''}>是</option>
+                                    <option value="是" ${c.esgIsExport==='是'?'selected':''}>是</option>
                                 </select>
                             </div>
                             <div><label class="text-slate-400 block mb-1">受歐盟碳關稅影響</label>
@@ -502,7 +507,7 @@
                             <div><label class="text-slate-400 block mb-1">是否需要綠電憑證</label>
                                 <select onchange="updateField('${c.id}', 'esgGreenCert', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                                     <option value="否" ${c.esgGreenCert==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.esgGreenCert==='開'?'selected':''}>是</option>
+                                    <option value="是" ${c.esgGreenCert==='是'?'selected':''}>是</option>
                                 </select>
                             </div>
                             <div><label class="text-slate-400 block mb-1">儲能系統意願</label>
@@ -565,18 +570,16 @@
             `;
         }
 
-        // ==================== 🛠️ 二、主功能：太陽能自建 (依據最新指令深度爆發改制) ====================
+        // ==================== 🛠️ 二、主功能：太陽能自建 (融入全新【預估】與【現勘】試算框架) ====================
         function generateSolarHTML(c) {
             let totalLandSqm = c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
             let totalLandPing = c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
-            let totalLegalPing = c.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0);
-            let totalIllegalPing = c.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0);
 
             return `
                 <div class="card-box bg-cosmic-800/70 border border-amber-500/40 rounded-2xl p-6 space-y-6 shadow-xl">
                     <div class="border-b border-amber-500/40 pb-2"><h3 class="text-sm font-bold text-amber-400"><i class="fa-solid fa-solar-panel mr-2"></i>主功能：太陽能自建</h3></div>
 
-                    <!-- 二、服務項目 (獨立拿掉日期、經理、狀態、來源，精準縮減) -->
+                    <!-- 二、服務項目 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/40 pb-1.5">
                             <h4 class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-layer-group mr-1.5"></i>二、服務項目</h4>
@@ -586,18 +589,15 @@
                             ${c.solarServices.map((srv, idx) => `
                                 <div class="bg-cosmic-900/60 border border-cosmic-700/50 p-4 rounded-xl space-y-3 relative card-box">
                                     <i onclick="removeSolarServiceRow('${c.id}', ${idx})" class="fa-solid fa-circle-xmark text-red-400 absolute top-3 right-3 cursor-pointer text-sm hover:text-red-300 no-print"></i>
-                                    
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                                         <div><label class="text-slate-400 block mb-0.5">服務項目</label><input type="text" value="${srv.name||''}" oninput="updateSolarServiceField('${c.id}', ${idx}, 'name', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                         <div><label class="text-slate-400 block mb-0.5">報價金額</label><input type="number" value="${srv.quote||''}" oninput="updateSolarServiceField('${c.id}', ${idx}, 'quote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                         <div><label class="text-slate-400 block mb-0.5">簽約金額</label><input type="number" value="${srv.contract||''}" oninput="updateSolarServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                     </div>
-
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                                         <div><label class="text-slate-400 block mb-0.5">案件說明</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
-
                                     <div class="text-[11px] text-slate-400 font-semibold mb-0.5 tracking-wider">付款期程</div>
                                     <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] pt-1 border-t border-cosmic-700/20">
                                         ${[1,2,3,4].map(p => `
@@ -612,80 +612,93 @@
                         </div>
                     </div>
 
-                    <!-- 三、案件試算 (格式與五大公式完全深度對齊，全自動實時運算) -->
-                    <div class="bg-cosmic-950/40 border border-amber-500/30 p-4 rounded-xl space-y-4 card-box">
-                        <h4 class="text-xs font-bold text-amber-300 border-b border-cosmic-700/20 pb-1.5"><i class="fa-solid fa-calculator mr-1.5"></i>三、案件試算</h4>
+                    <!-- 三、案件試算（格式與五大全新公式聯動調整） -->
+                    <div class="bg-cosmic-950/40 border border-amber-500/30 p-5 rounded-xl space-y-5 card-box">
+                        <h4 class="text-xs font-bold text-amber-300 border-b border-cosmic-700/20 pb-1.5"><i class="fa-solid fa-calculator mr-1.5"></i>三、案件試算（格式與公式全新調整）</h4>
                         
-                        <!-- 1. 太陽能自建年收益試算 -->
-                        <div class="p-3 bg-cosmic-900/40 border border-cosmic-700/30 rounded-lg space-y-2">
-                            <span class="text-xs font-semibold text-amber-400 block">1. 太陽能自建年收益試算：</span>
-                            <div class="flex flex-wrap items-center gap-2 text-xs">
-                                <span>公式：(</span>
-                                <input type="number" id="sc-1-ping-${c.id}" value="${c.calc1Ping||'0'}" oninput="updateField('${c.id}', 'calc1Ping', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-amber-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="坪數">
-                                <span>坪 ) / 1.5 * 590 / 1000 * 4 * 365 * (</span>
-                                <input type="number" step="0.1" id="sc-1-val-${c.id}" value="${c.calc1Val||'3.5'}" oninput="updateField('${c.id}', 'calc1Val', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-amber-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="3.5">
-                                <span>) 元 =</span>
-                                <span class="bg-cosmic-950 px-3 py-1 border border-cosmic-700 text-emerald-400 font-bold rounded" id="res-calc-1-${c.id}">0</span>元
-                            </div>
-                        </div>
-
-                        <!-- 2. 屋頂出租收益試算 -->
-                        <div class="p-3 bg-cosmic-900/40 border border-cosmic-700/30 rounded-lg space-y-2">
-                            <span class="text-xs font-semibold text-cyan-400 block">2. 屋頂出租收益試算：</span>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                                <div class="p-2 bg-cosmic-950/60 rounded border border-cosmic-700/30">
-                                    <span class="block text-slate-400 mb-1">10% 年收益：</span>
-                                    公式答案：<strong class="text-amber-400 text-sm" id="res-calc-2-10-${c.id}">0</strong> 元
-                                </div>
-                                <div class="p-2 bg-cosmic-950/60 rounded border border-cosmic-700/30">
-                                    <span class="block text-slate-400 mb-1">15% 年收益：</span>
-                                    公式答案：<strong class="text-amber-400 text-sm" id="res-calc-2-15-${c.id}">0</strong> 元
+                        <!-- ═══ 【預估軌道】 ═══ -->
+                        <div class="space-y-3 bg-cosmic-900/30 p-4 border border-cyan-500/20 rounded-xl">
+                            <span class="text-xs font-bold text-cyan-400 tracking-wider flex items-center"><i class="fa-solid fa-chart-pie mr-1.5"></i>【預估】</span>
+                            
+                            <!-- 1. 預估太陽能自建年收益試算 -->
+                            <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
+                                <span class="font-medium text-slate-300">1. 預估太陽能自建年收益試算：</span>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span>(</span>
+                                    <input type="number" id="est-ping-${c.id}" value="${c.estPing||'0'}" oninput="updateField('${c.id}', 'estPing', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-amber-500/80 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="坪數自填">
+                                    <span>坪數自填 ) / 1.5 * 590 / 1000 * 4 * 365 * (</span>
+                                    <input type="number" step="0.1" id="est-price-${c.id}" value="${c.estPrice||'3.5'}" oninput="updateField('${c.id}', 'estPrice', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-amber-500/80 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="3.5元">
+                                    <span>元自填 ) =</span>
+                                    <span class="text-amber-400 font-bold bg-cosmic-950 px-2 py-0.5 rounded border border-cosmic-700" id="res-est-1-${c.id}">0</span>元
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- 3. 附近工廠出租情況 -->
-                        <div class="p-3 bg-cosmic-900/40 border border-cosmic-700/30 rounded-lg space-y-2">
-                            <span class="text-xs font-semibold text-emerald-400 block">3. 附近工廠出租情況：</span>
-                            <div class="flex flex-wrap items-center gap-2 text-xs">
-                                <span>公式：(</span>
-                                <input type="number" id="sc-3-ping-${c.id}" value="${c.calc3Ping||'0'}" oninput="updateField('${c.id}', 'calc3Ping', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-emerald-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="坪數">
-                                <span>坪 ) * (</span>
-                                <input type="number" id="sc-3-price-${c.id}" value="${c.calc3Price||'0'}" oninput="updateField('${c.id}', 'calc3Price', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-emerald-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="單價">
-                                <span>) =</span>
-                                <span class="bg-cosmic-950 px-3 py-1 border border-cosmic-700 text-emerald-400 font-bold rounded" id="res-calc-3-${c.id}">0</span>元
+                            <!-- 2. 模組每年維護試算 -->
+                            <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
+                                <span class="font-medium text-slate-300">2. 模組每年維護試算：</span>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span>帶入『預估太陽能自建年收益試算』答案 ( <span class="text-amber-400 font-bold" id="link-est-1-${c.id}">0</span> 元 ) * 0.1 =</span>
+                                    <span class="text-cyan-400 font-bold bg-cosmic-950 px-2 py-0.5 rounded border border-cosmic-700" id="res-est-2-${c.id}">0</span>元
+                                </div>
+                            </div>
+
+                            <!-- 3. 附近工廠出租情況 -->
+                            <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
+                                <span class="font-medium text-slate-300">3. 附近工廠出租情況：</span>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span>帶入『預估太陽能自建年收益試算坪數自填』的答案 ( <span class="text-amber-400 font-bold" id="link-est-ping-${c.id}">0</span> 坪 ) * (</span>
+                                    <input type="number" id="est-rentunit-${c.id}" value="${c.estRentUnit||'0'}" oninput="updateField('${c.id}', 'estRentUnit', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-cyan-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="單價自填">
+                                    <span>單價自填 ) =</span>
+                                    <span class="text-emerald-400 font-bold bg-cosmic-950 px-2 py-0.5 rounded border border-cosmic-700" id="res-est-3-${c.id}">0</span>元
+                                </div>
                             </div>
                         </div>
 
-                        <!-- 4. 現勘後預估試算 -->
-                        <div class="p-3 bg-cosmic-900/40 border border-cosmic-700/30 rounded-lg space-y-2">
-                            <span class="text-xs font-semibold text-purple-400 block">4. 現勘後預估試算：</span>
-                            <div class="flex flex-wrap items-center gap-1.5 text-xs">
-                                <span>公式：(</span>
-                                <input type="number" id="sc-4-ping-${c.id}" value="${c.calc4Ping||'0'}" oninput="updateField('${c.id}', 'calc4Ping', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-purple-500 px-1 py-0.5 rounded text-white text-center font-bold" placeholder="坪數">
-                                <span>坪 ) / (</span>
-                                <input type="number" id="sc-4-panels-${c.id}" value="${c.calc4Panels||'0'}" oninput="updateField('${c.id}', 'calc4Panels', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-purple-500 px-1 py-0.5 rounded text-white text-center font-bold" placeholder="幾片">
-                                <span>片太陽能板) * (</span>
-                                <input type="number" id="sc-4-watts-${c.id}" value="${c.calc4Watts||'0'}" oninput="updateField('${c.id}', 'calc4Watts', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-purple-500 px-1 py-0.5 rounded text-white text-center font-bold" placeholder="瓦數">
-                                <span>瓦)/1000 * 4 * 365天 * (</span>
-                                <input type="number" step="0.01" id="sc-4-price-${c.id}" value="${c.calc4Price||'4.8'}" oninput="updateField('${c.id}', 'calc4Price', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-purple-500 px-1 py-0.5 rounded text-white text-center font-bold" placeholder="售電價">
-                                <span>) =</span>
-                                <span class="bg-cosmic-950 px-3 py-1 border border-cosmic-700 text-purple-400 font-bold rounded" id="res-calc-4-${c.id}">0</span>元
+                        <!-- ═══ 【現勘軌道】 ═══ -->
+                        <div class="space-y-3 bg-cosmic-900/30 p-4 border border-purple-500/20 rounded-xl">
+                            <span class="text-xs font-bold text-purple-400 tracking-wider flex items-center"><i class="fa-solid fa-compass-drafting mr-1.5"></i>【現勘】</span>
+                            
+                            <!-- 1. 現勘後太陽能自建年收益試算 -->
+                            <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
+                                <span class="font-medium text-slate-300">1. 現勘後太陽能自建年收益試算：</span>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span>(</span>
+                                    <input type="number" id="sur-ping-${c.id}" value="${c.surveyPing||'0'}" oninput="updateField('${c.id}', 'surveyPing', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-purple-500 px-1 py-0.5 rounded text-white text-center font-bold" placeholder="坪數">
+                                    <span>坪數自填 ) / (</span>
+                                    <input type="number" id="sur-panels-${c.id}" value="${c.surveyPanels||'0'}" oninput="updateField('${c.id}', 'surveyPanels', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-purple-500 px-1 py-0.5 rounded text-white text-center font-bold" placeholder="幾片">
+                                    <span>幾片太陽能板自填 ) * (</span>
+                                    <input type="number" id="sur-watts-${c.id}" value="${c.surveyWatts||'0'}" oninput="updateField('${c.id}', 'surveyWatts', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-purple-500 px-1 py-0.5 rounded text-white text-center font-bold" placeholder="瓦數">
+                                    <span>每片瓦數自填 ) / 1000 * 4 * 365天 * (</span>
+                                    <input type="number" step="0.01" id="sur-price-${c.id}" value="${c.surveyPrice||'4.8'}" oninput="updateField('${c.id}', 'surveyPrice', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-purple-500 px-1 py-0.5 rounded text-white text-center font-bold" placeholder="售電價">
+                                    <span>售電價格自填 ) =</span>
+                                    <span class="text-purple-400 font-bold bg-cosmic-950 px-2 py-0.5 rounded border border-cosmic-700" id="res-sur-1-${c.id}">0</span>元
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- 5. 扣除一般成本試算 -->
-                        <div class="p-3 bg-cosmic-900/40 border border-red-500/30 rounded-lg space-y-2">
-                            <span class="text-xs font-semibold text-red-400 block">5. 扣除一般成本試算：</span>
-                            <div class="flex flex-wrap items-center gap-2 text-xs">
-                                <span>公式：(</span>
-                                <input type="number" id="sc-5-gen-${c.id}" value="${c.calc5Gen||'0'}" oninput="updateField('${c.id}', 'calc5Gen', this.value); calculateSolarLive('${c.id}');" class="w-24 bg-cosmic-950 border border-red-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="每年發電收益">
-                                <span>每年發電收益) - (</span>
-                                <input type="number" id="sc-5-bill-${c.id}" value="${c.calc5Bill||'0'}" oninput="updateField('${c.id}', 'calc5Bill', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-red-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="每年電費">
-                                <span>每年電費) - (</span>
-                                <input type="number" id="sc-5-maint-${c.id}" value="${c.calc5Maint||'0'}" oninput="updateField('${c.id}', 'calc5Maint', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-red-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="年維護費">
-                                <span>年維護費用) =</span>
-                                <span class="bg-cosmic-950 px-3 py-1 border border-cosmic-700 text-red-400 font-bold rounded" id="res-calc-5-${c.id}">0</span>元
+                            <!-- 2. 模組每年維護試算 -->
+                            <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
+                                <span class="font-medium text-slate-300">2. 模組每年維護試算：</span>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span>(</span>
+                                    <input type="number" id="sur-income-${c.id}" value="${c.surveyIncome||'0'}" oninput="updateField('${c.id}', 'surveyIncome', this.value); calculateSolarLive('${c.id}');" class="w-24 bg-cosmic-950 border border-purple-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="自填年收益">
+                                    <span>太陽能自建年收益自填 ) * 0.1 =</span>
+                                    <span class="text-purple-300 font-bold bg-cosmic-950 px-2 py-0.5 rounded border border-cosmic-700" id="res-sur-2-${c.id}">0</span>元
+                                </div>
+                            </div>
+
+                            <!-- 3. 扣除一般成本試算 -->
+                            <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
+                                <span class="font-medium text-slate-300">3. 扣除一般成本試算：</span>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span>(</span>
+                                    <input type="number" id="sur-bill-inc-${c.id}" value="${c.surveyIncome2||'0'}" oninput="updateField('${c.id}', 'surveyIncome2', this.value); calculateSolarLive('${c.id}');" class="w-24 bg-cosmic-950 border border-red-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="發電收益">
+                                    <span>每年發電收益自填 ) - (</span>
+                                    <input type="number" id="sur-bill-cost-${c.id}" value="${c.surveyBill||'0'}" oninput="updateField('${c.id}', 'surveyBill', this.value); calculateSolarLive('${c.id}');" class="w-24 bg-cosmic-950 border border-red-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="每年電費">
+                                    <span>工廠每年電費自填 ) - (</span>
+                                    <input type="number" id="sur-bill-maint-${c.id}" value="${c.surveyMaint||'0'}" oninput="updateField('${c.id}', 'surveyMaint', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-red-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="維護費用">
+                                    <span>年維護費用自填 ) =</span>
+                                    <span class="text-red-400 font-bold bg-cosmic-950 px-2 py-0.5 rounded border border-cosmic-700" id="res-sur-3-${c.id}">0</span>元
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -738,221 +751,7 @@
                         </div>
                     </div>
 
-                    <!-- 六、建物基本資料 -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
-                            <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
-                                <span class="font-bold text-blue-400">六、有保存登記建物</span>
-                                <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
-                            </div>
-                            <div class="space-y-1">${c.buildingsLegal.map((b, i) => `
-                                <div class="grid grid-cols-4 gap-1">
-                                    <input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
-                                    <input type="text" value="${b.type||''}" placeholder="建物類別" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
-                                    <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
-                                    <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
-                                </div>
-                            `).join('')}</div>
-                            <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping-sol">${totalLegalPing}</strong> 坪</div>
-                        </div>
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
-                            <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
-                                <span class="font-bold text-red-400">六、違章建物</span>
-                                <button onclick="addBuildRow('${c.id}', 'illegal')" class="text-[10px] bg-red-950 border border-red-900 px-1.5 py-0.5 rounded no-print">[＋ 違章建物]</button>
-                            </div>
-                            <div class="space-y-1">${c.buildingsIllegal.map((b, i) => `
-                                <div class="grid grid-cols-3 gap-1"><input type="text" value="${b.type||''}" placeholder="類別" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"><input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"><input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"></div>
-                            `).join('')}</div>
-                            <div class="pt-1 text-[11px]">違章建物總坪數: <strong class="text-red-400" id="sum-illegal-ping-sol">${totalIllegalPing}</strong> 坪</div>
-                        </div>
-                    </div>
-
-                    <!-- 七、用電狀況 -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
-                        <h4 class="text-xs font-bold text-amber-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-bolt mr-1.5"></i>七、用電狀況</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                            <div><label class="text-slate-400">目前電費 (元/月)</label><input type="number" value="${c.electricBill||''}" oninput="updateField('${c.id}', 'electricBill', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div><label class="text-slate-400">馬力數 (HP)</label><input type="number" value="${c.horsepower||''}" oninput="updateField('${c.id}', 'horsepower', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div><label class="text-slate-400">契約容量 (kW)</label><input type="number" value="${c.contractCapacity||''}" oninput="updateField('${c.id}', 'contractCapacity', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div><label class="text-slate-400">是否高壓用電</label>
-                                <select onchange="updateField('${c.id}', 'isHighVoltage', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
-                                    <option value="否" ${c.isHighVoltage==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.isHighVoltage==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                            <div><label class="text-slate-400">是否時間電價</label>
-                                <select onchange="updateField('${c.id}', 'isTimeRate', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
-                                    <option value="否" ${c.isTimeRate==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.isTimeRate==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                            <div><label class="text-slate-400">用電時段</label>
-                                <select onchange="updateField('${c.id}', 'timePeriod', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
-                                    <option value="白天為主" ${c.timePeriod==='白天為主'?'selected':''}>白天為主</option>
-                                    <option value="夜間為主" ${c.timePeriod==='夜間為主'?'selected':''}>夜間為主</option>
-                                    <option value="平均分佈" ${c.timePeriod==='平均分佈'?'selected':''}>平均分佈</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 八、ESG評估 -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
-                        <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-leaf mr-1.5"></i>八、ESG評估</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
-                            <div><label class="text-slate-400 block mb-1">是否有接班人</label>
-                                <select onchange="updateField('${c.id}', 'esgHasSuccessor', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
-                                    <option value="否" ${c.esgHasSuccessor==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.esgHasSuccessor==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                            <div><label class="text-slate-400 block mb-1">產品是否外銷</label>
-                                <select onchange="updateField('${c.id}', 'esgIsExport', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
-                                    <option value="否" ${c.esgIsExport==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.esgIsExport==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                            <div><label class="text-slate-400 block mb-1">受歐盟碳關稅影響</label>
-                                <select onchange="updateField('${c.id}', 'esgEuCarbon', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
-                                    <option value="否" ${c.esgEuCarbon==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.esgEuCarbon==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                            <div><label class="text-slate-400 block mb-1">是否需要綠電憑證</label>
-                                <select onchange="updateField('${c.id}', 'esgGreenCert', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
-                                    <option value="否" ${c.esgGreenCert==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.esgGreenCert==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                            <div><label class="text-slate-400 block mb-1">儲能系統意願</label>
-                                <select onchange="updateField('${c.id}', 'esgStorage', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
-                                    <option value="否" ${c.esgStorage==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.esgStorage==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 九、系統規劃方向 -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
-                        <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/20 pb-1.5"><i class="fa-solid fa-bezier-curve mr-1.5"></i>九、系統規劃方向</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                            <div><label class="text-slate-400">光電模組選用</label><input type="text" value="${c.planModule||''}" oninput="updateField('${c.id}', 'planModule', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div><label class="text-slate-400">逆變器選用品牌</label><input type="text" value="${c.planInverter||''}" oninput="updateField('${c.id}', 'planInverter', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div><label class="text-slate-400">架設型式 (支架工法)</label><input type="text" value="${c.planType||''}" oninput="updateField('${c.id}', 'planType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-1">
-                            <div><label class="text-cyan-400 font-semibold block mb-0.5">偏好模式</label>
-                                <select onchange="updateField('${c.id}', 'planPreference', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
-                                    <option value="全部躉售" ${c.planPreference==='全部躉售'?'selected':''}>全部躉售</option>
-                                    <option value="自發自用" ${c.planPreference==='自發自用'?'selected':''}>自發自用</option>
-                                    <option value="混合模式" ${c.planPreference==='混合模式'?'selected':''}>混合模式</option>
-                                </select>
-                            </div>
-                            <div><label class="text-cyan-400 font-semibold block mb-0.5">合作模式</label>
-                                <select onchange="updateField('${c.id}', 'planPartner', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
-                                    <option value="屋頂出租" ${c.planPartner==='屋頂出租'?'selected':''}>屋頂出租</option>
-                                    <option value="合資開發" ${c.planPartner==='合資開發'?'selected':''}>合資開發</option>
-                                    <option value="自建" ${c.planPartner==='自建'?'selected':''}>自建</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="text-xs"><label class="text-slate-400">規劃細部備註</label><textarea oninput="updateField('${c.id}', 'planNote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${c.planNote||''}</textarea></div>
-                    </div>
-
-                    <!-- 十、建物結構與環境條件 -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
-                        <h4 class="text-xs font-bold text-violet-400 border-b border-cosmic-700/20 pb-1.5"><i class="fa-solid fa-industry mr-1.5"></i>十、建物結構與環境條件</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                            <div><label class="text-slate-400 block mb-0.5">屋頂類型</label>
-                                <select onchange="updateField('${c.id}', 'condRoofType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
-                                    <option value="RC" ${c.condRoofType==='RC'?'selected':''}>RC</option>
-                                    <option value="浪板" ${c.condRoofType==='浪板'?'selected':''}>浪板</option>
-                                    <option value="鋼構" ${c.condRoofType==='鋼構'?'selected':''}>鋼構</option>
-                                    <option value="其他" ${c.condRoofType==='其他'?'selected':''}>其他</option>
-                                </select>
-                            </div>
-                            <div><label class="text-slate-400 block mb-0.5">廠內是否有生產/排放化學用品氣體</label>
-                                <select onchange="updateField('${c.id}', 'condChemProduction', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
-                                    <option value="否" ${c.condChemProduction==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.condChemProduction==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                            <div><label class="text-slate-400 block mb-0.5">附近是否有化學製品相關產業</label>
-                                <select onchange="updateField('${c.id}', 'condChemIndustry', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
-                                    <option value="否" ${c.condChemIndustry==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.condChemIndustry==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-1">
-                            <div><label class="text-slate-400 block mb-0.5">廠區是否臨海</label>
-                                <select onchange="updateField('${c.id}', 'condSeaside', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
-                                    <option value="否" ${c.condSeaside==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.condSeaside==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                            <div><label class="text-slate-400 block mb-0.5">若有臨海，臨海距離</label>
-                                <select onchange="updateField('${c.id}', 'condSeasideDist', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
-                                    <option value="否" ${c.condSeasideDist==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.condSeasideDist==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                            <div><label class="text-slate-400 block mb-0.5">是否被遮蔽</label>
-                                <select onchange="updateField('${c.id}', 'condShaded', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
-                                    <option value="否" ${c.condShaded==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.condShaded==='是'?'selected':''}>是</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="text-xs bg-cosmic-950/60 p-3 rounded-xl border border-cosmic-700/30">
-                            <label class="text-slate-400 block font-semibold mb-2">屋頂是否有以下設備（可多選打勾）</label>
-                            <div class="flex flex-wrap gap-4">
-                                ${["空調設備", "排氣設備", "水塔", "管線密集", "無"].map(eq => `
-                                    <label class="flex items-center space-x-2 cursor-pointer select-none">
-                                        <input type="checkbox" value="${eq}" ${c.condRoofEquip.includes(eq)?'checked':''} onchange="toggleSolarEquipCheck('${c.id}', '${eq}')" class="rounded text-violet-500 bg-cosmic-950 border-cosmic-700 focus:ring-0">
-                                        <span>${eq}</span>
-                                    </label>
-                                `).join('')}
-                            </div>
-                        </div>
-
-                        <div class="border-t border-cosmic-700/40 pt-3 space-y-3">
-                            <span class="text-xs font-bold text-violet-300 block tracking-wider"><i class="fa-solid fa-file-invoice-dollar mr-1.5"></i>結構資訊</span>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                                <div><label class="text-slate-400 block mb-0.5">是否有結構計算書</label>
-                                    <select onchange="updateField('${c.id}', 'condHasReport', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
-                                        <option value="否" ${c.condHasReport==='否'?'selected':''}>否</option>
-                                        <option value="是" ${c.condHasReport==='是'?'selected':''}>是</option>
-                                    </select>
-                                </div>
-                                <div><label class="text-slate-400 block mb-0.5">是否可接受結構檢測</label>
-                                    <select onchange="updateField('${c.id}', 'condAcceptTest', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
-                                        <option value="否" ${c.condAcceptTest==='否'?'selected':''}>否</option>
-                                        <option value="是" ${c.condAcceptTest==='是'?'selected':''}>是</option>
-                                    </select>
-                                </div>
-                                <div><label class="text-slate-400 block mb-0.5">是否曾經做過結構補強</label>
-                                    <select onchange="updateField('${c.id}', 'condHasReinforce', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
-                                        <option value="否" ${c.condHasReinforce==='否'?'selected':''}>否</option>
-                                        <option value="是" ${c.condHasReinforce==='是'?'selected':''}>是</option>
-                                    </select>
-                                </div>
-                                <div><label class="text-slate-400 block mb-0.5">補強年份</label><input type="text" value="${c.condReinforceYear||''}" placeholder="例如：2021" oninput="updateField('${c.id}', 'condReinforceYear', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-1 border-t border-cosmic-700/20">
-                            <div><label class="text-slate-400">結構安全與補強評估</label><input type="text" value="${c.condStructure||''}" oninput="updateField('${c.id}', 'condStructure', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                            <div><label class="text-slate-400">屋頂浪板現況與防水</label><input type="text" value="${c.condRoof||''}" oninput="updateField('${c.id}', 'condRoof', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                            <div><label class="text-slate-400">台電併聯饋線狀況</label><input type="text" value="${c.condLine||''}" oninput="updateField('${c.id}', 'condLine', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                        </div>
-                        <div class="text-xs"><label class="text-slate-400">施工周遭動線備註</label><textarea oninput="updateField('${c.id}', 'condNote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${c.condNote||''}</textarea></div>
-                    </div>
-
-                    <!-- 十一、客戶應備文件清單 (深度整合打勾、取消打勾、動態刪除功能) -->
+                    <!-- 十一、客戶應備文件清單（可打勾、取消打勾、刪除功能，完美對齊最新指定項目） -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
@@ -967,34 +766,6 @@
                                 <button onclick="addDocItem('${c.id}', 'ruili')" class="text-[10px] bg-cyan-900 px-2 rounded no-print">[＋ 新增]</button>
                             </div>
                             <div class="space-y-1">${c.customDocsRuili.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-cyan-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
-                        </div>
-                    </div>
-
-                    <!-- 十二、檔案上傳 -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
-                            <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
-                                <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、客戶應備檔案上傳</span>
-                                <label class="text-[10px] bg-violet-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-violet-800 transition no-print">
-                                    [＋ 上傳各類型檔案]
-                                    <input type="file" multiple class="hidden" onchange="handleNativeUpload(this, '${c.id}', 'client')">
-                                </label>
-                            </div>
-                            <div class="space-y-1">
-                                ${c.clientFiles.map((f, i) => `<div class="flex justify-between items-center bg-cosmic-950/80 p-2 rounded border border-cosmic-700/40"><span class="text-slate-300 truncate max-w-[200px]"><i class="fa-solid fa-file-shield mr-2 text-violet-400"></i>${f}</span><i onclick="removeUploadedFile('${c.id}', 'client', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}
-                            </div>
-                        </div>
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
-                            <div class="flex justify-between items-center border-b border-cyan-500/30 pb-1">
-                                <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、睿立調閱檔案上傳</span>
-                                <label class="text-[10px] bg-cyan-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-cyan-800 transition no-print">
-                                    [＋ 上傳各類型檔案]
-                                    <input type="file" multiple class="hidden" onchange="handleNativeUpload(this, '${c.id}', 'ruili')">
-                                </label>
-                            </div>
-                            <div class="space-y-1">
-                                ${c.ruiliFiles.map((f, i) => `<div class="flex justify-between items-center bg-cosmic-950/80 p-2 rounded border border-cosmic-700/40"><span class="text-slate-300 truncate max-w-[200px]"><i class="fa-solid fa-file-signature mr-2 text-cyan-400"></i>${f}</span><i onclick="removeUploadedFile('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}
-                            </div>
                         </div>
                     </div>
 
@@ -1035,63 +806,53 @@
         function updateServiceField(id, idx, field, value) { caseEvalData.find(c => c.id === id).services[idx][field] = value; }
         function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
         function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
-        
-        function toggleSolarEquipCheck(id, item) {
-            let target = solarData.find(c => c.id === id);
-            if(!target) return;
-            if(item === "無") {
-                target.condRoofEquip = ["無"];
-            } else {
-                target.condRoofEquip = target.condRoofEquip.filter(x => x !== "無");
-                if(target.condRoofEquip.includes(item)) {
-                    target.condRoofEquip = target.condRoofEquip.filter(x => x !== item);
-                } else {
-                    target.condRoofEquip.push(item);
-                }
-                if(target.condRoofEquip.length === 0) target.condRoofEquip = ["無"];
-            }
-            renderMainForms();
-        }
 
-        // 🌟 核心引擎：五大改制公式高精準全自動實時試算
+        // 🌟 核心引擎：【預估】與【現勘】兩大軌道最新公式實時智慧連動
         function calculateSolarLive(id) {
             const activeCase = solarData.find(c => c.id === id);
             if (!activeCase) return;
 
-            // 1. 太陽能自建年收益試算公式
-            const c1Ping = parseFloat(activeCase.calc1Ping || 0);
-            const c1Val = parseFloat(activeCase.calc1Val || 3.5);
-            const resCalc1 = Math.round((c1Ping / 1.5) * 590 / 1000 * 4 * 365 * c1Val);
+            // ═══ 【預估軌道運算】 ═══
+            const estPing = parseFloat(activeCase.estPing || 0);
+            const estPrice = parseFloat(activeCase.estPrice || 3.5);
+            // 1. 預估收益： (坪數)/1.5*590/1000*4*365 * 價格
+            const resEst1 = Math.round((estPing / 1.5) * 590 / 1000 * 4 * 365 * estPrice);
+            // 2. 模組維護： 預估收益 * 0.1
+            const resEst2 = Math.round(resEst1 * 0.1);
+            // 3. 工廠出租： 坪數 * 自填單價
+            const estRentUnit = parseFloat(activeCase.estRentUnit || 0);
+            const resEst3 = Math.round(estPing * estRentUnit);
+
+            // 渲染【預估】結果
+            if(document.getElementById(`res-est-1-${id}`)) document.getElementById(`res-est-1-${id}`).innerText = resEst1.toLocaleString();
+            if(document.getElementById(`link-est-1-${id}`)) document.getElementById(`link-est-1-${id}`).innerText = resEst1.toLocaleString();
+            if(document.getElementById(`res-est-2-${id}`)) document.getElementById(`res-est-2-${id}`).innerText = resEst2.toLocaleString();
+            if(document.getElementById(`link-est-ping-${id}`)) document.getElementById(`link-est-ping-${id}`).innerText = estPing.toLocaleString();
+            if(document.getElementById(`res-est-3-${id}`)) document.getElementById(`res-est-3-${id}`).innerText = resEst3.toLocaleString();
+
+            // ═══ 【現勘軌道運算】 ═══
+            const surPing = parseFloat(activeCase.surveyPing || 0);
+            const surPanels = parseFloat(activeCase.surveyPanels || 1);
+            const surWatts = parseFloat(activeCase.surveyWatts || 0);
+            const surPrice = parseFloat(activeCase.surveyPrice || 0);
+            // 1. 現勘收益試算： (坪數)/(幾片太陽能板)* (每片瓦數)/1000*4*365 *(售電價格)
+            const divisor = (surPanels === 0 ? 1 : surPanels);
+            const resSur1 = Math.round((surPing / divisor) * (surWatts / 1000) * 4 * 365 * surPrice);
             
-            // 2. 屋頂出租收益試算
-            const resCalc2_10 = Math.round(resCalc1 * 0.10);
-            const resCalc2_15 = Math.round(resCalc1 * 0.15);
+            // 2. 模組每年維護試算：自填年收益 * 0.1
+            const surIncome = parseFloat(activeCase.surveyIncome || 0);
+            const resSur2 = Math.round(surIncome * 0.1);
 
-            // 3. 附近工廠出租情況公式
-            const c3Ping = parseFloat(activeCase.calc3Ping || 0);
-            const c3Price = parseFloat(activeCase.calc3Price || 0);
-            const resCalc3 = Math.round(c3Ping * c3Price);
+            // 3. 扣除一般成本試算：發電收益 - 電費 - 年維護費
+            const surInc2 = parseFloat(activeCase.surveyIncome2 || 0);
+            const surBill = parseFloat(activeCase.surveyBill || 0);
+            const surMaint = parseFloat(activeCase.surveyMaint || 0);
+            const resSur3 = Math.round(surInc2 - surBill - surMaint);
 
-            // 4. 現勘後預估試算公式
-            const c4Ping = parseFloat(activeCase.calc4Ping || 0);
-            const c4Panels = parseFloat(activeCase.calc4Panels || 1); // 避免除以0
-            const c4Watts = parseFloat(activeCase.calc4Watts || 0);
-            const c4Price = parseFloat(activeCase.calc4Price || 0);
-            const resCalc4 = Math.round((c4Ping / (c4Panels === 0 ? 1 : c4Panels)) * (c4Watts / 1000) * 4 * 365 * c4Price);
-
-            // 5. 扣除一般成本試算公式
-            const c5Gen = parseFloat(activeCase.calc5Gen || 0);
-            const c5Bill = parseFloat(activeCase.calc5Bill || 0);
-            const c5Maint = parseFloat(activeCase.calc5Maint || 0);
-            const resCalc5 = Math.round(c5Gen - c5Bill - c5Maint);
-
-            // 渲染至畫面上
-            if(document.getElementById(`res-calc-1-${id}`)) document.getElementById(`res-calc-1-${id}`).innerText = resCalc1.toLocaleString();
-            if(document.getElementById(`res-calc-2-10-${id}`)) document.getElementById(`res-calc-2-10-${id}`).innerText = resCalc2_10.toLocaleString();
-            if(document.getElementById(`res-calc-2-15-${id}`)) document.getElementById(`res-calc-2-15-${id}`).innerText = resCalc2_15.toLocaleString();
-            if(document.getElementById(`res-calc-3-${id}`)) document.getElementById(`res-calc-3-${id}`).innerText = resCalc3.toLocaleString();
-            if(document.getElementById(`res-calc-4-${id}`)) document.getElementById(`res-calc-4-${id}`).innerText = resCalc4.toLocaleString();
-            if(document.getElementById(`res-calc-5-${id}`)) document.getElementById(`res-calc-5-${id}`).innerText = resCalc5.toLocaleString();
+            // 渲染【現勘】結果
+            if(document.getElementById(`res-sur-1-${id}`)) document.getElementById(`res-sur-1-${id}`).innerText = resSur1.toLocaleString();
+            if(document.getElementById(`res-sur-2-${id}`)) document.getElementById(`res-sur-2-${id}`).innerText = resSur2.toLocaleString();
+            if(document.getElementById(`res-sur-3-${id}`)) document.getElementById(`res-sur-3-${id}`).innerText = resSur3.toLocaleString();
         }
 
         function calculateLandPingField(id, idx, sqmVal) {
@@ -1119,13 +880,6 @@
         
         function addSolarServiceRow(id) { solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
         function removeSolarServiceRow(id, idx) { solarData.find(c => c.id === id).solarServices.splice(idx, 1); renderMainForms(); }
-
-        document.addEventListener('input', function(e) {
-            if(e.target && e.target.id && e.target.id.startsWith('sc-')) {
-                // 自動同步更新動態改制公式欄位之狀態快取
-                calculateSolarLive(selectedIds['solar']);
-            }
-        });
 
         function addLandRow(id) { 
             getTargetDataArray(currentActiveTab).find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", currentPrice: "", sqm: 0, ping: 0 }); 
@@ -1182,8 +936,6 @@
             const suffix = currentActiveTab === 'case-eval' ? '' : '-sol';
             if(document.getElementById("sum-land-sqm" + suffix)) document.getElementById("sum-land-sqm" + suffix).innerText = totalLandSqm;
             if(document.getElementById("sum-land-ping" + suffix)) document.getElementById("sum-land-ping" + suffix).innerText = totalLandPing.toFixed(2);
-            if(document.getElementById("sum-legal-ping" + suffix)) document.getElementById("sum-legal-ping" + suffix).innerText = activeCase.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0);
-            if(document.getElementById("sum-illegal-ping" + suffix)) document.getElementById("sum-illegal-ping" + suffix).innerText = activeCase.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0);
         }
 
         function addNewCase() {
@@ -1200,20 +952,16 @@
             
             if(currentActiveTab === 'solar') {
                 obj.solarServices = [];
-                obj.calc1Ping = "0"; obj.calc1Val = "3.5";
-                obj.calc3Ping = "0"; obj.calc3Price = "0";
-                obj.calc4Ping = "0"; obj.calc4Panels = "0"; obj.calc4Watts = "0"; obj.calc4Price = "4.8";
-                obj.calc5Gen = "0"; obj.calc5Bill = "0"; obj.calc5Maint = "0";
-                obj.planPreference = "全部躉售"; obj.planPartner = "自建";
-                obj.condRoofType = "RC"; obj.condChemProduction = "否"; obj.condChemIndustry = "否"; obj.condSeaside = "否"; obj.condSeasideDist = "否"; obj.condShaded = "否";
-                obj.condRoofEquip = ["無"]; obj.condHasReport = "否"; obj.condAcceptTest = "否"; obj.condHasReinforce = "否"; obj.condReinforceYear = "";
+                obj.estPing = "0"; obj.estPrice = "3.5"; obj.estRentUnit = "0";
+                obj.surveyPing = "0"; obj.surveyPanels = "0"; obj.surveyWatts = "0"; obj.surveyPrice = "4.8";
+                obj.surveyIncome = "0"; obj.surveyIncome2 = "0"; obj.surveyBill = "0"; obj.surveyMaint = "0";
             }
 
             dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
             renderSidebarSubLists(); renderMainForms();
         }
 
-        function saveToCloud() { alert("更新成功！系統欄位與自建案聯動公式已與 N 軌道最新商務標準完全同步。"); }
+        function saveToCloud() { alert("更新成功！系統欄位與【預估 / 現勘】試算公式已與 N 軌道最新商務標準完全同步。"); }
         window.onload = function() { toggleCategory('case-eval'); };
     </script>
 </body>
