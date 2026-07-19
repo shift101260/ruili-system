@@ -293,7 +293,7 @@
             } else if (currentActiveTab === 'solar') {
                 if (!activeCase.lands) activeCase.lands = [];
                 if (!activeCase.buildingsLegal) activeCase.buildingsLegal = [];
-                if (!activeCase.buildingsIllegal) activeCase.buildingsIllegal = [];
+                if (!activeCase.buildingsIllegal = []);
                 if (!activeCase.solarServices) activeCase.solarServices = [];
                 if (!activeCase.customDocsClient) activeCase.customDocsClient = ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"];
                 if (!activeCase.customDocsRuili) activeCase.customDocsRuili = ["土地謄本"];
@@ -563,10 +563,12 @@
             `;
         }
 
-        // ==================== 🛠️ 二、主功能：太陽能自建 (融入全新優化之試算格式、專案人員及十二檔案上傳) ====================
+        // ==================== 🛠️ 二、主功能：太陽能自建 (融入完整一到十二項結構) ====================
         function generateSolarHTML(c) {
             let totalLandSqm = c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
             let totalLandPing = c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
+            let totalLegalPing = c.buildingsLegal ? c.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+            let totalIllegalPing = c.buildingsIllegal ? c.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
 
             return `
                 <div class="card-box bg-cosmic-800/70 border border-amber-500/40 rounded-2xl p-6 space-y-6 shadow-xl">
@@ -760,6 +762,145 @@
                         </div>
                     </div>
 
+                    <!-- 六、建物基本資料 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
+                                <span class="font-bold text-blue-400">六、有保存登記建物</span>
+                                <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
+                            </div>
+                            <div class="space-y-1">${c.buildingsLegal.map((b, i) => `
+                                <div class="grid grid-cols-4 gap-1">
+                                    <input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                    <input type="text" value="${b.type||''}" placeholder="建物類別" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                    <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                    <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                </div>
+                            `).join('')}</div>
+                            <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping-sol">${totalLegalPing}</strong> 坪</div>
+                        </div>
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
+                                <span class="font-bold text-red-400">六、違章建物</span>
+                                <button onclick="addBuildRow('${c.id}', 'illegal')" class="text-[10px] bg-red-950 border border-red-900 px-1.5 py-0.5 rounded no-print">[＋ 違章建物]</button>
+                            </div>
+                            <div class="space-y-1">${c.buildingsIllegal.map((b, i) => `
+                                <div class="grid grid-cols-3 gap-1"><input type="text" value="${b.type||''}" placeholder="類別" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"><input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"><input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"></div>
+                            `).join('')}</div>
+                            <div class="pt-1 text-[11px]">違章建物總坪數: <strong class="text-red-400" id="sum-illegal-ping-sol">${totalIllegalPing}</strong> 坪</div>
+                        </div>
+                    </div>
+
+                    <!-- 七、用電狀況 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-amber-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-bolt mr-1.5"></i>七、用電狀況</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                            <div><label class="text-slate-400">目前電費 (元/月)</label><input type="number" value="${c.electricBill||''}" oninput="updateField('${c.id}', 'electricBill', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">馬力數 (HP)</label><input type="number" value="${c.horsepower||''}" oninput="updateField('${c.id}', 'horsepower', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">契約容量 (kW)</label><input type="number" value="${c.contractCapacity||''}" oninput="updateField('${c.id}', 'contractCapacity', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">是否高壓用電</label>
+                                <select onchange="updateField('${c.id}', 'isHighVoltage', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.isHighVoltage==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.isHighVoltage==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">是否時間電價</label>
+                                <select onchange="updateField('${c.id}', 'isTimeRate', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.isTimeRate==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.isTimeRate==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">用電時段</label>
+                                <select onchange="updateField('${c.id}', 'timePeriod', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="白天為主" ${c.timePeriod==='白天為主'?'selected':''}>白天為主</option>
+                                    <option value="夜間為主" ${c.timePeriod==='夜間為主'?'selected':''}>夜間為主</option>
+                                    <option value="平均分佈" ${c.timePeriod==='平均分佈'?'selected':''}>平均分佈</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 八、ESG評估與企業轉型 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-leaf mr-1.5"></i>八、ESG評估與企業轉型</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+                            <div><label class="text-slate-400 block mb-1">是否有接班人</label>
+                                <select onchange="updateField('${c.id}', 'esgHasSuccessor', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.esgHasSuccessor==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.esgHasSuccessor==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400 block mb-1">產品是否外銷</label>
+                                <select onchange="updateField('${c.id}', 'esgIsExport', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.esgIsExport==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.esgIsExport==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400 block mb-1">受歐盟碳關稅影響</label>
+                                <select onchange="updateField('${c.id}', 'esgEuCarbon', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.esgEuCarbon==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.esgEuCarbon==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400 block mb-1">是否需要綠電憑證</label>
+                                <select onchange="updateField('${c.id}', 'esgGreenCert', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.esgGreenCert==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.esgGreenCert==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400 block mb-1">儲能系統意願</label>
+                                <select onchange="updateField('${c.id}', 'esgStorage', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.esgStorage==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.esgStorage==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 九、系統規劃方向 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-sky-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-diagram-project mr-1.5"></i>九、系統規劃方向</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <div><label class="text-slate-400 block mb-0.5">太陽能光電模組規劃</label><input type="text" value="${c.planModule||''}" oninput="updateField('${c.id}', 'planModule', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400 block mb-0.5">變流器規劃</label><input type="text" value="${c.planInverter||''}" oninput="updateField('${c.id}', 'planInverter', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400 block mb-0.5">建置型式規劃</label><input type="text" value="${c.planType||''}" oninput="updateField('${c.id}', 'planType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400 block mb-0.5">合作模式意愿</label>
+                                <select onchange="updateField('${c.id}', 'planPreference', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="全部躉售" ${c.planPreference==='全部躉售'?'selected':''}>全部躉售</option>
+                                    <option value="餘電轉售" ${c.planPreference==='餘電轉售'?'selected':''}>餘電轉售</option>
+                                    <option value="完全自用" ${c.planPreference==='完全自用'?'selected':''}>完全自用</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">系統建置備註說明</label><textarea oninput="updateField('${c.id}', 'planNote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${c.planNote||''}</textarea></div>
+                        </div>
+                    </div>
+
+                    <!-- 十、建物條件與結構安全現勘評估 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-violet-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-shield-halved mr-1.5"></i>十、建物條件與結構安全現勘評估</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div><label class="text-slate-400">屋頂浪板型式</label><input type="text" value="${c.condRoofType||''}" oninput="updateField('${c.id}', 'condRoofType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">是否化學製程廠房</label>
+                                <select onchange="updateField('${c.id}', 'condChemProduction', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.condChemProduction==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.condChemProduction==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">是否高污染鋼鐵業</label>
+                                <select onchange="updateField('${c.id}', 'condChemIndustry', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.condChemIndustry==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.condChemIndustry==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">是否屬鹽害嚴重區</label>
+                                <select onchange="updateField('${c.id}', 'condSeaside', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.condSeaside==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.condSeaside==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 十一、客戶應備文件清單 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
@@ -947,7 +1088,6 @@
             renderMainForms();
         }
 
-        // 檔案上傳 Native
         function handleNativeUpload(inputEl, id, side) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && inputEl.files) {
