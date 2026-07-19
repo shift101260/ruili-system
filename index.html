@@ -1,4 +1,4 @@
-請<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -201,7 +201,7 @@
                 buildingsLegal: [{ number: "1025", type: "高架鋼骨廠房", year: "2012", sqm: "2000", ping: "605" }],
                 buildingsIllegal: [{ type: "後方雨遮擴建", year: "2015", sqm: "300", ping: "90.75" }],
                 electricBill: "450000", horsepower: "300", contractCapacity: "250", isHighVoltage: "是", isTimeRate: "是", timePeriod: "平均分佈",
-                esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "開",
+                esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "否",
                 customDocsClient: ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"], customDocsRuili: ["土地謄本"], clientFiles: [], ruiliFiles: [],
                 solarServices: [{ name: "屋頂型太陽能光電自建案", quote: "8500000", contract: "8500000", desc: "規劃建置屋頂型太陽光電系統，預估容量約 200 kWp。", remark: "客戶對遮陽與結構補強高度關注。", p1: "2550000", d1: "", p2: "3400000", d2: "", p3: "1700000", d3: "", p4: "850000", d4: "" }],
                 
@@ -398,7 +398,7 @@
                         <div class="space-y-1.5 pt-1">
                             ${c.lands.map((l, idx) => `
                                 <div class="grid grid-cols-7 gap-1 text-[11px]">
-                                    <input type="text" value="${l section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                    <input type="text" value="${l.section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
                                     <input type="text" value="${l.number||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
                                     <select onchange="updateLandField('${c.id}', ${idx}, 'pattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium">
                                         <option value="都市計畫使用分區" class="text-center" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
@@ -683,7 +683,7 @@
                                 </div>
                             </div>
 
-                            <!-- 新增：年發電度數試算 -->
+                            <!-- 年發電度數試算 -->
                             <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
                                 <span class="font-medium text-slate-300">年發電度數試算：</span>
                                 <div class="flex flex-wrap items-center gap-1.5">
@@ -947,6 +947,7 @@
             renderMainForms();
         }
 
+        // 檔案上傳 Native
         function handleNativeUpload(inputEl, id, side) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && inputEl.files) {
