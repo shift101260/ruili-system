@@ -33,7 +33,7 @@
                 margin: 10mm !important;
             }
             body { background: white !important; color: black !important; overflow: visible !important; }
-            aside, header, .no-print, input[type="file"], label { display: none !important; }
+            aside, header, .no-print, input[type="file"], label, button { display: none !important; }
             main { padding: 0 !important; margin: 0 !important; overflow: visible !important; display: block !important; }
             .print-container { 
                 width: 210mm !important; 
@@ -202,7 +202,7 @@
                 buildingsIllegal: [{ type: "後方雨遮擴建", year: "2015", sqm: "300", ping: "90.75" }],
                 electricBill: "450000", horsepower: "300", contractCapacity: "250", isHighVoltage: "是", isTimeRate: "是", timePeriod: "平均分佈",
                 esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "否",
-                customDocsClient: ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"], customDocsRuili: ["土地謄本"], clientFiles: [], ruiliFiles: [],
+                customDocsClient: ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"], customDocsRuili: ["土地謄本"], clientFiles: ["太陽能現場照片.jpg"], ruiliFiles: ["台電饋線核准信.pdf"],
                 solarServices: [{ name: "屋頂型太陽能光電自建案", quote: "8500000", contract: "8500000", desc: "規劃建置屋頂型太陽光電系統，預估容量約 200 kWp。", remark: "客戶對遮陽與結構補強高度關注。", p1: "2550000", d1: "", p2: "3400000", d2: "", p3: "1700000", d3: "", p4: "850000", d4: "" }],
                 
                 // 【預估】數據結構
@@ -220,19 +220,25 @@
 
         let tradingData = [{ id: "trading-1", date: "2026-07-18T12:00", status: "準備簽約", manager: "鄭家承", companyName: "瑞昱地產買賣工業地案" }];
         
+        // ═══ 【四、主功能：會議記錄 全新架構數據庫】 ═══
         let meetingData = [
             { 
                 id: "meet-1", date: "2026-07-18T14:00", manager: "黃逸豪", status: "結案", source: "外部引介",
-                meetSubject: "外部公會戰接會", clientName: "高屏金屬工業同業公會", contactName: "張總幹事", contactPhone: "07-3331122", contactEmail: "gonghui@metal.org",
-                meetLocation: "公會二樓第一會議室", meetSummary: "探討特定工廠改善計畫及接班企業轉型顧問合作案，公會同意協助引薦會員企業。",
-                trackItems: [
-                    { content: "編製公會專屬媒合服務簡報", deadline: "2026-07-25", handler: "黃逸豪", remark: "完成後先呈核樊總。" },
-                    { content: "排定第一批意願廠商名單現場勘查日期", deadline: "2026-08-05", handler: "鄭家承", remark: "配合元業綠能共同現勘。" }
+                meetSubject: "外部公會戰接會", 
+                ruiliAttendees: ["樊靖畇", "黃逸豪"],
+                externalRepresentatives: [
+                    { companyName: "高屏金屬工業同業公會", name: "張總幹事", phone: "07-3331122", taxId: "24558911", address: "高雄市前鎮區成功二路", email: "gonghui@metal.org", website: "https://metal.org" }
+                ],
+                contents: [
+                    { proposer: "樊靖畇", content: "說明特定工廠改善計畫編製流程與過關後收費原則。", discussion: "公會詢問是否能為會員舉辦聯合說明會。", conclusion: "排定於下月15日舉辦第一場聯合說明會。" }
+                ],
+                meetSummary: "探討特定工廠改善計畫及接班企業轉型顧問合作案，公會同意協助引薦會員企業。",
+                uploadedFiles: [
+                    { clientName: "公會合作意向書草案.pdf", actualName: "公會合作意向書草案.pdf" }
                 ]
             }
         ];
         
-        // ═══ 【五、睿立會議紀錄數據庫全新架構】 ═══
         let internalMeetData = [
             { 
                 id: "int-1", date: "2026-07-18T09:00", manager: "楊裕憲", status: "結案", source: "內部會議",
@@ -327,14 +333,21 @@
                 if (!activeCase.buildingsLegal) activeCase.buildingsLegal = [];
                 if (!activeCase.buildingsIllegal) activeCase.buildingsIllegal = [];
                 if (!activeCase.solarServices) activeCase.solarServices = [];
+                if (!activeCase.customDocsClient) activeCase.customDocsClient = [];
+                if (!activeCase.customDocsRuili) activeCase.customDocsRuili = [];
+                if (!activeCase.clientFiles) activeCase.clientFiles = [];
+                if (!activeCase.ruiliFiles) activeCase.ruiliFiles = [];
                 container.innerHTML = generateSolarHTML(activeCase);
                 calculateSolarLive(activeCase.id);
             } else if (currentActiveTab === 'trading') {
                 container.innerHTML = generateTradingHTML(activeCase);
             } else if (currentActiveTab === 'meeting') {
+                if (!activeCase.ruiliAttendees) activeCase.ruiliAttendees = [];
+                if (!activeCase.externalRepresentatives) activeCase.externalRepresentatives = [];
+                if (!activeCase.contents) activeCase.contents = [];
+                if (!activeCase.uploadedFiles) activeCase.uploadedFiles = [];
                 container.innerHTML = generateMeetingHTML(activeCase);
             } else if (currentActiveTab === 'internal-meet') {
-                // 確保必要欄位初始化避免空指針
                 if (!activeCase.attendees) activeCase.attendees = [];
                 if (!activeCase.caseReports) activeCase.caseReports = [];
                 if (!activeCase.proposalReports) activeCase.proposalReports = [];
@@ -598,7 +611,7 @@
             `;
         }
 
-        // ==================== 二、主功能：太陽能自建 (完整封存，字句絕不更動與刪減) ====================
+        // ==================== 二、主功能：太陽能自建 (修正對接：完美置入雙軌文件與檔案管理) ====================
         function generateSolarHTML(c) {
             let totalLandSqm = c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
             let totalLandPing = c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
@@ -962,7 +975,7 @@
                         </div>
                     </div>
 
-                    <!-- 十一、應備文件清單 -->
+                    <!-- 🌟 【太陽能自建補齊】十一、應備文件清單 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
@@ -970,6 +983,41 @@
                                 <button onclick="addDocItem('${c.id}', 'client')" class="text-[10px] bg-violet-900 px-2 rounded no-print">[＋ 新增]</button>
                             </div>
                             <div class="space-y-1">${c.customDocsClient.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-violet-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'client', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
+                        </div>
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
+                                <span class="font-bold text-cyan-400">十一、睿立調閱文件清單</span>
+                                <button onclick="addDocItem('${c.id}', 'ruili')" class="text-[10px] bg-cyan-900 px-2 rounded no-print">[＋ 新增]</button>
+                            </div>
+                            <div class="space-y-1">${c.customDocsRuili.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-cyan-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
+                        </div>
+                    </div>
+
+                    <!-- 🌟 【太陽能自建補齊】十二、檔案上傳 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
+                            <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
+                                <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、客戶應備檔案上傳</span>
+                                <label class="text-[10px] bg-violet-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-violet-800 transition no-print">
+                                    [＋ 上傳各類型檔案]
+                                    <input type="file" multiple class="hidden" onchange="handleNativeUpload(this, '${c.id}', 'client')">
+                                </label>
+                            </div>
+                            <div class="space-y-1" id="file-list-client-sol">
+                                ${c.clientFiles.map((f, i) => `<div class="flex justify-between items-center bg-cosmic-950/80 p-2 rounded border border-cosmic-700/40"><span class="text-slate-300 truncate max-w-[200px]"><i class="fa-solid fa-file-shield mr-2 text-violet-400"></i>${f}</span><i onclick="removeUploadedFile('${c.id}', 'client', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
+                            <div class="flex justify-between items-center border-b border-cyan-500/30 pb-1">
+                                <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、睿立調閱檔案上傳</span>
+                                <label class="text-[10px] bg-cyan-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-cyan-800 transition no-print">
+                                    [＋ 上傳各類型檔案]
+                                    <input type="file" multiple class="hidden" onchange="handleNativeUpload(this, '${c.id}', 'ruili')">
+                                </label>
+                            </div>
+                            <div class="space-y-1" id="file-list-ruili-sol">
+                                ${c.ruiliFiles.map((f, i) => `<div class="flex justify-between items-center bg-cosmic-950/80 p-2 rounded border border-cosmic-700/40"><span class="text-slate-300 truncate max-w-[200px]"><i class="fa-solid fa-file-signature mr-2 text-cyan-400"></i>${f}</span><i onclick="removeUploadedFile('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}
+                            </div>
                         </div>
                     </div>
 
@@ -983,20 +1031,145 @@
             return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full">${generateFooterHTML()}</div>`;
         }
 
-        // ==================== 四、會議記錄 HTML ====================
+        // ==================== 🚀 四、主功能：會議記錄 全新交互架構 🚀 ====================
         function generateMeetingHTML(c) {
             return `
                 <div class="card-box bg-cosmic-800/70 border border-purple-500/50 rounded-2xl p-6 space-y-6 shadow-xl">
-                    <div class="border-b border-purple-500/40 pb-2"><h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-handshake mr-2"></i>四、會議記錄</h3></div>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs bg-cosmic-950/40 p-4 rounded-xl card-box">
-                        <div><label class="text-slate-400 block mb-0.5">會議主題</label><input type="text" value="${c.meetSubject||''}" oninput="updateMeetSubject('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                    <div class="border-b border-purple-500/40 pb-2"><h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-handshake mr-2"></i>四、主功能：會議記錄</h3></div>
+                    
+                    <!-- 一、會議資訊 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-purple-300 border-b border-cosmic-700/20 pb-1.5">一、會議資訊</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <label class="text-slate-400 block mb-0.5">會議主題</label>
+                                <input type="text" value="${c.meetSubject||''}" oninput="updateMeetSubject('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-semibold">
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-0.5">日期 / 時間</label>
+                                <input type="datetime-local" value="${c.date||''}" onchange="updateMeetingMainField('${c.id}', 'date', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- 二、出席單位與人員 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
+                        <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/20 pb-1.5">二、出席單位與人員</h4>
+                        
+                        <!-- 睿立出席人員複選 -->
+                        <div class="text-xs space-y-1.5">
+                            <label class="text-slate-400 block font-medium">睿立出席人員（可複選）</label>
+                            <div class="flex flex-wrap gap-4 bg-cosmic-950/60 p-2.5 rounded border border-cosmic-700/40">
+                                ${managersList.map(m => {
+                                    const isChecked = (c.ruiliAttendees && c.ruiliAttendees.includes(m)) ? 'checked' : '';
+                                    return `
+                                        <label class="flex items-center space-x-1.5 cursor-pointer select-none">
+                                            <input type="checkbox" value="${m}" ${isChecked} onchange="updateMeetingAttendeeSelection('${c.id}', '${m}', this.checked)" class="w-4 h-4 rounded text-purple-600 bg-cosmic-950 border-cosmic-700">
+                                            <span class="text-slate-200">${m}</span>
+                                        </label>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <!-- 外部與會代表實體一體化新增 -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
+                                <label class="text-xs font-bold text-amber-400">外部與會代表（一體化區塊）</label>
+                                <button onclick="addExternalRepRow('${c.id}')" class="text-[10px] bg-amber-900 border border-amber-700 px-2 py-0.5 rounded text-white no-print">[＋ 新增外部代表]</button>
+                            </div>
+                            <div class="space-y-4">
+                                ${c.externalRepresentatives.map((rep, idx) => `
+                                    <div class="bg-cosmic-900/60 border border-cosmic-700/50 p-4 rounded-xl space-y-3 relative card-box">
+                                        <i onclick="removeExternalRepRow('${c.id}', ${idx})" class="fa-solid fa-circle-xmark text-red-400 absolute top-3 right-3 cursor-pointer text-sm hover:text-red-300 no-print"></i>
+                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-2.5 text-xs">
+                                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">公司名稱</label><input type="text" value="${rep.companyName||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'companyName', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">姓名</label><input type="text" value="${rep.name||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'name', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">電話</label><input type="text" value="${rep.phone||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'phone', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">統編</label><input type="text" value="${rep.taxId||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'taxId', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div class="md:col-span-3"><label class="text-slate-400 block mb-0.5">地址</label><input type="text" value="${rep.address||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'address', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">電子信箱</label><input type="text" value="${rep.email||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'email', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">網站連結</label><input type="text" value="${rep.website||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 三、會議內容 (大文字域自動二、三排多行換行格式) -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
+                            <h4 class="text-xs font-bold text-purple-400">三、會議內容 (一體化區塊)</h4>
+                            <button onclick="addMeetingContentRow('${c.id}')" class="text-[10px] bg-purple-900 border border-purple-700 px-2 py-0.5 rounded text-white no-print">[＋ 新增會議內容]</button>
+                        </div>
+                        <div class="space-y-4">
+                            ${c.contents.map((item, idx) => `
+                                <div class="bg-cosmic-900/60 border border-cosmic-700/50 p-4 rounded-xl space-y-3 relative card-box">
+                                    <i onclick="removeMeetingContentRow('${c.id}', ${idx})" class="fa-solid fa-circle-xmark text-red-400 absolute top-3 right-3 cursor-pointer text-sm hover:text-red-300 no-print"></i>
+                                    <div class="grid grid-cols-1 gap-3 text-xs">
+                                        <div>
+                                            <label class="text-slate-400 block mb-0.5">提案人</label>
+                                            <input type="text" value="${item.proposer||''}" oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
+                                        </div>
+                                        <div>
+                                            <label class="text-slate-400 block mb-0.5">內容 (自動支援多行二、三排格式)</label>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'content', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${item.content||''}</textarea>
+                                        </div>
+                                        <div>
+                                            <label class="text-slate-400 block mb-0.5">共識討論 (自動支援多行二、三排格式)</label>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'discussion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${item.discussion||''}</textarea>
+                                        </div>
+                                        <div>
+                                            <label class="text-slate-400 block mb-0.5">結論 (自動支援多行二、三排格式)</label>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${item.conclusion||''}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 四、會議總結 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
+                        <label class="text-xs font-bold text-amber-400 block">四、會議總結 (自動支援第二、三排格式)</label>
+                        <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
+                    </div>
+
+                    <!-- 五、檔案上傳 (支援編輯名稱及點擊檢視) -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <div class="flex justify-between items-center border-b border-purple-500/30 pb-1.5">
+                            <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳 (放各種類型檔案，可編輯名稱並點擊開啟)</span>
+                            <label class="text-[10px] bg-purple-900 text-white px-2.5 py-1 rounded cursor-pointer hover:bg-purple-800 transition no-print">
+                                [＋ 選擇檔案上傳]
+                                <input type="file" multiple class="hidden" onchange="handleExternalMeetingUpload(this, '${c.id}')">
+                            </label>
+                        </div>
+                        <div class="space-y-2">
+                            ${c.uploadedFiles.map((f, i) => `
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-center bg-cosmic-900/80 p-2 rounded border border-cosmic-700/40 text-xs card-box">
+                                    <div class="md:col-span-4 text-slate-400 truncate">
+                                        <i class="fa-solid fa-file-invoice mr-2 text-purple-400"></i>原始名稱: ${f.actualName}
+                                    </div>
+                                    <div class="md:col-span-5 flex items-center space-x-1.5">
+                                        <span class="text-[11px] text-slate-500 shrink-0">顯示名稱:</span>
+                                        <input type="text" value="${f.clientName}" oninput="updateExternalMeetingFileName('${c.id}', ${i}, this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-1.5 py-0.5 text-white">
+                                    </div>
+                                    <div class="md:col-span-3 flex justify-end space-x-3 no-print">
+                                        <button onclick="alert('正在虛擬沙盒中開啟檔案：' + getMeetingFileName('${c.id}', ${i}))" class="text-cyan-400 hover:text-cyan-300 text-[11px] font-medium"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>點擊開啟檔案</button>
+                                        <i onclick="removeExternalMeetingFile('${c.id}', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 flex items-center"></i>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
                     ${generateFooterHTML()}
                 </div>
             `;
         }
 
-        // ==================== 🚀 五、睿立會議紀錄全新交互渲染排版 🚀 ====================
+        // ==================== 五、睿立會議紀錄 HTML (完整封存，字句絕不更動與刪減) ====================
         function generateInternalMeetHTML(c) {
             return `
                 <div class="card-box bg-cosmic-800/70 border border-indigo-500/50 rounded-2xl p-6 space-y-6 shadow-xl">
@@ -1181,7 +1354,7 @@
             `;
         }
 
-        // ==================== 智慧核心控制與五大試算公式深度聯動邏輯 ====================
+        // ==================== 核心驅動腳本 ====================
         function updateField(id, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id)[field] = value; }
         function updateCompanyName(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
@@ -1191,94 +1364,92 @@
         function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
         function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
         
-        // 會議數據修改連動引擎
-        function updateMeetField(id, field, value) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if(target) target[field] = value;
-        }
+        // 內部會議事件
+        function updateMeetField(id, field, value) { let t = internalMeetData.find(c => c.id === id); if(t) t[field] = value; }
         function updateMeetSubject(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if(target) { target.meetSubject = value; renderSidebarSubLists(); }
         }
 
-        // 睿立會議紀錄專屬動態欄位更新機制
-        function updateAttendeeSelection(id, person, isChecked) {
-            let target = internalMeetData.find(c => c.id === id);
-            if (!target) return;
-            if (!target.attendees) target.attendees = [];
-            if (isChecked) {
-                if (!target.attendees.includes(person)) target.attendees.push(person);
-            } else {
-                target.attendees = target.attendees.filter(p => p !== person);
-            }
+        // 外部會議核心聯動機制
+        function updateMeetingMainField(id, field, value) { let t = meetingData.find(c => c.id === id); if(t) t[field] = value; }
+        function updateMeetingAttendeeSelection(id, person, isChecked) {
+            let target = meetingData.find(c => c.id === id);
+            if (!target.ruiliAttendees) target.ruiliAttendees = [];
+            if (isChecked) { if(!target.ruiliAttendees.includes(person)) target.ruiliAttendees.push(person); }
+            else { target.ruiliAttendees = target.ruiliAttendees.filter(p => p !== person); }
         }
-        function updateCaseReportField(id, idx, field, value) {
-            let target = internalMeetData.find(c => c.id === id);
-            if(target && target.caseReports[idx]) target.caseReports[idx][field] = value;
-        }
-        function addRuiliCaseReportRow(id) {
-            let target = internalMeetData.find(c => c.id === id);
-            if(!target.caseReports) target.caseReports = [];
-            target.caseReports.push({ reporter: "樊靖畇", caseName: "", desc: "", conclusion: "" });
+        function addExternalRepRow(id) {
+            meetingData.find(c => c.id === id).externalRepresentatives.push({ companyName: "", name: "", phone: "", taxId: "", address: "", email: "", website: "" });
             renderMainForms();
         }
-        function removeRuiliCaseReportRow(id, idx) {
-            let target = internalMeetData.find(c => c.id === id);
-            if(target && target.caseReports) target.caseReports.splice(idx, 1);
+        function removeExternalRepRow(id, idx) {
+            meetingData.find(c => c.id === id).externalRepresentatives.splice(idx, 1);
             renderMainForms();
         }
-        function updateProposalField(id, idx, field, value) {
-            let target = internalMeetData.find(c => c.id === id);
-            if(target && target.proposalReports[idx]) target.proposalReports[idx][field] = value;
+        function updateExternalRepField(id, idx, field, value) {
+            meetingData.find(c => c.id === id).externalRepresentatives[idx][field] = value;
         }
-        function addRuiliProposalRow(id) {
-            let target = internalMeetData.find(c => c.id === id);
-            if(!target.proposalReports) target.proposalReports = [];
-            target.proposalReports.push({ reporter: "樊靖畇", item: "", content: "", feasibility: "", conclusion: "" });
+        function addMeetingContentRow(id) {
+            meetingData.find(c => c.id === id).contents.push({ proposer: "", content: "", discussion: "", conclusion: "" });
             renderMainForms();
         }
-        function removeRuiliProposalRow(id, idx) {
-            let target = internalMeetData.find(c => c.id === id);
-            if(target && target.proposalReports) target.proposalReports.splice(idx, 1);
+        function removeMeetingContentRow(id, idx) {
+            meetingData.find(c => c.id === id).contents.splice(idx, 1);
             renderMainForms();
         }
-        function handleRuiliMeetUpload(inputEl, id) {
-            let target = internalMeetData.find(c => c.id === id);
+        function updateMeetingContentField(id, idx, field, value) {
+            meetingData.find(c => c.id === id).contents[idx][field] = value;
+        }
+        function handleExternalMeetingUpload(inputEl, id) {
+            let target = meetingData.find(c => c.id === id);
             if (target && inputEl.files) {
-                for (let i = 0; i < inputEl.files.length; i++) {
-                    let file = inputEl.files[i];
-                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name });
+                for(let i=0; i<inputEl.files.length; i++) {
+                    target.uploadedFiles.push({ clientName: inputEl.files[i].name, actualName: inputEl.files[i].name });
                 }
                 renderMainForms();
             }
         }
-        function updateRuiliFileName(id, idx, value) {
-            let target = internalMeetData.find(c => c.id === id);
-            if(target && target.uploadedFiles[idx]) target.uploadedFiles[idx].clientName = value;
-        }
-        function removeRuiliMeetFile(id, idx) {
-            let target = internalMeetData.find(c => c.id === id);
-            if(target && target.uploadedFiles) target.uploadedFiles.splice(idx, 1);
-            renderMainForms();
-        }
+        function updateExternalMeetingFileName(id, idx, value) { meetingData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
+        function removeExternalMeetingFile(id, idx) { meetingData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); }
+        function getMeetingFileName(id, idx) { return meetingData.find(c => c.id === id).uploadedFiles[idx].clientName; }
 
-        // 太陽能複選框專用更新處理邏輯
-        function updateSolarCheckbox(id, value, isChecked) {
-            let target = solarData.find(c => c.id === id);
-            if (!target) return;
-            if (!target.condRoofEquip) target.condRoofEquip = [];
-            if (isChecked) {
-                if (!target.condRoofEquip.includes(value)) target.condRoofEquip.push(value);
-            } else {
-                target.condRoofEquip = target.condRoofEquip.filter(item => item !== value);
+        // 內部會議複選
+        function updateAttendeeSelection(id, person, isChecked) {
+            let target = internalMeetData.find(c => c.id === id);
+            if (!target.attendees) target.attendees = [];
+            if (isChecked) { if (!target.attendees.includes(person)) target.attendees.push(person); }
+            else { target.attendees = target.attendees.filter(p => p !== person); }
+        }
+        function updateCaseReportField(id, idx, field, value) { internalMeetData.find(c => c.id === id).caseReports[idx][field] = value; }
+        function addRuiliCaseReportRow(id) { internalMeetData.find(c => c.id === id).caseReports.push({ reporter: "樊靖畇", caseName: "", desc: "", conclusion: "" }); renderMainForms(); }
+        function removeRuiliCaseReportRow(id, idx) { internalMeetData.find(c => c.id === id).caseReports.splice(idx, 1); renderMainForms(); }
+        function updateProposalField(id, idx, field, value) { internalMeetData.find(c => c.id === id).proposalReports[idx][field] = value; }
+        function addRuiliProposalRow(id) { internalMeetData.find(c => c.id === id).proposalReports.push({ reporter: "樊靖畇", item: "", content: "", feasibility: "", conclusion: "" }); renderMainForms(); }
+        function removeRuiliProposalRow(id, idx) { internalMeetData.find(c => c.id === id).proposalReports.splice(idx, 1); renderMainForms(); }
+        
+        function handleRuiliMeetUpload(inputEl, id) {
+            let target = internalMeetData.find(c => c.id === id);
+            if (target && inputEl.files) {
+                for (let i = 0; i < inputEl.files.length; i++) {
+                    target.uploadedFiles.push({ clientName: inputEl.files[i].name, actualName: inputEl.files[i].name });
+                }
+                renderMainForms();
             }
         }
+        function updateRuiliFileName(id, idx, value) { internalMeetData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
+        function removeRuiliMeetFile(id, idx) { internalMeetData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); }
 
-        // 🌟 核心引擎：【預估】與【現勘】最新公式實時智慧連動引擎
+        function updateSolarCheckbox(id, value, isChecked) {
+            let target = solarData.find(c => c.id === id);
+            if (!target.condRoofEquip) target.condRoofEquip = [];
+            if (isChecked) { if (!target.condRoofEquip.includes(value)) target.condRoofEquip.push(value); }
+            else { target.condRoofEquip = target.condRoofEquip.filter(item => item !== value); }
+        }
+
         function calculateSolarLive(id) {
             const activeCase = solarData.find(c => c.id === id);
             if (!activeCase) return;
-
             const estPing = parseFloat(activeCase.estPing || 0);
             const estPrice = parseFloat(activeCase.estPrice || 3.5);
             const resEst1 = Math.round((estPing / 1.5) * 590 / 1000 * 4 * 365 * estPrice);
@@ -1293,7 +1464,6 @@
             const surPanels = parseFloat(activeCase.surveyPanels || 0);
             const surWatts = parseFloat(activeCase.surveyWatts || 0);
             const surPrice = parseFloat(activeCase.surveyPrice || 0);
-
             const resSurKwh = Math.round(surPanels * surWatts / 1000 * 4 * 365);
             const resSur1 = Math.round(resSurKwh * surPrice);
             const resSur2 = Math.round(resSur1 * 0.1);
@@ -1328,7 +1498,6 @@
 
         function addServiceRow(id) { caseEvalData.find(c => c.id === id).services.push({ date: "", manager: "樊靖畇", status: "初期評估", source: "", name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
         function removeServiceRow(id, idx) { caseEvalData.find(c => c.id === id).services.splice(idx, 1); renderMainForms(); }
-        
         function addSolarServiceRow(id) { solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
         function removeSolarServiceRow(id, idx) { solarData.find(c => c.id === id).solarServices.splice(idx, 1); renderMainForms(); }
 
@@ -1383,7 +1552,6 @@
             if (!activeCase || !activeCase.lands) return;
             let totalLandSqm = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
             let totalLandPing = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
-            
             const suffix = currentActiveTab === 'case-eval' ? '' : '-sol';
             if(document.getElementById("sum-land-sqm" + suffix)) document.getElementById("sum-land-sqm" + suffix).innerText = totalLandSqm;
             if(document.getElementById("sum-land-ping" + suffix)) document.getElementById("sum-land-ping" + suffix).innerText = totalLandPing.toFixed(2);
@@ -1396,13 +1564,11 @@
             
             if(currentActiveTab === 'internal-meet') {
                 obj.meetSubject = "新睿立會議紀錄 " + (dataArr.length + 1);
-                obj.attendees = ["樊靖畇"];
-                obj.financeReport = ""; obj.financeReview = ""; obj.financeConsensus = "";
-                obj.caseReports = []; obj.proposalReports = [];
-                obj.globalConclusion = ""; obj.uploadedFiles = [];
+                obj.attendees = ["樊靖畇"]; obj.financeReport = ""; obj.financeReview = ""; obj.financeConsensus = "";
+                obj.caseReports = []; obj.proposalReports = []; obj.globalConclusion = ""; obj.uploadedFiles = [];
             } else if(currentActiveTab === 'meeting') {
-                obj.meetSubject = "全新外部對接會議 " + (dataArr.length + 1);
-                obj.source = "公會引介"; obj.meetLocation = ""; obj.meetSummary = "";
+                obj.meetSubject = "外部對接會議記錄 " + (dataArr.length + 1);
+                obj.ruiliAttendees = ["樊靖畇"]; obj.externalRepresentatives = []; obj.contents = []; obj.meetSummary = ""; obj.uploadedFiles = [];
             } else {
                 obj.companyName = "全新案件項目 " + (dataArr.length + 1); 
                 obj.services = []; obj.lands = []; obj.buildingsLegal = []; obj.buildingsIllegal = []; 
@@ -1411,12 +1577,11 @@
                 obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = "否"; obj.esgStorage = "否";
                 obj.city = ""; obj.region = "";
             }
-
             dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
             renderSidebarSubLists(); renderMainForms();
         }
 
-        function saveToCloud() { alert("更新成功！『睿立會議紀錄』高級結構與大文字域多行架構已部署完畢。"); }
+        function saveToCloud() { alert("所有模組與全新外部會議系統數據更新成功！"); }
         window.onload = function() { toggleCategory('case-eval'); };
     </script>
 </body>
