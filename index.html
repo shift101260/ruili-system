@@ -504,7 +504,7 @@
                             <div><label class="text-slate-400">是否高壓用電</label>
                                 <select onchange="updateField('${c.id}', 'isHighVoltage', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                                     <option value="否" ${c.isHighVoltage==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.isHighVoltage==='是'?'selected':''}>是</option>
+                                    <option value="幕" ${c.isHighVoltage==='是'?'selected':''}>是</option>
                                 </select>
                             </div>
                             <div><label class="text-slate-400">是否時間電價</label>
@@ -530,7 +530,7 @@
                             <div><label class="text-slate-400 block mb-1">是否有接班人</label>
                                 <select onchange="updateField('${c.id}', 'esgHasSuccessor', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                                     <option value="否" ${c.esgHasSuccessor==='否'?'selected':''}>否</option>
-                                    <option value="是" ${c.esgHasSuccessor==='是'?'selected':''}>是</option>
+                                    <option value="是" ${c.esgHasSuccessor==='開'?'selected':''}>是</option>
                                 </select>
                             </div>
                             <div><label class="text-slate-400 block mb-1">產品是否外銷</label>
@@ -984,7 +984,7 @@
                             </div>
                             <div class="space-y-1">${c.customDocsClient.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-violet-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'client', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
                         </div>
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
                                 <span class="font-bold text-cyan-400">十一、睿立調閱文件清單</span>
                                 <button onclick="addDocItem('${c.id}', 'ruili')" class="text-[10px] bg-cyan-900 px-2 rounded no-print">[＋ 新增]</button>
@@ -1035,7 +1035,7 @@
         function generateMeetingHTML(c) {
             return `
                 <div class="card-box bg-cosmic-800/70 border border-purple-500/50 rounded-2xl p-6 space-y-6 shadow-xl">
-                    <div class="border-b border-purple-500/40 pb-2"><h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-handshake mr-2"></i>四、主功能：會議記錄</h3></div>
+                    <div class="border-b border-purple-500/40 pb-2"><h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-handshake mr-2"></i>四、會議記錄</h3></div>
                     
                     <!-- 一、會議資訊 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
@@ -1058,7 +1058,7 @@
                         
                         <!-- 睿立出席人員複選 -->
                         <div class="text-xs space-y-1.5">
-                            <label class="text-slate-400 block font-medium">睿立出席人員（可複選）</label>
+                            <label class="text-slate-400 block font-medium">睿立出席人員</label>
                             <div class="flex flex-wrap gap-4 bg-cosmic-950/60 p-2.5 rounded border border-cosmic-700/40">
                                 ${managersList.map(m => {
                                     const isChecked = (c.ruiliAttendees && c.ruiliAttendees.includes(m)) ? 'checked' : '';
@@ -1075,7 +1075,7 @@
                         <!-- 外部與會代表實體一體化新增 -->
                         <div class="space-y-3">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
-                                <label class="text-xs font-bold text-amber-400">外部與會代表（一體化區塊）</label>
+                                <label class="text-xs font-bold text-amber-400">外部與會代表</label>
                                 <button onclick="addExternalRepRow('${c.id}')" class="text-[10px] bg-amber-900 border border-amber-700 px-2 py-0.5 rounded text-white no-print">[＋ 新增外部代表]</button>
                             </div>
                             <div class="space-y-4">
@@ -1100,7 +1100,7 @@
                     <!-- 三、會議內容 (大文字域自動二、三排多行換行格式) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
-                            <h4 class="text-xs font-bold text-purple-400">三、會議內容 (一體化區塊)</h4>
+                            <h4 class="text-xs font-bold text-purple-400">三、會議內容</h4>
                             <button onclick="addMeetingContentRow('${c.id}')" class="text-[10px] bg-purple-900 border border-purple-700 px-2 py-0.5 rounded text-white no-print">[＋ 新增會議內容]</button>
                         </div>
                         <div class="space-y-4">
@@ -1113,15 +1113,15 @@
                                             <input type="text" value="${item.proposer||''}" oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
                                         </div>
                                         <div>
-                                            <label class="text-slate-400 block mb-0.5">內容 (自動支援多行二、三排格式)</label>
+                                            <label class="text-slate-400 block mb-0.5">內容</label>
                                             <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'content', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${item.content||''}</textarea>
                                         </div>
                                         <div>
-                                            <label class="text-slate-400 block mb-0.5">共識討論 (自動支援多行二、三排格式)</label>
+                                            <label class="text-slate-400 block mb-0.5">共識討論</label>
                                             <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'discussion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${item.discussion||''}</textarea>
                                         </div>
                                         <div>
-                                            <label class="text-slate-400 block mb-0.5">結論 (自動支援多行二、三排格式)</label>
+                                            <label class="text-slate-400 block mb-0.5">結論</label>
                                             <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${item.conclusion||''}</textarea>
                                         </div>
                                     </div>
@@ -1132,14 +1132,14 @@
 
                     <!-- 四、會議總結 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
-                        <label class="text-xs font-bold text-amber-400 block">四、會議總結 (自動支援第二、三排格式)</label>
+                        <label class="text-xs font-bold text-amber-400 block">四、會議總結</label>
                         <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
                     </div>
 
                     <!-- 五、檔案上傳 (支援編輯名稱及點擊檢視) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-purple-500/30 pb-1.5">
-                            <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳 (放各種類型檔案，可編輯名稱並點擊開啟)</span>
+                            <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳</span>
                             <label class="text-[10px] bg-purple-900 text-white px-2.5 py-1 rounded cursor-pointer hover:bg-purple-800 transition no-print">
                                 [＋ 選擇檔案上傳]
                                 <input type="file" multiple class="hidden" onchange="handleExternalMeetingUpload(this, '${c.id}')">
@@ -1190,7 +1190,7 @@
                                 <input type="datetime-local" value="${c.date||''}" onchange="updateMeetField('${c.id}', 'date', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                             </div>
                             <div class="md:col-span-2">
-                                <label class="text-slate-400 block mb-1.5">與會人員 (可複選)</label>
+                                <label class="text-slate-400 block mb-1.5">與會人員</label>
                                 <div class="flex flex-wrap gap-4 bg-cosmic-950/60 p-2.5 rounded border border-cosmic-700/40">
                                     ${managersList.map(m => {
                                         const isChecked = (c.attendees && c.attendees.includes(m)) ? 'checked' : '';
@@ -1211,15 +1211,15 @@
                         <h4 class="text-xs font-bold text-emerald-400 border-b border-cosmic-700/20 pb-1.5">二、財務報告</h4>
                         <div class="space-y-3 text-xs">
                             <div>
-                                <label class="text-slate-400 block mb-1">財務報告 (自動支援第二、三排格式)</label>
+                                <label class="text-slate-400 block mb-1">財務報告</label>
                                 <textarea oninput="updateMeetField('${c.id}', 'financeReport', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${c.financeReport||''}</textarea>
                             </div>
                             <div>
-                                <label class="text-slate-400 block mb-1">檢討 (自動支援第二、三排格式)</label>
+                                <label class="text-slate-400 block mb-1">檢討</label>
                                 <textarea oninput="updateMeetField('${c.id}', 'financeReview', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${c.financeReview||''}</textarea>
                             </div>
                             <div>
-                                <label class="text-slate-400 block mb-1">共識 (自動支援第二、三排格式)</label>
+                                <label class="text-slate-400 block mb-1">共識</label>
                                 <textarea oninput="updateMeetField('${c.id}', 'financeConsensus', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${c.financeConsensus||''}</textarea>
                             </div>
                         </div>
@@ -1228,7 +1228,7 @@
                     <!-- 三、案件報告 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
-                            <h4 class="text-xs font-bold text-cyan-400">三、案件報告 (一體化區塊)</h4>
+                            <h4 class="text-xs font-bold text-cyan-400">三、案件報告</h4>
                             <button onclick="addRuiliCaseReportRow('${c.id}')" class="text-[10px] bg-cyan-900 border border-cyan-700 px-2 py-0.5 rounded text-white no-print">[＋ 新增案件報告]</button>
                         </div>
                         <div class="space-y-4">
@@ -1249,11 +1249,11 @@
                                     </div>
                                     <div class="text-xs space-y-2">
                                         <div>
-                                            <label class="text-slate-400 block mb-0.5">案件進度說明 (自動換行)</label>
+                                            <label class="text-slate-400 block mb-0.5">案件進度說明</label>
                                             <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-none block whitespace-pre-wrap">${rep.desc||''}</textarea>
                                         </div>
                                         <div>
-                                            <label class="text-slate-400 block mb-0.5">結論 (自動換行)</label>
+                                            <label class="text-slate-400 block mb-0.5">結論</label>
                                             <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'conclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-none block whitespace-pre-wrap">${rep.conclusion||''}</textarea>
                                         </div>
                                     </div>
@@ -1265,7 +1265,7 @@
                     <!-- 四、提案報告 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
-                            <h4 class="text-xs font-bold text-purple-400">四、提案報告 (一體化區塊)</h4>
+                            <h4 class="text-xs font-bold text-purple-400">四、提案報告</h4>
                             <button onclick="addRuiliProposalRow('${c.id}')" class="text-[10px] bg-purple-900 border border-purple-700 px-2 py-0.5 rounded text-white no-print">[＋ 新增提案報告]</button>
                         </div>
                         <div class="space-y-4">
@@ -1280,19 +1280,19 @@
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="text-slate-400 block mb-0.5">項目 (可多行)</label>
+                                            <label class="text-slate-400 block mb-0.5">項目</label>
                                             <textarea oninput="updateProposalField('${c.id}', ${idx}, 'item', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-10 resize-none block whitespace-pre-wrap">${prop.item||''}</textarea>
                                         </div>
                                         <div>
-                                            <label class="text-slate-400 block mb-0.5">內容 (可多行)</label>
+                                            <label class="text-slate-400 block mb-0.5">內容</label>
                                             <textarea oninput="updateProposalField('${c.id}', ${idx}, 'content', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${prop.content||''}</textarea>
                                         </div>
                                         <div>
-                                            <label class="text-slate-400 block mb-0.5">可行性評估 (可多行)</label>
+                                            <label class="text-slate-400 block mb-0.5">可行性評估</label>
                                             <textarea oninput="updateProposalField('${c.id}', ${idx}, 'feasibility', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${prop.feasibility||''}</textarea>
                                         </div>
                                         <div>
-                                            <label class="text-slate-400 block mb-0.5">結論 (可多行)</label>
+                                            <label class="text-slate-400 block mb-0.5">結論</label>
                                             <textarea oninput="updateProposalField('${c.id}', ${idx}, 'conclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${prop.conclusion||''}</textarea>
                                         </div>
                                     </div>
@@ -1303,7 +1303,7 @@
 
                     <!-- 五、會議總結論 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
-                        <label class="text-xs font-bold text-amber-400 block">五、會議總結論 (自動支援第二、三排格式)</label>
+                        <label class="text-xs font-bold text-amber-400 block">五、會議總結論</label>
                         <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
                     </div>
 
@@ -1447,6 +1447,7 @@
             else { target.condRoofEquip = target.condRoofEquip.filter(item => item !== value); }
         }
 
+        /* 太陽能自建計算核心 */
         function calculateSolarLive(id) {
             const activeCase = solarData.find(c => c.id === id);
             if (!activeCase) return;
