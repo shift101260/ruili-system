@@ -212,7 +212,7 @@
 
                 planModule: "雙面雙玻高效率單晶模組", planInverter: "台達高階變流器", planType: "鋼構棚架型式", planNote: "設計高度不影響廠房內部採光。",
                 planPreference: "全部躉售", planPartner: "自建",
-                condRoofType: "浪板", condChemProduction: "否", condChemIndustry: "否", condSeaside: "否", condSeasideDist: "否", condShaded: "否",
+                condRoofType: "浪板", condChemProduction: "否", condChemIndustry: "否", condSeaside: "否", condSeasideDist: "1公里內", condShaded: "否",
                 condRoofEquip: ["無"], condHasReport: "否", condAcceptTest: "是", condHasReinforce: "否", condReinforceYear: "",
                 condStructure: "結構安全，無須大幅補強", condRoof: "浪板防漏防水施工強化", condLine: "台電併聯饋線充裕", condNote: "吊裝施工動線流暢。"
             }
@@ -563,7 +563,7 @@
             `;
         }
 
-        // ==================== 🛠️ 二、主功能：太陽能自建 (融入完整一到十二項結構) ====================
+        // ==================== 二、主功能：太陽能自建 (融入完整一到十二項結構且更新九、十項欄位) ====================
         function generateSolarHTML(c) {
             let totalLandSqm = c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
             let totalLandPing = c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
@@ -671,7 +671,7 @@
                             <span class="text-xs font-bold text-purple-400 tracking-wider flex items-center"><i class="fa-solid fa-compass-drafting mr-1.5"></i>【現勘】</span>
                             
                             <!-- 1. 現勘後太陽能自建年收益試算 -->
-                            <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
+                            <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-purple-500/40 space-y-1.5">
                                 <span class="font-medium text-slate-300">1. 現勘後太陽能自建年收益試算：</span>
                                 <div class="flex flex-wrap items-center gap-1.5">
                                     <span>(</span>
@@ -685,7 +685,7 @@
                                 </div>
                             </div>
 
-                            <!-- 年發電度數試算 -->
+                            <!-- 年發發電度數試算 -->
                             <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
                                 <span class="font-medium text-slate-300">年發電度數試算：</span>
                                 <div class="flex flex-wrap items-center gap-1.5">
@@ -864,11 +864,18 @@
                             <div><label class="text-slate-400 block mb-0.5">太陽能光電模組規劃</label><input type="text" value="${c.planModule||''}" oninput="updateField('${c.id}', 'planModule', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div><label class="text-slate-400 block mb-0.5">變流器規劃</label><input type="text" value="${c.planInverter||''}" oninput="updateField('${c.id}', 'planInverter', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div><label class="text-slate-400 block mb-0.5">建置型式規劃</label><input type="text" value="${c.planType||''}" oninput="updateField('${c.id}', 'planType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div><label class="text-slate-400 block mb-0.5">合作模式意向</label>
+                            <div><label class="text-slate-400 block mb-0.5">偏好模式</label>
                                 <select onchange="updateField('${c.id}', 'planPreference', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                                     <option value="全部躉售" ${c.planPreference==='全部躉售'?'selected':''}>全部躉售</option>
-                                    <option value="餘電轉售" ${c.planPreference==='餘電轉售'?'selected':''}>餘電轉售</option>
-                                    <option value="完全自用" ${c.planPreference==='完全自用'?'selected':''}>完全自用</option>
+                                    <option value="自發自用" ${c.planPreference==='自發自用'?'selected':''}>自發自用</option>
+                                    <option value="混合模式" ${c.planPreference==='混合模式'?'selected':''}>混合模式</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400 block mb-0.5">合作模式意向</label>
+                                <select onchange="updateField('${c.id}', 'planPartner', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="屋頂出租" ${c.planPartner==='屋頂出租'?'selected':''}>屋頂出租</option>
+                                    <option value="合資開發" ${c.planPartner==='合資開發'?'selected':''}>合資開發</option>
+                                    <option value="自建" ${c.planPartner==='自建'?'selected':''}>自建</option>
                                 </select>
                             </div>
                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">系統建置備註說明</label><textarea oninput="updateField('${c.id}', 'planNote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${c.planNote||''}</textarea></div>
@@ -880,24 +887,74 @@
                         <h4 class="text-xs font-bold text-violet-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-shield-halved mr-1.5"></i>十、建物條件與結構安全現勘評估</h4>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                             <div><label class="text-slate-400">屋頂浪板型式</label><input type="text" value="${c.condRoofType||''}" oninput="updateField('${c.id}', 'condRoofType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div><label class="text-slate-400">是否化學製程廠房</label>
+                            <div><label class="text-slate-400">廠內是否有生產化學用品或排放化學氣體</label>
                                 <select onchange="updateField('${c.id}', 'condChemProduction', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                                     <option value="否" ${c.condChemProduction==='否'?'selected':''}>否</option>
                                     <option value="是" ${c.condChemProduction==='是'?'selected':''}>是</option>
                                 </select>
                             </div>
-                            <div><label class="text-slate-400">是否高污染鋼鐵業</label>
+                            <div><label class="text-slate-400">附近是否有生產化學製品相關產業</label>
                                 <select onchange="updateField('${c.id}', 'condChemIndustry', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                                     <option value="否" ${c.condChemIndustry==='否'?'selected':''}>否</option>
                                     <option value="是" ${c.condChemIndustry==='是'?'selected':''}>是</option>
                                 </select>
                             </div>
-                            <div><label class="text-slate-400">是否屬鹽害嚴重區</label>
+                            <div><label class="text-slate-400">遮蔽狀況</label>
+                                <select onchange="updateField('${c.id}', 'condShaded', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.condShaded==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.condShaded==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">廠區是否臨海</label>
                                 <select onchange="updateField('${c.id}', 'condSeaside', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
                                     <option value="否" ${c.condSeaside==='否'?'selected':''}>否</option>
                                     <option value="是" ${c.condSeaside==='是'?'selected':''}>是</option>
                                 </select>
                             </div>
+                            <div><label class="text-slate-400">若有臨海，臨海距離</label>
+                                <select onchange="updateField('${c.id}', 'condSeasideDist', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="1公里內" ${c.condSeasideDist==='1公里內'?'selected':''}>1公里內</option>
+                                    <option value="1-5公里" ${c.condSeasideDist==='1-5公里'?'selected':''}>1-5公里</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">是否有結構計算書</label>
+                                <select onchange="updateField('${c.id}', 'condHasReport', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.condHasReport==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.condHasReport==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">是否可接受結構檢測</label>
+                                <select onchange="updateField('${c.id}', 'condAcceptTest', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.condAcceptTest==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.condAcceptTest==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">是否曾經做過結構補強</label>
+                                <select onchange="updateField('${c.id}', 'condHasReinforce', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.condHasReinforce==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.condHasReinforce==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">補強年份</label><input type="text" value="${c.condReinforceYear||''}" oninput="updateField('${c.id}', 'condReinforceYear', this.value)" placeholder="例如：2022" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            
+                            <!-- 複選排版層 -->
+                            <div class="md:col-span-4 bg-cosmic-950/60 p-3 rounded-xl border border-cosmic-700/40 mt-1">
+                                <label class="text-slate-400 block mb-2 font-medium">屋頂是否有以下設備（可打勾複選）</label>
+                                <div class="flex flex-wrap gap-4 text-xs">
+                                    ${['空調設備', '排氣設備', '水塔', '管線密集', '無'].map(equip => {
+                                        const checked = (c.condRoofEquip && c.condRoofEquip.includes(equip)) ? 'checked' : '';
+                                        return `
+                                            <label class="flex items-center space-x-2 cursor-pointer select-none">
+                                                <input type="checkbox" value="${equip}" ${checked} onchange="updateSolarCheckbox('${c.id}', '${equip}', this.checked)" class="w-4 h-4 rounded text-violet-600 focus:ring-0 bg-cosmic-950 border-cosmic-700">
+                                                <span class="text-slate-200">${equip}</span>
+                                            </label>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                            
+                            <div class="md:col-span-2"><label class="text-slate-400 block mt-2 mb-0.5">結構安全評估備註</label><textarea oninput="updateField('${c.id}', 'condStructure', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${c.condStructure||''}</textarea></div>
+                            <div class="md:col-span-2"><label class="text-slate-400 block mt-2 mb-0.5">現勘補強與防漏規劃</label><textarea oninput="updateField('${c.id}', 'condRoof', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${c.condRoof||''}</textarea></div>
                         </div>
                     </div>
 
@@ -984,6 +1041,18 @@
         function updateServiceField(id, idx, field, value) { caseEvalData.find(c => c.id === id).services[idx][field] = value; }
         function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
         function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
+        
+        // 太陽能複選框專用更新處理邏輯
+        function updateSolarCheckbox(id, value, isChecked) {
+            let target = solarData.find(c => c.id === id);
+            if (!target) return;
+            if (!target.condRoofEquip) target.condRoofEquip = [];
+            if (isChecked) {
+                if (!target.condRoofEquip.includes(value)) target.condRoofEquip.push(value);
+            } else {
+                target.condRoofEquip = target.condRoofEquip.filter(item => item !== value);
+            }
+        }
 
         // 🌟 核心引擎：【預估】與【現勘】最新公式實時智慧連動引擎
         function calculateSolarLive(id) {
@@ -1134,8 +1203,11 @@
                 obj.solarServices = [];
                 obj.estPing = "0"; obj.estPrice = "3.5"; obj.estRentUnit = "0";
                 obj.surveyPanels = "0"; obj.surveyWatts = "0"; obj.surveyPrice = "4.8"; obj.surveyBill = "0";
-                obj.planModule = ""; obj.planInverter = ""; obj.planType = ""; obj.planNote = ""; obj.planPreference = "全部躉售";
-                obj.condRoofType = ""; obj.condChemProduction = "否"; obj.condChemIndustry = "否"; obj.condSeaside = "否";
+                obj.planModule = ""; obj.planInverter = ""; obj.planType = ""; obj.planNote = ""; 
+                obj.planPreference = "全部躉售"; obj.planPartner = "屋頂出租";
+                obj.condRoofType = ""; obj.condChemProduction = "否"; obj.condChemIndustry = "否"; obj.condSeaside = "否"; obj.condSeasideDist = "1公里內"; obj.condShaded = "否";
+                obj.condRoofEquip = ["無"]; obj.condHasReport = "否"; obj.condAcceptTest = "是"; obj.condHasReinforce = "否"; obj.condReinforceYear = "";
+                obj.condStructure = ""; obj.condRoof = "";
             }
 
             dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
