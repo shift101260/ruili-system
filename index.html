@@ -243,7 +243,7 @@
                 ]
             }
         ];
-        
+
         let internalMeetData = [
             { 
                 id: "int-1", date: "2026-07-18T09:00", manager: "楊裕憲", status: "結案", source: "內部會議",
@@ -363,7 +363,7 @@
             }
         }
 
-        // ==================== 一、專案管理 HTML (精準修改8點) ====================
+        // ==================== 一、專案管理 HTML (進行精準修改) ====================
         function generateCaseEvalHTML(c) {
             let totalLandSqm = c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
             let totalLandPing = c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
@@ -391,12 +391,11 @@
                             <div><label class="text-slate-400">傳真</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司網站連結</label><input type="text" value="${c.website||''}" oninput="updateField('${c.id}', 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <!-- 修改點6：新增備註欄位 (二、三排多行換行格式) -->
                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">備註</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-y block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
 
-                    <!-- 二、服務項目 (修改點1：改為二、服務項目) -->
+                    <!-- 二、服務項目 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/40 pb-1.5">
                             <h4 class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-layer-group mr-1.5"></i>二、服務項目</h4>
@@ -429,12 +428,10 @@
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                        <!-- 修改點8：案件說明 -->
                                         <div><label class="text-slate-400 block mb-0.5">案件說明</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
 
-                                    <!-- 修改點7：顯示收款期程標題 -->
                                     <div class="pt-2 border-t border-cosmic-700/20">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程</label>
                                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
@@ -451,10 +448,10 @@
                         </div>
                     </div>
 
-                    <!-- 三、土地基本資料 -->
+                    <!-- 三、土地基本資料 (修改點1：修改標題名稱) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
-                            <h4 class="text-xs font-bold text-emerald-400">三、土地基本資料 (平方公尺自動乘*0.3025帶入坪數)</h4>
+                            <h4 class="text-xs font-bold text-emerald-400">三、土地基本資料</h4>
                             <button onclick="addLandRow('${c.id}')" class="text-[10px] bg-emerald-900 border border-emerald-700 px-2 py-0.5 rounded no-print">[＋ 地段地號]</button>
                         </div>
                         <div class="grid grid-cols-2 gap-3 text-xs pt-1 pb-2 border-b border-cosmic-700/20">
@@ -463,17 +460,21 @@
                         </div>
                         <div class="space-y-1.5 pt-1">
                             ${c.lands.map((l, idx) => `
-                                <div class="grid grid-cols-7 gap-1 text-[11px]">
-                                    <input type="text" value="${l.section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
-                                    <input type="text" value="${l.number||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-center">
-                                    <select onchange="updateLandField('${c.id}', ${idx}, 'pattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium">
-                                        <option value="都市計畫使用分區" class="text-center" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
-                                        <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
-                                    </select>
-                                    <input type="text" value="${l.customPattern||''}" placeholder="自填細部類別" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center">
-                                    <input type="number" value="${l.currentPrice||''}" placeholder="公告現值" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
-                                    <input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
-                                    <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-ping-${idx}" readonly class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
+                                <div class="flex items-center space-x-1 text-[11px]">
+                                    <div class="grid grid-cols-7 gap-1 flex-1">
+                                        <input type="text" value="${l.section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="text" value="${l.number||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-center">
+                                        <select onchange="updateLandField('${c.id}', ${idx}, 'pattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium">
+                                            <option value="都市計畫使用分區" class="text-center" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
+                                            <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
+                                        </select>
+                                        <input type="text" value="${l.customPattern||''}" placeholder="自填細部類別" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center">
+                                        <input type="number" value="${l.currentPrice||''}" placeholder="公告現值" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
+                                        <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-ping-${idx}" readonly class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
+                                    </div>
+                                    <!-- 修改點2：新增地段地號單筆刪除功能 -->
+                                    <i onclick="removeLandRow('${c.id}', ${idx})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1.5 no-print shrink-0" title="刪除此筆地號"></i>
                                 </div>
                             `).join('')}
                         </div>
@@ -483,7 +484,7 @@
                         </div>
                     </div>
 
-                    <!-- 四、建物基本資料 -->
+                    <!-- 四、建物基本資料 (修改點2：新增建號與違章建物單筆刪除功能) -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
@@ -491,11 +492,14 @@
                                 <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
                             </div>
                             <div class="space-y-1">${c.buildingsLegal.map((b, i) => `
-                                <div class="grid grid-cols-4 gap-1">
-                                    <input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
-                                    <input type="text" value="${b.type||''}" placeholder="建物類別" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
-                                    <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
-                                    <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                <div class="flex items-center space-x-1">
+                                    <div class="grid grid-cols-4 gap-1 flex-1">
+                                        <input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.type||''}" placeholder="建物類別" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                    </div>
+                                    <i onclick="removeBuildRow('${c.id}', 'legal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆建號"></i>
                                 </div>
                             `).join('')}</div>
                             <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping">${totalLegalPing}</strong> 坪</div>
@@ -506,7 +510,14 @@
                                 <button onclick="addBuildRow('${c.id}', 'illegal')" class="text-[10px] bg-red-950 border border-red-900 px-1.5 py-0.5 rounded no-print">[＋ 違章建物]</button>
                             </div>
                             <div class="space-y-1">${c.buildingsIllegal.map((b, i) => `
-                                <div class="grid grid-cols-3 gap-1"><input type="text" value="${b.type||''}" placeholder="類別" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"><input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"><input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"></div>
+                                <div class="flex items-center space-x-1">
+                                    <div class="grid grid-cols-3 gap-1 flex-1">
+                                        <input type="text" value="${b.type||''}" placeholder="類別" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                    </div>
+                                    <i onclick="removeBuildRow('${c.id}', 'illegal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆違章建物"></i>
+                                </div>
                             `).join('')}</div>
                             <div class="pt-1 text-[11px]">違章建物總坪數: <strong class="text-red-400" id="sum-illegal-ping">${totalIllegalPing}</strong> 坪</div>
                         </div>
@@ -1349,7 +1360,7 @@
                         <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
                     </div>
 
-                    <!-- 六、檔案上傳 (支援自訂編輯名稱) -->
+                    <!-- 六、檔案上傳 (放各種類型檔案，並可編輯名稱) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-indigo-500/30 pb-1.5">
                             <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>六、檔案上傳 (放各種類型檔案，並可編輯名稱)</span>
@@ -1577,12 +1588,39 @@
             getTargetDataArray(currentActiveTab).find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", currentPrice: "", sqm: 0, ping: 0 }); 
             renderMainForms(); 
         }
+
+        // 修改點2：地段地號單筆刪除處理函式
+        function removeLandRow(id, idx) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target && target.lands) {
+                target.lands.splice(idx, 1);
+                renderMainForms();
+                refreshSums();
+                if (currentActiveTab === 'solar') calculateSolarLive(id);
+            }
+        }
+
         function addBuildRow(id, side) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (side === 'legal') target.buildingsLegal.push({ number: "", type: "", year: "", sqm: "", ping: "" });
             else target.buildingsIllegal.push({ type: "", year: "", sqm: "", ping: "" });
             renderMainForms();
             if(currentActiveTab === 'solar') calculateSolarLive(id);
+        }
+
+        // 修改點2：建物（建號/違章）單筆刪除處理函式
+        function removeBuildRow(id, side, idx) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                if (side === 'legal' && target.buildingsLegal) {
+                    target.buildingsLegal.splice(idx, 1);
+                } else if (side === 'illegal' && target.buildingsIllegal) {
+                    target.buildingsIllegal.splice(idx, 1);
+                }
+                renderMainForms();
+                refreshSums();
+                if (currentActiveTab === 'solar') calculateSolarLive(id);
+            }
         }
 
         function addDocItem(id, side) {
