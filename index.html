@@ -183,7 +183,7 @@
         // 資料載入與防空防錯錨點初始化
         let caseEvalData = [
             {
-                id: "eval-1", companyName: "大鼎精密工業股份有限公司", taxId: "83746291", factoryLicense: "64009876", industryType: "金屬製品製造業", contact: "王大鼎", phone: "0912-345678", email: "tading@precision.com", address: "高雄市岡山區本工路88號", companyAddress: "高雄市岡山區本工路88號", companyPhone: "07-6211234", fax: "07-6215678", bankAccount: "玉山銀行岡山分行 0123-456-789012", website: "https://www.tading.com",
+                id: "eval-1", companyName: "大鼎精密工業股份有限公司", taxId: "83746291", factoryLicense: "64009876", industryType: "金屬製品製造業", contact: "王大鼎", phone: "0912-345678", email: "tading@precision.com", address: "高雄市岡山區本工路88號", companyAddress: "高雄市岡山區本工路88號", companyPhone: "07-6211234", fax: "07-6215678", bankAccount: "玉山銀行岡山分行 0123-456-789012", website: "https://www.tading.com", companyRemark: "",
                 city: "高雄市", region: "岡山區",
                 services: [{ date: "2026-07-18T16:00", manager: "樊靖畇", status: "初期評估", source: "公會引介", name: "特定工廠轉型諮詢", desc: "改善計畫編製與變更審查手續", remark: "落實接班企業諮詢體系。", quote: "350000", contract: "350000", p1: "100000", d1: "", p2: "150000", d2: "", p3: "100000", d3: "", p4: "", d4: "" }],
                 lands: [{ section: "岡山段", number: "105-02", pattern: "都市計畫使用分區", customPattern: "工業區特定目的專用", currentPrice: "12000", sqm: "1500", ping: "453.75" }],
@@ -363,7 +363,7 @@
             }
         }
 
-        // ==================== 一、專案管理 HTML (已進行 6 項精準調整) ====================
+        // ==================== 一、專案管理 HTML (精準修改8點) ====================
         function generateCaseEvalHTML(c) {
             let totalLandSqm = c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
             let totalLandPing = c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
@@ -374,7 +374,7 @@
                 <div class="card-box bg-cosmic-800/70 border border-cosmic-700/50 rounded-2xl p-6 space-y-6 shadow-xl">
                     <div class="border-b border-cosmic-700/40 pb-2"><h3 class="text-sm font-bold text-cyan-400"><i class="fa-solid fa-network-wired mr-2"></i>專案管理</h3></div>
 
-                    <!-- 一、公司基本資料 (位置移至最前、新增4個欄位) -->
+                    <!-- 一、公司基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">一、公司基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -386,18 +386,20 @@
                             <div><label class="text-slate-400">聯絡電話</label><input type="text" value="${c.phone||''}" oninput="updateField('${c.id}', 'phone', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div><label class="text-slate-400">E-mail</label><input type="text" value="${c.email||''}" oninput="updateField('${c.id}', 'email', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">工廠地址</label><input type="text" value="${c.address||''}" oninput="updateField('${c.id}', 'address', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div class="md:col-span-2"><label class="text-slate-400">公司地址 (新增)</label><input type="text" value="${c.companyAddress||''}" oninput="updateField('${c.id}', 'companyAddress', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div><label class="text-slate-400">公司電話 (新增)</label><input type="text" value="${c.companyPhone||''}" oninput="updateField('${c.id}', 'companyPhone', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div><label class="text-slate-400">傳真 (新增)</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶 (新增)</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div class="md:col-span-2"><label class="text-slate-400">公司地址</label><input type="text" value="${c.companyAddress||''}" oninput="updateField('${c.id}', 'companyAddress', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">公司電話</label><input type="text" value="${c.companyPhone||''}" oninput="updateField('${c.id}', 'companyPhone', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">傳真</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司網站連結</label><input type="text" value="${c.website||''}" oninput="updateField('${c.id}', 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <!-- 修改點6：新增備註欄位 (二、三排多行換行格式) -->
+                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">備註</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-y block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
 
-                    <!-- 一、服務項目 (原專案管理區塊移至公司基本資料下方) -->
+                    <!-- 二、服務項目 (修改點1：改為二、服務項目) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/40 pb-1.5">
-                            <h4 class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-layer-group mr-1.5"></i>一、服務項目</h4>
+                            <h4 class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-layer-group mr-1.5"></i>二、服務項目</h4>
                             <button onclick="addServiceRow('${c.id}')" class="text-[10px] bg-indigo-900 border border-indigo-700 px-2 py-0.5 rounded no-print">[＋ 新增服務項目]</button>
                         </div>
                         <div class="space-y-4">
@@ -427,17 +429,22 @@
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                        <div><label class="text-slate-400 block mb-0.5">案件說明 (自動換行)</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
+                                        <!-- 修改點8：案件說明 -->
+                                        <div><label class="text-slate-400 block mb-0.5">案件說明</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
 
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] pt-1 border-t border-cosmic-700/20">
-                                        ${[1,2,3,4].map(p => `
-                                            <div class="bg-cosmic-950/50 p-1.5 rounded border border-cosmic-700/30">
-                                                <input type="number" value="${srv['p'+p]||''}" placeholder="第${p}期金額" oninput="updateServiceField('${c.id}', ${idx}, 'p${p}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center mb-1">
-                                                <input type="date" value="${srv['d'+p]||''}" onchange="updateServiceField('${c.id}', ${idx}, 'd${p}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center">
-                                            </div>
-                                        `).join('')}
+                                    <!-- 修改點7：顯示收款期程標題 -->
+                                    <div class="pt-2 border-t border-cosmic-700/20">
+                                        <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程</label>
+                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
+                                            ${[1,2,3,4].map(p => `
+                                                <div class="bg-cosmic-950/50 p-1.5 rounded border border-cosmic-700/30">
+                                                    <input type="number" value="${srv['p'+p]||''}" placeholder="第${p}期金額" oninput="updateServiceField('${c.id}', ${idx}, 'p${p}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center mb-1">
+                                                    <input type="date" value="${srv['d'+p]||''}" onchange="updateServiceField('${c.id}', ${idx}, 'd${p}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center">
+                                                </div>
+                                            `).join('')}
+                                        </div>
                                     </div>
                                 </div>
                             `).join('')}
@@ -458,7 +465,7 @@
                             ${c.lands.map((l, idx) => `
                                 <div class="grid grid-cols-7 gap-1 text-[11px]">
                                     <input type="text" value="${l.section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
-                                    <input type="text" value="${l.number||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                    <input type="text" value="${l.number||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-center">
                                     <select onchange="updateLandField('${c.id}', ${idx}, 'pattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium">
                                         <option value="都市計畫使用分區" class="text-center" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
                                         <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
@@ -589,7 +596,7 @@
                         </div>
                     </div>
 
-                    <!-- 八、檔案上傳 (升級功能5, 6：可上傳各式檔案、編輯名稱、開啟檔案、刪除) -->
+                    <!-- 八、檔案上傳 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
@@ -1643,7 +1650,7 @@
                 obj.electricBill = ""; obj.horsepower = ""; obj.contractCapacity = ""; obj.isHighVoltage = "否"; obj.isTimeRate = "否"; obj.timePeriod = "白天為主";
                 obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = "否"; obj.esgStorage = "否";
                 obj.city = ""; obj.region = "";
-                obj.companyAddress = ""; obj.companyPhone = ""; obj.fax = ""; obj.bankAccount = "";
+                obj.companyAddress = ""; obj.companyPhone = ""; obj.fax = ""; obj.bankAccount = ""; obj.companyRemark = "";
             }
             dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
             renderSidebarSubLists(); renderMainForms();
