@@ -793,8 +793,8 @@
                                 <span class="font-medium text-slate-300">1. 預估太陽能自建年收益試算：</span>
                                 <div class="flex flex-wrap items-center gap-1.5">
                                     <span>(</span>
-                                    <input type="number" id="est-ping-${c.id}" value="${c.estPing||'0'}" oninput="updateField('${c.id}', 'estPing', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-amber-500/80 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="坪數自填">
-                                    <span>坪數自填 ) / 1.5 * 590 / 1000 * 4 * 365 * (</span>
+                                    <input type="number" id="est-ping-${c.id}" value="${c.estPing||'0'}" oninput="updateField('${c.id}', 'estPing', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-amber-500/80 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="坪">
+                                    <span>坪 ) / 1.5 * 590 / 1000 * 4 * 365 * (</span>
                                     <input type="number" step="0.1" id="est-price-${c.id}" value="${c.estPrice||'3.5'}" oninput="updateField('${c.id}', 'estPrice', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-amber-500/80 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="3.5元">
                                     <span>元自填 ) =</span>
                                     <span class="text-amber-400 font-bold bg-cosmic-950 px-2 py-0.5 rounded border border-cosmic-700" id="res-est-1-${c.id}">0</span>元
@@ -810,8 +810,8 @@
                                 <span class="font-medium text-slate-300">3. 附近工廠出租情況：</span>
                                 <div class="flex flex-wrap items-center gap-1.5">
                                     <span>坪數 * (</span>
-                                    <input type="number" id="est-rentunit-${c.id}" value="${c.estRentUnit||'0'}" oninput="updateField('${c.id}', 'estRentUnit', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-cyan-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="單價自填">
-                                    <span>單價自填 ) =</span>
+                                    <input type="number" id="est-rentunit-${c.id}" value="${c.estRentUnit||'0'}" oninput="updateField('${c.id}', 'estRentUnit', this.value); calculateSolarLive('${c.id}');" class="w-20 bg-cosmic-950 border border-cyan-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="每坪單價">
+                                    <span>每坪單價 ) =</span>
                                     <span class="text-emerald-400 font-bold bg-cosmic-950 px-2 py-0.5 rounded border border-cosmic-700" id="res-est-3-${c.id}">0</span>元
                                 </div>
                             </div>
@@ -825,11 +825,11 @@
                                 <div class="flex flex-wrap items-center gap-1.5">
                                     <span>(</span>
                                     <input type="number" id="sur-panels-${c.id}" value="${c.surveyPanels||'0'}" oninput="updateField('${c.id}', 'surveyPanels', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-purple-500 px-1 py-0.5 rounded text-white text-center font-bold" placeholder="幾片">
-                                    <span>幾片太陽能板自填 ) * (</span>
+                                    <span>片太陽能板 ) * (</span>
                                     <input type="number" id="sur-watts-${c.id}" value="${c.surveyWatts||'0'}" oninput="updateField('${c.id}', 'surveyWatts', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-purple-500 px-1 py-0.5 rounded text-white text-center font-bold" placeholder="瓦數">
-                                    <span>每片瓦數自填 ) / 1000 * 4 * 365 天 * (</span>
+                                    <span>每片瓦數 ) / 1000 * 4 * 365 天 * (</span>
                                     <input type="number" step="0.01" id="sur-price-${c.id}" value="${c.surveyPrice||'4.8'}" oninput="updateField('${c.id}', 'surveyPrice', this.value); calculateSolarLive('${c.id}');" class="w-16 bg-cosmic-950 border border-purple-500 px-1 py-0.5 rounded text-white text-center font-bold" placeholder="售電價">
-                                    <span>售電價格自填 ) =</span>
+                                    <span>售電價格 ) =</span>
                                     <span class="text-purple-400 font-bold bg-cosmic-950 px-2 py-0.5 rounded border border-cosmic-700" id="res-sur-1-${c.id}">0</span>元
                                 </div>
                             </div>
@@ -850,7 +850,7 @@
                                 <div class="flex flex-wrap items-center gap-1.5">
                                     <span>每年發電收益 - (</span>
                                     <input type="number" id="sur-bill-cost-${c.id}" value="${c.surveyBill||'0'}" oninput="updateField('${c.id}', 'surveyBill', this.value); calculateSolarLive('${c.id}');" class="w-24 bg-cosmic-950 border border-red-500 px-1.5 py-0.5 rounded text-white text-center font-bold" placeholder="每年電費">
-                                    <span>工廠每年電費自填 ) - 每年模組維護費 =</span>
+                                    <span>工廠每年電費 ) - 每年模組維護費 =</span>
                                     <span class="text-red-400 font-bold bg-cosmic-950 px-2 py-0.5 rounded border border-cosmic-700" id="res-sur-3-${c.id}">0</span>元
                                 </div>
                             </div>
