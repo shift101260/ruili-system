@@ -322,11 +322,11 @@
             }
         ];
  
-        let tradingData = [{ id: "trading-1", date: "2026-07-18T12:00", status: "準備簽約", manager: "鄭家承", companyName: "瑞昱地產買賣工業地案", is_deleted: false, deleted_at: null }];
+        let tradingData = [{ id: "trading-1", date: "2026-07-18T12:00", status: "準備簽約", manager: "樊靖畇", companyName: "瑞昱地產買賣工業地案", is_deleted: false, deleted_at: null }];
         
         let meetingData = [
             { 
-                id: "meet-1", date: "2026-07-18T14:00", manager: "黃逸豪", status: "結案", source: "外部引介",
+                id: "meet-1", date: "2026-07-18T14:00", manager: "樊靖畇", status: "結案", source: "外部引介",
                 meetSubject: "外部公會對接會", 
                 ruiliAttendees: ["樊靖畇", "黃逸豪"],
                 externalRepresentatives: [
@@ -345,14 +345,14 @@
  
         let internalMeetData = [
             { 
-                id: "int-1", date: "2026-07-18T09:00", manager: "楊裕憲", status: "結案", source: "內部會議",
+                id: "int-1", date: "2026-07-18T09:00", manager: "樊靖畇", status: "結案", source: "內部會議",
                 meetSubject: "週度戰略發展常會", 
                 attendees: ["樊靖畇", "鄭家承", "陳宥騰"],
                 financeReport: "本月睿立資產與元業綠能營收保持穩定，特定工廠二代 successor 培訓平台報名人數超預期。",
                 financeReview: "應收帳款回收天數需再縮短，第二期款項需於改善計畫書送審後5日內催收完畢。",
                 financeConsensus: "後續顧問服務均落實「過關後才收費」原則，並提高跨部門案源引介獎金。",
                 caseReports: [
-                    { reporter: "鄭家承", caseName: "大鼎精密轉型案", desc: "目前已完成多地號地籍與有保存登記建物面積校正，預計下週進場做特定目的專用轉型變更編製。", conclusion: "維持常規推進速度。" }
+                    { reporter: "樊靖畇", caseName: "大鼎精密轉型案", desc: "目前已完成多地號地籍與有保存登記建物面積校正，預計下週進場做特定目的專用轉型變更編製。", conclusion: "維持常規推進速度。" }
                 ],
                 proposalReports: [
                     { reporter: "樊靖畇", item: "工廠健康檢查線上自動化系統開發", content: "結合網頁設計公司，建立客戶自主上傳電費單及使用執照即可初步估算屋頂光電與特工合規性的平台。", feasibility: "技術可行性高，已進入第二階段使用者流程確認。", conclusion: "全力推進，預計10月上線。" }
@@ -1940,7 +1940,7 @@
             const nid = "id-" + Date.now();
             let dataArr = getTargetDataArray(currentActiveTab);
             let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: "樊靖畇", is_deleted: false, deleted_at: null };
-           
+            
             if(currentActiveTab === 'internal-meet') {
                 obj.meetSubject = "新睿立會議紀錄 " + (dataArr.length + 1);
                 obj.attendees = ["樊靖畇"]; obj.financeReport = ""; obj.financeReview = ""; obj.financeConsensus = "";
