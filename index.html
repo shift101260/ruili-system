@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome 圖標 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -25,7 +27,7 @@
         body { background-color: #060b19; color: #e2e8f0; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-       
+        
         /* 📜 N版極致：專屬直式 A4 滿頁匯出與物理屏蔽排版優化 */
         @media print {
             @page {
@@ -33,7 +35,7 @@
                 margin: 10mm !important;
             }
             body { background: white !important; color: black !important; overflow: visible !important; }
-            aside, header, .no-print, input[type="file"], button, #login-overlay { display: none !important; }
+            aside, header, .no-print, input[type="file"], button, #login-overlay, #trash-modal { display: none !important; }
             main { padding: 0 !important; margin: 0 !important; overflow: visible !important; display: block !important; }
             .print-container { 
                 width: 210mm !important; 
@@ -124,7 +126,7 @@
             </div>
  
             <!-- 五大軌道 -->
-            <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-180px)]">
+            <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-240px)]">
                 <div>
                     <button onclick="toggleCategory('case-eval')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
@@ -180,6 +182,14 @@
                     <div id="sub-list-internal-meet" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
                 </div>
             </nav>
+        </div>
+
+        <!-- 股東端專用：資源回收桶按鈕 -->
+        <div id="trash-bin-button-container" class="p-4 border-t border-cosmic-700/30 hidden">
+            <button onclick="openTrashModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center space-x-2 border border-slate-600 transition">
+                <i class="fa-solid fa-trash-arrow-up text-amber-400"></i>
+                <span>資源回收桶 (一鍵復原)</span>
+            </button>
         </div>
     </aside>
  
@@ -240,8 +250,34 @@
             </div>
         </div>
     </div>
+
+    <!-- 股東端專用：資源回收桶 Modal -->
+    <div id="trash-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-cosmic-900 border border-cosmic-700 rounded-2xl p-6 w-full max-w-2xl shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-cosmic-700/50 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-trash-arrow-up text-amber-400"></i>
+                    <span>資源回收桶 (業務已刪除案件列表)</span>
+                </h3>
+                <button onclick="closeTrashModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="trash-items-list" class="space-y-2 max-h-96 overflow-y-auto pr-1">
+                <!-- 刪除案件項目將動態渲染至此 -->
+            </div>
+            <div class="text-right pt-2 border-t border-cosmic-700/30">
+                <button onclick="closeTrashModal()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition">關閉</button>
+            </div>
+        </div>
+    </div>
  
     <script>
+        // ==================== Supabase 設定與初始化 ====================
+        const SUPABASE_URL = "https://YOUR_SUPABASE_URL.supabase.co";
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUserRole = "黃逸豪"; // 預設權限身份：黃逸豪 / 中央控台
+
         // 資料載入與防空防錯錨點初始化
         let caseEvalData = [
             {
@@ -256,7 +292,8 @@
                 esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "否",
                 customDocsClient: ["電費單", "使用執照"], customDocsRuili: ["土地謄本", "地籍圖"], 
                 clientFilesObj: [{ clientName: "客戶廠房藍圖.pdf", actualName: "客戶廠房藍圖.pdf" }], 
-                ruiliFilesObj: [{ clientName: "規費核准公文.png", actualName: "規費核准公文.png" }]
+                ruiliFilesObj: [{ clientName: "規費核准公文.png", actualName: "規費核准公文.png" }],
+                is_deleted: false, deleted_at: null
             }
         ];
  
@@ -280,12 +317,13 @@
                 planPreference: "全部躉售", planPartner: "自建",
                 condRoofType: "浪板", condChemProduction: "否", condChemIndustry: "否", condSeaside: "否", condSeasideDist: "1公里內", condShaded: "否",
                 condRoofEquip: ["無"], condHasReport: "否", condAcceptTest: "是", condHasReinforce: "否", condReinforceYear: "",
-                condStructure: "結構安全，無須大幅補強", condRoof: "浪板防漏防水施工強化", condLine: "台電併聯饋線充裕", condNote: "吊裝施工動線流暢。"
+                condStructure: "結構安全，無須大幅補強", condRoof: "浪板防漏防水施工強化", condLine: "台電併聯饋線充裕", condNote: "吊裝施工動線流暢。",
+                is_deleted: false, deleted_at: null
             }
         ];
  
-        let tradingData = [{ id: "trading-1", date: "2026-07-18T12:00", status: "準備簽約", manager: "鄭家承", companyName: "瑞昱地產買賣工業地案" }];
-       
+        let tradingData = [{ id: "trading-1", date: "2026-07-18T12:00", status: "準備簽約", manager: "鄭家承", companyName: "瑞昱地產買賣工業地案", is_deleted: false, deleted_at: null }];
+        
         let meetingData = [
             { 
                 id: "meet-1", date: "2026-07-18T14:00", manager: "黃逸豪", status: "結案", source: "外部引介",
@@ -300,7 +338,8 @@
                 meetSummary: "探討特定工廠改善計畫及接班企業轉型顧問合作案，公會同意協助引薦會員企業。",
                 uploadedFiles: [
                     { clientName: "公會合作意向書草案.pdf", actualName: "公會合作意向書草案.pdf" }
-                ]
+                ],
+                is_deleted: false, deleted_at: null
             }
         ];
  
@@ -321,7 +360,8 @@
                 globalConclusion: "全集團各分支機構深化數位轉型，確保直式A4列印合約與報告完美契合客戶端審查規範。",
                 uploadedFiles: [
                     { clientName: "上半年財務稽核總表.pdf", actualName: "上半年財務稽核總表.pdf" }
-                ]
+                ],
+                is_deleted: false, deleted_at: null
             }
         ];
  
@@ -338,6 +378,7 @@
             
             // 驗證規則：黃逸豪 (8888)，中央控台 (9999)
             if ((role === '黃逸豪' && pass === '8888') || (role === '中央控台' && pass === '9999')) {
+                currentUserRole = role;
                 // 隱藏登入遮罩，解除鎖定
                 document.getElementById('login-overlay').classList.add('hidden');
                 document.getElementById('login-pass').value = '';
@@ -345,6 +386,16 @@
                 // 顯示 Header 使用者 Badge
                 document.getElementById('user-display-name').innerText = role;
                 document.getElementById('current-user-badge').classList.remove('hidden');
+
+                // 控制回收桶按鈕顯示 (僅中央控台可見)
+                const trashBtn = document.getElementById('trash-bin-button-container');
+                if (trashBtn) {
+                    if (role === '中央控台') trashBtn.classList.remove('hidden');
+                    else trashBtn.classList.add('hidden');
+                }
+
+                initSupabaseRealtime();
+                fetchSupabaseData();
             } else {
                 alert("密碼不正確，無法進入系統！");
             }
@@ -380,12 +431,25 @@
             ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
                 const container = document.getElementById(`sub-list-${tabId}`);
                 if (!container) return;
-                const dataArr = getTargetDataArray(tabId);
-                container.innerHTML = dataArr.map(c => `
-                    <button onclick="selectSpecificCase('${c.id}', '${tabId}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition ${selectedIds[tabId] === c.id && currentActiveTab === tabId ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}">
-                        <i class="fa-solid fa-folder mr-2"></i>${c.companyName || c.meetSubject || '未命名項目'}
-                    </button>
-                `).join('');
+                let dataArr = getTargetDataArray(tabId);
+
+                // 權限過濾：業務端 (黃逸豪) 隱藏 is_deleted 為 true 的案件
+                if (currentUserRole !== '中央控台') {
+                    dataArr = dataArr.filter(c => !c.is_deleted);
+                }
+
+                container.innerHTML = dataArr.map(c => {
+                    let deletedBadge = '';
+                    if (c.is_deleted) {
+                        const delTime = c.deleted_at ? new Date(c.deleted_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                        deletedBadge = `<span class="ml-1 text-[10px] bg-slate-700 text-slate-300 px-1 py-0.5 rounded border border-slate-600">[業務已刪除 ${delTime}]</span>`;
+                    }
+                    return `
+                        <button onclick="selectSpecificCase('${c.id}', '${tabId}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition ${selectedIds[tabId] === c.id && currentActiveTab === tabId ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'} ${c.is_deleted ? 'opacity-70' : ''}">
+                            <i class="fa-solid fa-folder mr-2"></i>${c.companyName || c.meetSubject || '未命名項目'} ${deletedBadge}
+                        </button>
+                    `;
+                }).join('');
             });
         }
  
@@ -395,19 +459,32 @@
             const query = document.getElementById('global-search').value.toLowerCase();
             const container = document.getElementById(`sub-list-${currentActiveTab}`);
             if (!container) return;
-            const dataArr = getTargetDataArray(currentActiveTab);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            if (currentUserRole !== '中央控台') {
+                dataArr = dataArr.filter(c => !c.is_deleted);
+            }
             container.innerHTML = dataArr.filter(c => {
                 const name = c.companyName || c.meetSubject || '';
                 return name.toLowerCase().includes(query);
-            }).map(c => `
-                <button onclick="selectSpecificCase('${c.id}', '${currentActiveTab}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition ${selectedIds[currentActiveTab] === c.id ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}">
-                    <i class="fa-solid fa-folder mr-2"></i>${c.companyName || c.meetSubject || '未命名項目'}
-                </button>
-            `).join('');
+            }).map(c => {
+                let deletedBadge = '';
+                if (c.is_deleted) {
+                    const delTime = c.deleted_at ? new Date(c.deleted_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                    deletedBadge = `<span class="ml-1 text-[10px] bg-slate-700 text-slate-300 px-1 py-0.5 rounded border border-slate-600">[業務已刪除 ${delTime}]</span>`;
+                }
+                return `
+                    <button onclick="selectSpecificCase('${c.id}', '${currentActiveTab}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition ${selectedIds[currentActiveTab] === c.id ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}">
+                        <i class="fa-solid fa-folder mr-2"></i>${c.companyName || c.meetSubject || '未命名項目'} ${deletedBadge}
+                    </button>
+                `;
+            }).join('');
         }
  
         function renderMainForms() {
-            const dataArr = getTargetDataArray(currentActiveTab);
+            let dataArr = getTargetDataArray(currentActiveTab);
+            if (currentUserRole !== '中央控台') {
+                dataArr = dataArr.filter(c => !c.is_deleted);
+            }
             const activeCase = dataArr.find(c => c.id === selectedIds[currentActiveTab]) || dataArr[0];
             const container = document.getElementById(currentActiveTab + "-container");
             if (!container) return;
@@ -1549,18 +1626,36 @@
         function updateServiceField(id, idx, field, value) { caseEvalData.find(c => c.id === id).services[idx][field] = value; }
         function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
         function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
-       
-        function handleProjectFileUpload(inputEl, id, side) {
+        
+        // Supabase Storage 通用上傳函式
+        async function uploadFileToSupabaseStorage(file) {
+            try {
+                const filePath = `uploads/${Date.now()}_${file.name}`;
+                const { data, error } = await supabaseClient.storage.from('ruili-files').upload(filePath, file);
+                if (error) {
+                    console.error("Storage Error:", error);
+                    return URL.createObjectURL(file); // 備用方案
+                }
+                const { data: publicData } = supabaseClient.storage.from('ruili-files').getPublicUrl(filePath);
+                return publicData.publicUrl;
+            } catch (err) {
+                console.error("Upload error:", err);
+                return URL.createObjectURL(file);
+            }
+        }
+
+        async function handleProjectFileUpload(inputEl, id, side) {
             let target = caseEvalData.find(c => c.id === id);
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let blobUrl = URL.createObjectURL(file);
-                    let fileObj = { clientName: file.name, actualName: file.name, url: blobUrl };
+                    let fileUrl = await uploadFileToSupabaseStorage(file);
+                    let fileObj = { clientName: file.name, actualName: file.name, url: fileUrl };
                     if(side === 'client') target.clientFilesObj.push(fileObj);
                     else target.ruiliFilesObj.push(fileObj);
                 }
                 renderMainForms();
+                saveToCloudSilent();
             }
         }
         function updateProjectFileName(id, side, idx, value) {
@@ -1573,6 +1668,7 @@
             if(side === 'client') target.clientFilesObj.splice(idx, 1);
             else target.ruiliFilesObj.splice(idx, 1);
             renderMainForms();
+            saveToCloudSilent();
         }
         function openProjectFile(id, side, idx) {
             let target = caseEvalData.find(c => c.id === id);
@@ -1584,17 +1680,18 @@
             }
         }
  
-        function handleSolarFileUpload(inputEl, id, side) {
+        async function handleSolarFileUpload(inputEl, id, side) {
             let target = solarData.find(c => c.id === id);
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let blobUrl = URL.createObjectURL(file);
-                    let fileObj = { clientName: file.name, actualName: file.name, url: blobUrl };
+                    let fileUrl = await uploadFileToSupabaseStorage(file);
+                    let fileObj = { clientName: file.name, actualName: file.name, url: fileUrl };
                     if(side === 'client') target.clientFilesObj.push(fileObj);
                     else target.ruiliFilesObj.push(fileObj);
                 }
                 renderMainForms();
+                saveToCloudSilent();
             }
         }
         function updateSolarFileName(id, side, idx, value) {
@@ -1607,6 +1704,7 @@
             if(side === 'client') target.clientFilesObj.splice(idx, 1);
             else target.ruiliFilesObj.splice(idx, 1);
             renderMainForms();
+            saveToCloudSilent();
         }
         function openSolarFile(id, side, idx) {
             let target = solarData.find(c => c.id === id);
@@ -1653,19 +1751,20 @@
         function updateMeetingContentField(id, idx, field, value) {
             meetingData.find(c => c.id === id).contents[idx][field] = value;
         }
-        function handleExternalMeetingUpload(inputEl, id) {
+        async function handleExternalMeetingUpload(inputEl, id) {
             let target = meetingData.find(c => c.id === id);
             if (target && inputEl.files) {
                 for(let i=0; i<inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let blobUrl = URL.createObjectURL(file);
-                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: blobUrl });
+                    let fileUrl = await uploadFileToSupabaseStorage(file);
+                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileUrl });
                 }
                 renderMainForms();
+                saveToCloudSilent();
             }
         }
         function updateExternalMeetingFileName(id, idx, value) { meetingData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
-        function removeExternalMeetingFile(id, idx) { meetingData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); }
+        function removeExternalMeetingFile(id, idx) { meetingData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
         function openMeetingFile(id, idx) {
             let target = meetingData.find(c => c.id === id);
             let file = target.uploadedFiles[idx];
@@ -1688,20 +1787,21 @@
         function updateProposalField(id, idx, field, value) { internalMeetData.find(c => c.id === id).proposalReports[idx][field] = value; }
         function addRuiliProposalRow(id) { internalMeetData.find(c => c.id === id).proposalReports.push({ reporter: "樊靖畇", item: "", content: "", feasibility: "", conclusion: "" }); renderMainForms(); }
         function removeRuiliProposalRow(id, idx) { internalMeetData.find(c => c.id === id).proposalReports.splice(idx, 1); renderMainForms(); }
-       
-        function handleRuiliMeetUpload(inputEl, id) {
+        
+        async function handleRuiliMeetUpload(inputEl, id) {
             let target = internalMeetData.find(c => c.id === id);
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let blobUrl = URL.createObjectURL(file);
-                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: blobUrl });
+                    let fileUrl = await uploadFileToSupabaseStorage(file);
+                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileUrl });
                 }
                 renderMainForms();
+                saveToCloudSilent();
             }
         }
         function updateRuiliFileName(id, idx, value) { internalMeetData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
-        function removeRuiliMeetFile(id, idx) { internalMeetData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); }
+        function removeRuiliMeetFile(id, idx) { internalMeetData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
         function openRuiliMeetFile(id, idx) {
             let target = internalMeetData.find(c => c.id === id);
             let file = target.uploadedFiles[idx];
@@ -1839,7 +1939,7 @@
         function addNewCase() {
             const nid = "id-" + Date.now();
             let dataArr = getTargetDataArray(currentActiveTab);
-            let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: "樊靖畇" };
+            let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: "樊靖畇", is_deleted: false, deleted_at: null };
            
             if(currentActiveTab === 'internal-meet') {
                 obj.meetSubject = "新睿立會議紀錄 " + (dataArr.length + 1);
@@ -1862,10 +1962,14 @@
             }
             dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
             renderSidebarSubLists(); renderMainForms();
+            saveToCloudSilent();
         }
  
         function deleteCurrentCase() {
             let dataArr = getTargetDataArray(currentActiveTab);
+            if (currentUserRole !== '中央控台') {
+                dataArr = dataArr.filter(c => !c.is_deleted);
+            }
             if (dataArr.length === 0) {
                 alert("目前沒有可刪除的項目！");
                 return;
@@ -1874,7 +1978,7 @@
             const targetIndex = dataArr.findIndex(c => c.id === activeId);
             if (targetIndex !== -1) {
                 const targetName = dataArr[targetIndex].companyName || dataArr[targetIndex].meetSubject || '當前項目';
-                document.getElementById('delete-target-text').innerText = `確定要刪除「${targetName}」嗎？此動作無法復原。`;
+                document.getElementById('delete-target-text').innerText = `確定要刪除「${targetName}」嗎？`;
                 document.getElementById('delete-modal').classList.remove('hidden');
             }
         }
@@ -1883,24 +1987,151 @@
             document.getElementById('delete-modal').classList.add('hidden');
         }
  
-        function confirmDeleteCase() {
+        async function confirmDeleteCase() {
             let dataArr = getTargetDataArray(currentActiveTab);
             const activeId = selectedIds[currentActiveTab];
-            const targetIndex = dataArr.findIndex(c => c.id === activeId);
-            if (targetIndex !== -1) {
-                dataArr.splice(targetIndex, 1);
-                if (dataArr.length > 0) {
-                    selectedIds[currentActiveTab] = dataArr[0].id;
+            const target = dataArr.find(c => c.id === activeId);
+            
+            if (target) {
+                if (currentUserRole === '中央控台') {
+                    // 中央控台可以直接執行真正的硬刪除 (Hard Delete)
+                    const targetIndex = dataArr.findIndex(c => c.id === activeId);
+                    if (targetIndex !== -1) dataArr.splice(targetIndex, 1);
+                    await supabaseClient.from('cases').delete().eq('id', activeId);
+                } else {
+                    // 業務端：執行軟刪除 (Soft Delete)
+                    target.is_deleted = true;
+                    target.deleted_at = new Date().toISOString();
+                    await supabaseClient.from('cases').upsert({
+                        id: target.id,
+                        tab_category: currentActiveTab,
+                        data: target,
+                        is_deleted: true,
+                        deleted_at: target.deleted_at
+                    });
+                }
+
+                const visibleCases = dataArr.filter(c => currentUserRole === '中央控台' || !c.is_deleted);
+                if (visibleCases.length > 0) {
+                    selectedIds[currentActiveTab] = visibleCases[0].id;
                 } else {
                     selectedIds[currentActiveTab] = null;
                 }
+
                 closeDeleteModal();
                 renderSidebarSubLists();
                 renderMainForms();
             }
         }
- 
-        function saveToCloud() { alert("所有模組與資料皆已成功儲存！"); }
+
+        // 靜態與手動雲端儲存同步
+        async function saveToCloudSilent() {
+            const currentObj = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
+            if (currentObj) {
+                await supabaseClient.from('cases').upsert({
+                    id: currentObj.id,
+                    tab_category: currentActiveTab,
+                    data: currentObj,
+                    is_deleted: currentObj.is_deleted || false,
+                    deleted_at: currentObj.deleted_at || null
+                });
+            }
+        }
+
+        async function saveToCloud() {
+            await saveToCloudSilent();
+            alert("所有模組與資料皆已成功同步儲存至 Supabase 雲端！");
+        }
+
+        // ==================== 回收桶與一鍵復原機制 (中央控台專用) ====================
+        function openTrashModal() {
+            const trashContainer = document.getElementById('trash-items-list');
+            let allDeletedCases = [];
+
+            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
+                const arr = getTargetDataArray(tabId);
+                arr.filter(c => c.is_deleted).forEach(c => {
+                    allDeletedCases.push({ ...c, tabId });
+                });
+            });
+
+            if (allDeletedCases.length === 0) {
+                trashContainer.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center">回收桶目前是空的。</p>`;
+            } else {
+                trashContainer.innerHTML = allDeletedCases.map(item => `
+                    <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
+                        <div>
+                            <span class="font-bold text-white mr-2">${item.companyName || item.meetSubject || '未命名案件'}</span>
+                            <span class="text-[10px] text-slate-400 bg-cosmic-800 px-2 py-0.5 rounded border border-cosmic-700">類別: ${item.tabId}</span>
+                            <span class="text-[10px] text-slate-500 block mt-1">刪除時間: ${item.deleted_at ? new Date(item.deleted_at).toLocaleString() : '未知'}</span>
+                        </div>
+                        <button onclick="restoreCase('${item.id}', '${item.tabId}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                            <i class="fa-solid fa-rotate-left mr-1"></i>一鍵復原
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('trash-modal').classList.remove('hidden');
+        }
+
+        function closeTrashModal() {
+            document.getElementById('trash-modal').classList.add('hidden');
+        }
+
+        async function restoreCase(id, tabId) {
+            const dataArr = getTargetDataArray(tabId);
+            const target = dataArr.find(c => c.id === id);
+            if (target) {
+                target.is_deleted = false;
+                target.deleted_at = null;
+                await supabaseClient.from('cases').upsert({
+                    id: target.id,
+                    tab_category: tabId,
+                    data: target,
+                    is_deleted: false,
+                    deleted_at: null
+                });
+                renderSidebarSubLists();
+                renderMainForms();
+                openTrashModal(); // 刷新回收桶內部列表
+            }
+        }
+
+        // ==================== Supabase 資料載入與 Realtime 即時監聽 ====================
+        async function fetchSupabaseData() {
+            const { data, error } = await supabaseClient.from('cases').select('*');
+            if (error) {
+                console.error("Fetch Supabase Error:", error);
+                return;
+            }
+            if (data && data.length > 0) {
+                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
+                data.forEach(row => {
+                    const caseObj = { ...row.data, is_deleted: row.is_deleted, deleted_at: row.deleted_at };
+                    if (row.tab_category === 'case-eval') caseEvalData.push(caseObj);
+                    else if (row.tab_category === 'solar') solarData.push(caseObj);
+                    else if (row.tab_category === 'trading') tradingData.push(caseObj);
+                    else if (row.tab_category === 'meeting') meetingData.push(caseObj);
+                    else if (row.tab_category === 'internal-meet') internalMeetData.push(caseObj);
+                });
+                renderSidebarSubLists();
+                renderMainForms();
+            }
+        }
+
+        function initSupabaseRealtime() {
+            supabaseClient
+                .channel('schema-db-changes')
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'cases' },
+                    (payload) => {
+                        fetchSupabaseData(); // 監聽到股東或業務資料變更時即時刷新
+                    }
+                )
+                .subscribe();
+        }
 
         window.onload = function() {
             renderSidebarSubLists();
