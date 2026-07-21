@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>睿立業務系統 - N核心管理平台 (MVP版)</title>
+    <title>睿立業務系統 - N核心管理平台</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome 圖標 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase JS Client CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -27,7 +25,7 @@
         body { background-color: #060b19; color: #e2e8f0; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        
+       
         /* 📜 N版極致：專屬直式 A4 滿頁匯出與物理屏蔽排版優化 */
         @media print {
             @page {
@@ -64,6 +62,7 @@
                 padding: 2px !important;
                 font-weight: bold !important;
             }
+            /* 修正一鍵匯出/列印時，標題與欄位標籤文字顯示 */
             .text-white, .text-slate-300, .text-slate-400, .text-amber-300, .text-amber-400, .text-cyan-400, .text-emerald-400, .text-purple-300, .text-purple-400, .text-indigo-300, .text-indigo-400, .text-teal-400, .text-sky-400, .text-violet-400, label { 
                 color: black !important; 
                 -webkit-text-fill-color: black !important;
@@ -78,48 +77,22 @@
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
-
-    <!-- 🔑 PIN 碼身份驗證 Modal (預設開啟) -->
-    <div id="auth-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center">
-        <div class="bg-cosmic-900 border border-cosmic-700 rounded-2xl p-8 w-96 shadow-2xl text-center space-y-6">
-            <div class="w-16 h-16 bg-gradient-to-tr from-cosmic-500 to-cyan-400 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-                <i class="fa-solid fa-user-lock text-white text-2xl"></i>
-            </div>
-            <div>
-                <h2 class="text-xl font-bold text-white">睿立系統登入</h2>
-                <p class="text-xs text-slate-400 mt-1">請輸入您的個人 PIN 碼以存取資料</p>
-            </div>
-            <div class="space-y-4">
-                <input type="password" id="pin-input" maxlength="8" placeholder="請輸入 PIN 碼" class="w-full text-center tracking-widest text-lg bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 transition">
-                <p id="auth-error" class="text-xs text-red-400 hidden">PIN 碼不正確，請重新輸入</p>
-                <button onclick="loginWithPIN()" class="w-full bg-gradient-to-r from-cosmic-500 to-cyan-500 hover:from-cosmic-400 hover:to-cyan-400 text-white font-bold py-3 rounded-xl shadow-lg transition">驗證登入</button>
-            </div>
-        </div>
-    </div>
-
+ 
     <!-- LEFT SIDEBAR -->
     <aside class="w-72 bg-cosmic-900 border-r border-cosmic-700/50 flex flex-col justify-between shrink-0 select-none">
         <div>
-            <div class="p-6 border-b border-cosmic-700/30 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-tr from-cosmic-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fa-solid fa-folder-tree text-white text-lg"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold tracking-wider text-white">睿立集團</h1>
-                        <p class="text-xs text-slate-400">RUILI SYSTEM N</p>
-                    </div>
+            <div class="p-6 border-b border-cosmic-700/30 flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-tr from-cosmic-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-folder-tree text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wider text-white">睿立集團</h1>
+                    <p class="text-xs text-slate-400">RUILI SYSTEM N</p>
                 </div>
             </div>
-
-            <!-- 使用者身分標籤與切換登入 -->
-            <div class="px-6 py-2 bg-cosmic-950/50 border-b border-cosmic-700/30 flex items-center justify-between text-xs">
-                <span id="user-role-badge" class="font-semibold text-cyan-400"><i class="fa-solid fa-user-circle mr-1"></i>登入中: ...</span>
-                <button onclick="logout()" class="text-slate-400 hover:text-red-400 transition" title="登出"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
-            </div>
-
+ 
             <!-- 五大軌道 -->
-            <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-220px)]">
+            <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-180px)]">
                 <div>
                     <button onclick="toggleCategory('case-eval')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
@@ -130,7 +103,7 @@
                     </button>
                     <div id="sub-list-case-eval" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
                 </div>
-
+ 
                 <div>
                     <button onclick="toggleCategory('solar')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
@@ -141,7 +114,7 @@
                     </button>
                     <div id="sub-list-solar" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
                 </div>
-
+ 
                 <div>
                     <button onclick="toggleCategory('trading')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
@@ -152,7 +125,7 @@
                     </button>
                     <div id="sub-list-trading" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
                 </div>
-
+ 
                 <div>
                     <button onclick="toggleCategory('meeting')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
@@ -163,7 +136,7 @@
                     </button>
                     <div id="sub-list-meeting" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
                 </div>
-
+ 
                 <div>
                     <button onclick="toggleCategory('internal-meet')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
@@ -177,19 +150,27 @@
             </nav>
         </div>
     </aside>
-
+ 
     <!-- MAIN VIEWPORT -->
     <main class="flex-1 flex flex-col overflow-hidden bg-cosmic-950">
         <!-- TOP BAR -->
         <header class="h-16 border-b border-cosmic-700/40 px-8 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print">
-            <div>
-                <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-80 bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-1.5 text-sm text-white focus:outline-none">
-            </div>
             <div class="flex items-center space-x-3">
-                <!-- 股東端專用：資源回收桶按鈕 -->
-                <button id="btn-trash-bin" onclick="openTrashBinModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-xs font-semibold px-3 py-2 rounded-xl flex items-center space-x-1.5 transition">
-                    <i class="fa-solid fa-trash-arrow-up text-amber-400"></i><span>資源回收桶</span>
-                </button>
+                <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-64 bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-1.5 text-sm text-white focus:outline-none">
+                
+                <!-- 權限者登入選單與密碼驗證區塊 -->
+                <div class="flex items-center space-x-1.5 bg-cosmic-950/80 border border-cosmic-700 p-1 rounded-xl">
+                    <i class="fa-solid fa-user-shield text-cyan-400 text-xs ml-2"></i>
+                    <select id="login-role" class="bg-transparent text-xs text-white focus:outline-none cursor-pointer px-1">
+                        <option value="黃逸豪" class="bg-cosmic-900">黃逸豪</option>
+                        <option value="中央控台" class="bg-cosmic-900">中央控台</option>
+                    </select>
+                    <input type="password" id="login-pass" placeholder="輸入密碼" class="w-24 bg-cosmic-900 border border-cosmic-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none">
+                    <button onclick="handleRoleLogin()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-2.5 py-1 rounded-lg transition font-medium">登入</button>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
                 <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md hover:opacity-90 transition">
                     <i class="fa-solid fa-plus"></i><span>新增案件</span>
                 </button>
@@ -204,7 +185,7 @@
                 </button>
             </div>
         </header>
-
+ 
         <!-- ROUTING CONTENT -->
         <div class="flex-1 overflow-y-auto p-8 flex justify-center">
             <div class="w-full max-w-5xl print-container">
@@ -216,7 +197,7 @@
             </div>
         </div>
     </main>
-
+ 
     <!-- 自訂刪除案件確認彈窗 (Modal) -->
     <div id="delete-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center no-print">
         <div class="bg-cosmic-900 border border-cosmic-700 rounded-2xl p-6 w-96 shadow-2xl space-y-5 text-center">
@@ -224,90 +205,21 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <h3 class="text-base font-bold text-white">確定要刪除嗎？</h3>
-            <p class="text-xs text-slate-400" id="delete-target-text">刪除後資料將移至回收桶或加註刪除標記。</p>
+            <p class="text-xs text-slate-400" id="delete-target-text">刪除後資料將無法復原。</p>
             <div class="flex justify-center space-x-3 pt-2">
                 <button onclick="confirmDeleteCase()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-5 py-2 rounded-xl transition">確認</button>
                 <button onclick="closeDeleteModal()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold px-5 py-2 rounded-xl transition">取消</button>
             </div>
         </div>
     </div>
-
-    <!-- 股東端專用：資源回收桶 Modal -->
-    <div id="trash-bin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center no-print">
-        <div class="bg-cosmic-900 border border-cosmic-700 rounded-2xl p-6 w-[600px] shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-cosmic-700 pb-3">
-                <h3 class="text-base font-bold text-white flex items-center"><i class="fa-solid fa-trash-arrow-up text-amber-400 mr-2"></i>資源回收桶 (業務已刪除案件)</h3>
-                <button onclick="closeTrashBinModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div id="trash-list-container" class="max-h-96 overflow-y-auto space-y-2">
-                <!-- 動態渲染已被軟刪除的案件 -->
-            </div>
-        </div>
-    </div>
-
+ 
     <script>
-        // ═══ Supabase 設定與初始化 (MVP 階段) ═══
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE'; // 請在此填入 Supabase URL
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE'; // 請在此填入 Supabase Anon Key
-        let supabase = null;
-        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE') {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
-
-        // ═══ 身份與 PIN 碼名單 ═══
-        const USER_ROLES = {
-            "800506": { name: "黃逸豪", role: "業務" },
-            "1101108": { name: "中央控台", role: "股東" }
-        };
-        let currentUser = null; // 當前登入者資訊
-
-        function loginWithPIN() {
-            const pin = document.getElementById('pin-input').value.trim();
-            if (USER_ROLES[pin]) {
-                currentUser = USER_ROLES[pin];
-                document.getElementById('auth-modal').classList.add('hidden');
-                document.getElementById('auth-error').classList.add('hidden');
-                document.getElementById('user-role-badge').innerHTML = `<i class="fa-solid fa-user-circle mr-1"></i>${currentUser.name} (${currentUser.role})`;
-                
-                // 若為股東端，顯示資源回收桶按鈕
-                if (currentUser.role === '股東') {
-                    document.getElementById('btn-trash-bin').classList.remove('hidden');
-                } else {
-                    document.getElementById('btn-trash-bin').classList.add('hidden');
-                }
-                
-                initRealtimeSubscription();
-                renderSidebarSubLists();
-                renderMainForms();
-            } else {
-                document.getElementById('auth-error').classList.remove('hidden');
-            }
-        }
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('pin-input').value = '';
-            document.getElementById('auth-modal').classList.remove('hidden');
-        }
-
-        // ═══ Supabase Realtime 即時同步監聽 ═══
-        function initRealtimeSubscription() {
-            if (!supabase) return;
-            supabase.channel('public:cases')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
-                    // 即時接收資料庫更新並重新繪製畫面
-                    renderSidebarSubLists();
-                    renderMainForms();
-                })
-                .subscribe();
-        }
-
         // 資料載入與防空防錯錨點初始化
         let caseEvalData = [
             {
                 id: "eval-1", companyName: "大鼎精密工業股份有限公司", taxId: "83746291", factoryLicense: "64009876", industryType: "金屬製品製造業", contact: "王大鼎", phone: "0912-345678", email: "tading@precision.com", address: "高雄市岡山區本工路88號", companyAddress: "高雄市岡山區本工路88號", companyPhone: "07-6211234", fax: "07-6215678", bankAccount: "玉山銀行岡山分行 0123-456-789012", website: "https://www.tading.com", companyRemark: "",
                 city: "高雄市", region: "岡山區",
-                evalDate: "2026-07-18T16:00", evalManager: "黃逸豪", evalStatus: "初期評估", evalSource: "公會引介", owner: "黃逸豪", is_deleted: false, deleted_at: null,
+                evalDate: "2026-07-18T16:00", evalManager: "樊靖畇", evalStatus: "初期評估", evalSource: "公會引介",
                 services: [{ name: "特定工廠轉型諮詢", desc: "改善計畫編製與變更審查手續", remark: "落實接班企業諮詢體系。", quote: "350000", contract: "350000", p1: "100000", d1: "", p2: "150000", d2: "", p3: "100000", d3: "", p4: "", d4: "" }],
                 lands: [{ section: "岡山段", number: "105-02", pattern: "都市計畫使用分區", customPattern: "工業區特定目的專用", currentPrice: "12000", sqm: "1500", ping: "453.75" }],
                 buildingsLegal: [{ number: "402", type: "鋼構廠房", year: "2005", sqm: "800", ping: "242" }],
@@ -319,12 +231,12 @@
                 ruiliFilesObj: [{ clientName: "規費核准公文.png", actualName: "規費核准公文.png" }]
             }
         ];
-
+ 
         let solarData = [
             {
                 id: "solar-1", companyName: "國泰鋼鐵工業廠房", taxId: "24558911", factoryLicense: "64001234", industryType: "鋼鐵冶煉業", contact: "陳廠長", phone: "0933-445566", email: "cathay@steel.com", address: "高雄市小港區沿海三路15號", companyAddress: "高雄市小港區沿海三路15號", companyPhone: "07-8112233", fax: "07-8114455", bankAccount: "華南銀行小港分行 9876-543-210987", website: "", companyRemark: "",
                 city: "高雄市", region: "小港區",
-                solarDate: "2026-07-18T14:30", solarManager: "楊裕憲", solarStatus: "初期評估", solarSource: "自主開發", owner: "楊裕憲", is_deleted: true, deleted_at: "14:30",
+                solarDate: "2026-07-18T14:30", solarManager: "樊靖畇", solarStatus: "初期評估", solarSource: "自主開發",
                 lands: [{ section: "沿海段", number: "88-12", pattern: "都市計畫使用分區", customPattern: "乙種工業區", currentPrice: "25000", sqm: "3000", ping: "907.5" }],
                 buildingsLegal: [{ number: "1025", type: "高架鋼骨廠房", year: "2012", sqm: "2000", ping: "605" }],
                 buildingsIllegal: [{ type: "後方雨遮擴建", year: "2015", sqm: "300", ping: "90.75" }],
@@ -335,8 +247,11 @@
                 ruiliFilesObj: [{ clientName: "台電饋線核准信.pdf", actualName: "台電饋線核准信.pdf" }],
                 solarServices: [{ name: "屋頂型太陽能光電自建案", quote: "8500000", contract: "8500000", desc: "規劃建置屋頂型太陽光電系統，預估容量約 200 kWp。", remark: "客戶對遮陽與結構補強高度關注。", p1: "2550000", d1: "", p2: "3400000", d2: "", p3: "1700000", d3: "", p4: "850000", d4: "" }],
                 
+                // 【預估】數據結構
                 estPing: "500", estPrice: "3.5", estRentUnit: "600",
+                // 【現勘】數據結構
                 surveyPing: "500", surveyPanels: "600", surveyWatts: "440", surveyPrice: "4.8", surveyIncome: "0", surveyBill: "0", surveyMaint: "0",
+ 
                 planModule: "雙面雙玻高效率單晶模組", planInverter: "台達高階變流器", planType: "鋼構棚架型態", planNote: "設計高度不影響廠房內部採光。",
                 planPreference: "全部躉售", planPartner: "自建",
                 condRoofType: "浪板", condChemProduction: "否", condChemIndustry: "否", condSeaside: "否", condSeasideDist: "1公里內", condShaded: "否",
@@ -344,12 +259,13 @@
                 condStructure: "結構安全，無須大幅補強", condRoof: "浪板防漏防水施工強化", condLine: "台電併聯饋線充裕", condNote: "吊裝施工動線流暢。"
             }
         ];
-
-        let tradingData = [{ id: "trading-1", date: "2026-07-18T12:00", status: "準備簽約", manager: "鄭家承", companyName: "瑞昱地產買賣工業地案", owner: "鄭家承", is_deleted: false, deleted_at: null }];
-        
+ 
+        let tradingData = [{ id: "trading-1", date: "2026-07-18T12:00", status: "準備簽約", manager: "鄭家承", companyName: "瑞昱地產買賣工業地案" }];
+       
+        // ═══ 【四、主功能：會議記錄 全新架構數據庫】 ═══
         let meetingData = [
             { 
-                id: "meet-1", date: "2026-07-18T14:00", manager: "黃逸豪", status: "結案", source: "外部引介", owner: "黃逸豪", is_deleted: false, deleted_at: null,
+                id: "meet-1", date: "2026-07-18T14:00", manager: "黃逸豪", status: "結案", source: "外部引介",
                 meetSubject: "外部公會對接會", 
                 ruiliAttendees: ["樊靖畇", "黃逸豪"],
                 externalRepresentatives: [
@@ -364,10 +280,10 @@
                 ]
             }
         ];
-
+ 
         let internalMeetData = [
             { 
-                id: "int-1", date: "2026-07-18T09:00", manager: "楊裕憲", status: "結案", source: "內部會議", owner: "楊裕憲", is_deleted: false, deleted_at: null,
+                id: "int-1", date: "2026-07-18T09:00", manager: "楊裕憲", status: "結案", source: "內部會議",
                 meetSubject: "週度戰略發展常會", 
                 attendees: ["樊靖畇", "鄭家承", "陳宥騰"],
                 financeReport: "本月睿立資產與元業綠能營收保持穩定，特定工廠二代 successor 培訓平台報名人數超預期。",
@@ -385,12 +301,26 @@
                 ]
             }
         ];
-
+ 
         let selectedIds = { "case-eval": "eval-1", "solar": "solar-1", "trading": "trading-1", "meeting": "meet-1", "internal-meet": "int-1" };
         let currentActiveTab = "case-eval";
-
+ 
         const managersList = ["樊靖畇", "鄭家承", "陳宥騰", "楊裕憲", "楊淯淳", "黃逸豪"];
         const statusConfig = { "初期評估": "bg-emerald-500", "已報價": "bg-blue-500", "準備簽約": "bg-amber-500", "已簽約": "bg-red-500", "結案": "bg-purple-500", "沒下文": "bg-slate-600" };
+ 
+        // 權限者登入與密碼驗證邏輯
+        function handleRoleLogin() {
+            const role = document.getElementById('login-role').value;
+            const pass = document.getElementById('login-pass').value;
+            
+            // 預設密碼驗證：黃逸豪密碼為 8888，中央控台密碼為 9999
+            if ((role === '黃逸豪' && pass === '8888') || (role === '中央控台' && pass === '9999')) {
+                alert(`權限驗證成功！歡迎，${role}。`);
+                document.getElementById('login-pass').value = '';
+            } else {
+                alert("密碼錯誤，登入失敗！");
+            }
+        }
 
         function toggleCategory(catId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -402,7 +332,7 @@
             document.getElementById(`tab-${catId}`)?.classList.add('active');
             renderSidebarSubLists(); renderMainForms();
         }
-
+ 
         function getTargetDataArray(tabId) {
             if (tabId === 'case-eval') return caseEvalData;
             if (tabId === 'solar') return solarData;
@@ -411,47 +341,27 @@
             if (tabId === 'internal-meet') return internalMeetData;
             return [];
         }
-
-        // 🔑 身分與軟刪除過濾器
-        function getFilteredDataArray(tabId) {
-            const raw = getTargetDataArray(tabId);
-            if (!currentUser) return [];
-            
-            if (currentUser.role === '業務') {
-                // 業務端：只看自己建立且未被軟刪除的案件
-                return raw.filter(c => c.owner === currentUser.name && !c.is_deleted);
-            } else {
-                // 股東端（中央控台）：看到全公司所有案件（包含被業務軟刪除者，帶標籤）
-                return raw;
-            }
-        }
-
+ 
         function renderSidebarSubLists() {
             ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
                 const container = document.getElementById(`sub-list-${tabId}`);
                 if (!container) return;
-                const dataArr = getFilteredDataArray(tabId);
-                container.innerHTML = dataArr.map(c => {
-                    const deleteTag = (c.is_deleted && currentUser?.role === '股東') 
-                        ? `<span class="bg-slate-700 text-slate-300 text-[10px] px-1.5 py-0.5 rounded ml-1 font-normal">[業務已刪除 ${c.deleted_at||''}]</span>` 
-                        : '';
-                    return `
-                        <button onclick="selectSpecificCase('${c.id}', '${tabId}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition flex items-center justify-between ${selectedIds[tabId] === c.id && currentActiveTab === tabId ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}">
-                            <span class="truncate"><i class="fa-solid fa-folder mr-2"></i>${c.companyName || c.meetSubject || '未命名項目'}</span>
-                            ${deleteTag}
-                        </button>
-                    `;
-                }).join('');
+                const dataArr = getTargetDataArray(tabId);
+                container.innerHTML = dataArr.map(c => `
+                    <button onclick="selectSpecificCase('${c.id}', '${tabId}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition ${selectedIds[tabId] === c.id && currentActiveTab === tabId ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}">
+                        <i class="fa-solid fa-folder mr-2"></i>${c.companyName || c.meetSubject || '未命名項目'}
+                    </button>
+                `).join('');
             });
         }
-
+ 
         function selectSpecificCase(id, tabId) { selectedIds[tabId] = id; renderMainForms(); renderSidebarSubLists(); }
-
+ 
         function filterCases() {
             const query = document.getElementById('global-search').value.toLowerCase();
             const container = document.getElementById(`sub-list-${currentActiveTab}`);
             if (!container) return;
-            const dataArr = getFilteredDataArray(currentActiveTab);
+            const dataArr = getTargetDataArray(currentActiveTab);
             container.innerHTML = dataArr.filter(c => {
                 const name = c.companyName || c.meetSubject || '';
                 return name.toLowerCase().includes(query);
@@ -461,15 +371,15 @@
                 </button>
             `).join('');
         }
-
+ 
         function renderMainForms() {
-            const dataArr = getFilteredDataArray(currentActiveTab);
+            const dataArr = getTargetDataArray(currentActiveTab);
             const activeCase = dataArr.find(c => c.id === selectedIds[currentActiveTab]) || dataArr[0];
             const container = document.getElementById(currentActiveTab + "-container");
             if (!container) return;
-
-            if (!activeCase) { container.innerHTML = "<p class='text-xs text-slate-500 p-4'>暫無權限或尚無案件項目。</p>"; return; }
-
+ 
+            if (!activeCase) { container.innerHTML = "<p class='text-xs text-slate-500 p-4'>暫無項目。</p>"; return; }
+ 
             if (currentActiveTab === 'case-eval') {
                 if (activeCase.city === undefined) activeCase.city = "高雄市";
                 if (activeCase.region === undefined) activeCase.region = "岡山區";
@@ -504,18 +414,18 @@
                 container.innerHTML = generateInternalMeetHTML(activeCase);
             }
         }
-
+ 
         // ==================== 一、專案管理 HTML ====================
         function generateCaseEvalHTML(c) {
             let totalLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
             let totalLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
             let totalLegalPing = c.buildingsLegal ? c.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
             let totalIllegalPing = c.buildingsIllegal ? c.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-
+ 
             return `
                 <div class="card-box bg-cosmic-800/70 border border-cosmic-700/50 rounded-2xl p-6 space-y-6 shadow-xl">
                     <div class="border-b border-cosmic-700/40 pb-2"><h3 class="text-sm font-bold text-cyan-400"><i class="fa-solid fa-network-wired mr-2"></i>專案管理</h3></div>
-
+ 
                     <!-- 一、專案人員 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">一、專案人員</h4>
@@ -534,7 +444,7 @@
                             <div><label class="text-slate-400 block mb-0.5">案件來源：</label><input type="text" value="${c.evalSource||''}" oninput="updateField('${c.id}', 'evalSource', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                         </div>
                     </div>
-
+ 
                     <!-- 二、公司基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">二、公司基本資料</h4>
@@ -555,7 +465,7 @@
                             <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
-
+ 
                     <!-- 三、服務項目 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/40 pb-1.5">
@@ -572,12 +482,12 @@
                                         <div><label class="text-slate-400 block mb-0.5">報價金額：</label><input type="number" value="${srv.quote||''}" oninput="updateServiceField('${c.id}', ${idx}, 'quote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                         <div><label class="text-slate-400 block mb-0.5">簽約金額：</label><input type="number" value="${srv.contract||''}" oninput="updateServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                     </div>
-
+ 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                                         <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
-
+ 
                                     <!-- 收款期程標題與欄位 -->
                                     <div class="pt-2 border-t border-cosmic-700/20">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
@@ -594,7 +504,7 @@
                             `).join('')}
                         </div>
                     </div>
-
+ 
                     <!-- 四、土地基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
@@ -629,7 +539,7 @@
                             <span>換算總坪數: <strong class="text-emerald-400" id="sum-land-ping">${totalLandPing.toFixed(2)}</strong> 坪</span>
                         </div>
                     </div>
-
+ 
                     <!-- 五、建物基本資料 -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
@@ -668,7 +578,7 @@
                             <div class="pt-1 text-[11px]">違章建物總坪數: <strong class="text-red-400" id="sum-illegal-ping">${totalIllegalPing}</strong> 坪</div>
                         </div>
                     </div>
-
+ 
                     <!-- 六、用電狀況 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-amber-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-bolt mr-1.5"></i>六、用電狀況</h4>
@@ -697,7 +607,7 @@
                             </div>
                         </div>
                     </div>
-
+ 
                     <!-- 七、ESG評估與企業轉型 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-leaf mr-1.5"></i>七、ESG評估與企業轉型</h4>
@@ -734,7 +644,7 @@
                             </div>
                         </div>
                     </div>
-
+ 
                     <!-- 八、應備文件清單 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
@@ -752,8 +662,8 @@
                             <div class="space-y-1">${c.customDocsRuili.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-cyan-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
                         </div>
                     </div>
-
-                    <!-- 九、檔案上傳 (支援 Supabase Storage 免費方案) -->
+ 
+                    <!-- 九、檔案上傳 (支援上傳各類型檔案、可編輯顯示名稱，並可點擊開啟檔案) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
@@ -804,23 +714,24 @@
                             </div>
                         </div>
                     </div>
-
+ 
                     ${generateFooterHTML()}
                 </div>
             `;
         }
-
-        // ==================== 二、太陽能自建 HTML ====================
+ 
+        // ==================== 二、主功能：太陽能自建 (修復 2/6/8 點) ====================
         function generateSolarHTML(c) {
             let totalLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
             let totalLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
             let totalLegalPing = c.buildingsLegal ? c.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
             let totalIllegalPing = c.buildingsIllegal ? c.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-
+ 
             return `
                 <div class="card-box bg-cosmic-800/70 border border-amber-500/40 rounded-2xl p-6 space-y-6 shadow-xl">
+                    <!-- 1. 主功能文字改『太陽能自建』 -->
                     <div class="border-b border-amber-500/40 pb-2"><h3 class="text-sm font-bold text-amber-400"><i class="fa-solid fa-solar-panel mr-2"></i>太陽能自建</h3></div>
-
+ 
                     <!-- 一、專案人員 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">一、專案人員</h4>
@@ -839,8 +750,8 @@
                             <div><label class="text-slate-400 block mb-0.5">案件來源：</label><input type="text" value="${c.solarSource||''}" oninput="updateField('${c.id}', 'solarSource', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                         </div>
                     </div>
-
-                    <!-- 二、公司基本資料 -->
+ 
+                    <!-- 3. 更名『二、公司基本資料』並放至一、專案人員下面，2. 新增指定欄位與多行備註 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">二、公司基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -860,8 +771,8 @@
                             <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
-
-                    <!-- 三、服務項目 -->
+ 
+                    <!-- 4. 三、服務項目 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/40 pb-1.5">
                             <h4 class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-layer-group mr-1.5"></i>三、服務項目</h4>
@@ -880,7 +791,7 @@
                                         <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
-                                    <!-- 收款期程標題與欄位 -->
+                                    <!-- 7. 收款期程標題與欄位 -->
                                     <div class="pt-2 border-t border-cosmic-700/20">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
                                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
@@ -896,8 +807,8 @@
                             `).join('')}
                         </div>
                     </div>
-
-                    <!-- 四、案件試算 -->
+ 
+                    <!-- 5. 四、案件試算 -->
                     <div class="bg-cosmic-950/40 border border-amber-500/30 p-5 rounded-xl space-y-5 card-box">
                         <h4 class="text-xs font-bold text-amber-300 border-b border-cosmic-700/20 pb-1.5"><i class="fa-solid fa-calculator mr-1.5"></i>四、案件試算</h4>
                         
@@ -931,7 +842,7 @@
                                 </div>
                             </div>
                         </div>
-
+ 
                         <!-- ═══ 【現勘軌道】 ═══ -->
                         <div class="space-y-3 bg-cosmic-900/30 p-4 border border-purple-500/20 rounded-xl">
                             <span class="text-xs font-bold text-purple-400 tracking-wider flex items-center"><i class="fa-solid fa-compass-drafting mr-1.5"></i>【現勘】</span>
@@ -971,8 +882,8 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- 五、土地基本資料 -->
+ 
+                    <!-- 五、土地基本資料 (6. +地段地號單筆刪除功能) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
                             <h4 class="text-xs font-bold text-emerald-400">五、土地基本資料 (平方公尺自動乘*0.3025帶入坪數)</h4>
@@ -1006,8 +917,8 @@
                             <span>換算總坪數: <strong class="text-emerald-400" id="sum-land-ping-sol">${totalLandPing.toFixed(2)}</strong> 坪</span>
                         </div>
                     </div>
-
-                    <!-- 六、建物基本資料 -->
+ 
+                    <!-- 六、建物基本資料 (6. +建號、+違章建物單筆刪除功能) -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
@@ -1045,7 +956,7 @@
                             <div class="pt-1 text-[11px]">違章建物總坪數: <strong class="text-red-400" id="sum-illegal-ping-sol">${totalIllegalPing}</strong> 坪</div>
                         </div>
                     </div>
-
+ 
                     <!-- 七、用電狀況 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-amber-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-bolt mr-1.5"></i>七、用電狀況</h4>
@@ -1074,7 +985,7 @@
                             </div>
                         </div>
                     </div>
-
+ 
                     <!-- 八、ESG評估與企業轉型 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-leaf mr-1.5"></i>八、ESG評估與企業轉型</h4>
@@ -1111,7 +1022,7 @@
                             </div>
                         </div>
                     </div>
-
+ 
                     <!-- 九、系統規劃方向 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-sky-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-diagram-project mr-1.5"></i>九、系統規劃方向</h4>
@@ -1136,7 +1047,7 @@
                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">系統建置備註說明：</label><textarea oninput="updateField('${c.id}', 'planNote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${c.planNote||''}</textarea></div>
                         </div>
                     </div>
-
+ 
                     <!-- 十、建物條件與結構安全現勘評估 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-violet-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-shield-halved mr-1.5"></i>十、建物條件與結構安全現勘評估</h4>
@@ -1195,7 +1106,7 @@
                             </div>
                         </div>
                     </div>
-
+ 
                     <!-- 十一、應備文件清單 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
@@ -1213,8 +1124,8 @@
                             <div class="space-y-1">${c.customDocsRuili.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-cyan-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
                         </div>
                     </div>
-
-                    <!-- 十二、檔案上傳 (支援 Supabase Storage 免費方案) -->
+ 
+                    <!-- 8. 十二、檔案上傳 (升級支援編輯顯示名稱與開啟檔案) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
@@ -1265,21 +1176,22 @@
                             </div>
                         </div>
                     </div>
-
+ 
                     ${generateFooterHTML()}
                 </div>
             `;
         }
-
+ 
         // ==================== 三、工廠買賣案件資料表面板 ====================
         function generateTradingHTML(c) {
             return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><div class="flex items-center space-x-2"><label class="text-slate-400 text-xs font-bold shrink-0">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full"></div>${generateFooterHTML()}</div>`;
         }
-
-        // ==================== 四、會議記錄 ====================
+ 
+        // ==================== 四、主功能：會議記錄 ====================
         function generateMeetingHTML(c) {
             return `
                 <div class="card-box bg-cosmic-800/70 border border-purple-500/50 rounded-2xl p-6 space-y-6 shadow-xl">
+                    <!-- 1. 四、會議記錄文字更改『會議記錄』 -->
                     <div class="border-b border-purple-500/40 pb-2"><h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-handshake mr-2"></i>會議記錄</h3></div>
                     
                     <!-- 一、會議資訊 -->
@@ -1296,7 +1208,7 @@
                             </div>
                         </div>
                     </div>
-
+ 
                     <!-- 二、出席單位與人員 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/20 pb-1.5">二、出席單位與人員</h4>
@@ -1316,7 +1228,7 @@
                                 }).join('')}
                             </div>
                         </div>
-
+ 
                         <!-- 外部與會代表實體一體化新增 -->
                         <div class="space-y-3">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
@@ -1341,7 +1253,7 @@
                             </div>
                         </div>
                     </div>
-
+ 
                     <!-- 三、會議內容 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
@@ -1374,14 +1286,14 @@
                             `).join('')}
                         </div>
                     </div>
-
+ 
                     <!-- 四、會議總結 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">四、會議總結：</label>
                         <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
                     </div>
-
-                    <!-- 五、檔案上傳 (支援 Supabase Storage 免費方案) -->
+ 
+                    <!-- 8. 五、檔案上傳 (支援編輯名稱及點擊檢視) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-purple-500/30 pb-1.5">
                             <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳</span>
@@ -1408,12 +1320,12 @@
                             `).join('')}
                         </div>
                     </div>
-
+ 
                     ${generateFooterHTML()}
                 </div>
             `;
         }
-
+ 
         // ==================== 五、睿立會議紀錄 HTML ====================
         function generateInternalMeetHTML(c) {
             return `
@@ -1421,7 +1333,7 @@
                     <div class="border-b border-indigo-500/40 pb-2 flex justify-between items-center">
                         <h3 class="text-sm font-bold text-indigo-400"><i class="fa-solid fa-comments mr-2"></i>睿立會議紀錄</h3>
                     </div>
-
+ 
                     <!-- 一、會議資訊 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-indigo-300 border-b border-cosmic-700/20 pb-1.5">一、會議資訊</h4>
@@ -1450,7 +1362,7 @@
                             </div>
                         </div>
                     </div>
-
+ 
                     <!-- 二、財務報告 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-emerald-400 border-b border-cosmic-700/20 pb-1.5">二、財務報告</h4>
@@ -1469,7 +1381,7 @@
                             </div>
                         </div>
                     </div>
-
+ 
                     <!-- 三、案件報告 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
@@ -1506,7 +1418,7 @@
                             `).join('')}
                         </div>
                     </div>
-
+ 
                     <!-- 四、提案報告 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
@@ -1545,14 +1457,14 @@
                             `).join('')}
                         </div>
                     </div>
-
+ 
                     <!-- 五、會議總結論 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">五、會議總結論：</label>
                         <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
                     </div>
-
-                    <!-- 六、檔案上傳 (支援 Supabase Storage 免費方案) -->
+ 
+                    <!-- 8. 六、檔案上傳 (支援點擊開啟檔案與名稱編輯) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-indigo-500/30 pb-1.5">
                             <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>六、檔案上傳</span>
@@ -1579,12 +1491,12 @@
                             `).join('')}
                         </div>
                     </div>
-
+ 
                     ${generateFooterHTML()}
                 </div>
             `;
         }
-
+ 
         function generateFooterHTML() {
             return `
                 <footer class="bg-cosmic-950 px-6 py-4 border-t border-cosmic-700/40 text-[11px] text-slate-400 flex flex-col items-center space-y-1.5 mt-6">
@@ -1599,57 +1511,31 @@
                 </footer>
             `;
         }
-
-        // ==================== 核心驅動與 Supabase 異步處理腳本 ====================
-        function updateField(id, field, value) { 
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                target[field] = value;
-                syncToSupabase(target);
-            }
-        }
-
+ 
+        // ==================== 核心驅動腳本 ====================
+        function updateField(id, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id)[field] = value; }
         function updateCompanyName(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) { 
-                target.companyName = value; 
-                renderSidebarSubLists(); 
-                syncToSupabase(target);
-            }
+            if (target) { target.companyName = value; renderSidebarSubLists(); }
         }
-
         function updateServiceField(id, idx, field, value) { caseEvalData.find(c => c.id === id).services[idx][field] = value; }
         function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
         function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
-        
-        // ☁️ 上傳至 Supabase Storage 免費方案 (靜態上傳)
-        async function uploadFileToSupabaseStorage(file) {
-            if (!supabase) return URL.createObjectURL(file); // 尚未連結 Supabase 時，回傳 Blob URL
-            const filePath = `uploads/${Date.now()}_${file.name}`;
-            const { data, error } = await supabase.storage.from('documents').upload(filePath, file);
-            if (error) {
-                console.error("Supabase Storage 上傳失敗，改用本地預覽", error);
-                return URL.createObjectURL(file);
-            }
-            const { data: publicUrlData } = supabase.storage.from('documents').getPublicUrl(filePath);
-            return publicUrlData.publicUrl;
-        }
-
-        async function handleProjectFileUpload(inputEl, id, side) {
+       
+        // 專案管理檔案上傳與編輯處理 logic (支援Blob網址線上即時開啟)
+        function handleProjectFileUpload(inputEl, id, side) {
             let target = caseEvalData.find(c => c.id === id);
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileUrl = await uploadFileToSupabaseStorage(file);
-                    let fileObj = { clientName: file.name, actualName: file.name, url: fileUrl };
+                    let blobUrl = URL.createObjectURL(file);
+                    let fileObj = { clientName: file.name, actualName: file.name, url: blobUrl };
                     if(side === 'client') target.clientFilesObj.push(fileObj);
                     else target.ruiliFilesObj.push(fileObj);
                 }
                 renderMainForms();
-                syncToSupabase(target);
             }
         }
-
         function updateProjectFileName(id, side, idx, value) {
             let target = caseEvalData.find(c => c.id === id);
             if(side === 'client') target.clientFilesObj[idx].clientName = value;
@@ -1670,19 +1556,19 @@
                 alert("正在開啟檔案：" + file.clientName);
             }
         }
-
-        async function handleSolarFileUpload(inputEl, id, side) {
+ 
+        // 太陽能自建檔案上傳與編輯處理 logic
+        function handleSolarFileUpload(inputEl, id, side) {
             let target = solarData.find(c => c.id === id);
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileUrl = await uploadFileToSupabaseStorage(file);
-                    let fileObj = { clientName: file.name, actualName: file.name, url: fileUrl };
+                    let blobUrl = URL.createObjectURL(file);
+                    let fileObj = { clientName: file.name, actualName: file.name, url: blobUrl };
                     if(side === 'client') target.clientFilesObj.push(fileObj);
                     else target.ruiliFilesObj.push(fileObj);
                 }
                 renderMainForms();
-                syncToSupabase(target);
             }
         }
         function updateSolarFileName(id, side, idx, value) {
@@ -1705,13 +1591,15 @@
                 alert("正在開啟檔案：" + file.clientName);
             }
         }
-
+ 
+        // 內部會議事件
         function updateMeetField(id, field, value) { let t = internalMeetData.find(c => c.id === id); if(t) t[field] = value; }
         function updateMeetSubject(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if(target) { target.meetSubject = value; renderSidebarSubLists(); }
         }
-
+ 
+        // 外部會議核心聯動機制
         function updateMeetingMainField(id, field, value) { let t = meetingData.find(c => c.id === id); if(t) t[field] = value; }
         function updateMeetingAttendeeSelection(id, person, isChecked) {
             let target = meetingData.find(c => c.id === id);
@@ -1741,16 +1629,15 @@
         function updateMeetingContentField(id, idx, field, value) {
             meetingData.find(c => c.id === id).contents[idx][field] = value;
         }
-        async function handleExternalMeetingUpload(inputEl, id) {
+        function handleExternalMeetingUpload(inputEl, id) {
             let target = meetingData.find(c => c.id === id);
             if (target && inputEl.files) {
                 for(let i=0; i<inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileUrl = await uploadFileToSupabaseStorage(file);
-                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileUrl });
+                    let blobUrl = URL.createObjectURL(file);
+                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: blobUrl });
                 }
                 renderMainForms();
-                syncToSupabase(target);
             }
         }
         function updateExternalMeetingFileName(id, idx, value) { meetingData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
@@ -1764,7 +1651,8 @@
                 alert("正在開啟檔案：" + file.clientName);
             }
         }
-
+ 
+        // 內部會議複選
         function updateAttendeeSelection(id, person, isChecked) {
             let target = internalMeetData.find(c => c.id === id);
             if (!target.attendees) target.attendees = [];
@@ -1772,22 +1660,21 @@
             else { target.attendees = target.attendees.filter(p => p !== person); }
         }
         function updateCaseReportField(id, idx, field, value) { internalMeetData.find(c => c.id === id).caseReports[idx][field] = value; }
-        function addRuiliCaseReportRow(id) { internalMeetData.find(c => c.id === id).caseReports.push({ reporter: currentUser?.name || "樊靖畇", caseName: "", desc: "", conclusion: "" }); renderMainForms(); }
+        function addRuiliCaseReportRow(id) { internalMeetData.find(c => c.id === id).caseReports.push({ reporter: "樊靖畇", caseName: "", desc: "", conclusion: "" }); renderMainForms(); }
         function removeRuiliCaseReportRow(id, idx) { internalMeetData.find(c => c.id === id).caseReports.splice(idx, 1); renderMainForms(); }
         function updateProposalField(id, idx, field, value) { internalMeetData.find(c => c.id === id).proposalReports[idx][field] = value; }
-        function addRuiliProposalRow(id) { internalMeetData.find(c => c.id === id).proposalReports.push({ reporter: currentUser?.name || "樊靖畇", item: "", content: "", feasibility: "", conclusion: "" }); renderMainForms(); }
+        function addRuiliProposalRow(id) { internalMeetData.find(c => c.id === id).proposalReports.push({ reporter: "樊靖畇", item: "", content: "", feasibility: "", conclusion: "" }); renderMainForms(); }
         function removeRuiliProposalRow(id, idx) { internalMeetData.find(c => c.id === id).proposalReports.splice(idx, 1); renderMainForms(); }
-        
-        async function handleRuiliMeetUpload(inputEl, id) {
+       
+        function handleRuiliMeetUpload(inputEl, id) {
             let target = internalMeetData.find(c => c.id === id);
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileUrl = await uploadFileToSupabaseStorage(file);
-                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileUrl });
+                    let blobUrl = URL.createObjectURL(file);
+                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: blobUrl });
                 }
                 renderMainForms();
-                syncToSupabase(target);
             }
         }
         function updateRuiliFileName(id, idx, value) { internalMeetData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
@@ -1801,14 +1688,14 @@
                 alert("正在開啟檔案：" + file.clientName);
             }
         }
-
+ 
         function updateSolarCheckbox(id, value, isChecked) {
             let target = solarData.find(c => c.id === id);
             if (!target.condRoofEquip) target.condRoofEquip = [];
             if (isChecked) { if (!target.condRoofEquip.includes(value)) target.condRoofEquip.push(value); }
             else { target.condRoofEquip = target.condRoofEquip.filter(item => item !== value); }
         }
-
+ 
         /* 太陽能自建計算核心 */
         function calculateSolarLive(id) {
             const activeCase = solarData.find(c => c.id === id);
@@ -1819,11 +1706,11 @@
             const resEst2 = Math.round(resEst1 * 0.1);
             const estRentUnit = parseFloat(activeCase.estRentUnit || 0);
             const resEst3 = Math.round(estPing * estRentUnit);
-
+ 
             if(document.getElementById(`res-est-1-${id}`)) document.getElementById(`res-est-1-${id}`).innerText = resEst1.toLocaleString();
             if(document.getElementById(`res-est-2-${id}`)) document.getElementById(`res-est-2-${id}`).innerText = resEst2.toLocaleString();
             if(document.getElementById(`res-est-3-${id}`)) document.getElementById(`res-est-3-${id}`).innerText = resEst3.toLocaleString();
-
+ 
             const surPanels = parseFloat(activeCase.surveyPanels || 0);
             const surWatts = parseFloat(activeCase.surveyWatts || 0);
             const surPrice = parseFloat(activeCase.surveyPrice || 0);
@@ -1832,13 +1719,13 @@
             const resSur2 = Math.round(resSur1 * 0.1);
             const surBill = parseFloat(activeCase.surveyBill || 0);
             const resSur3 = Math.round(resSur1 - surBill - resSur2);
-
+ 
             if(document.getElementById(`res-sur-kwh-${id}`)) document.getElementById(`res-sur-kwh-${id}`).innerText = resSurKwh.toLocaleString();
             if(document.getElementById(`res-sur-1-${id}`)) document.getElementById(`res-sur-1-${id}`).innerText = resSur1.toLocaleString();
             if(document.getElementById(`res-sur-2-${id}`)) document.getElementById(`res-sur-2-${id}`).innerText = resSur2.toLocaleString();
             if(document.getElementById(`res-sur-3-${id}`)) document.getElementById(`res-sur-3-${id}`).innerText = resSur3.toLocaleString();
         }
-
+ 
         function calculateLandPingField(id, idx, sqmVal) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && target.lands[idx]) {
@@ -1852,23 +1739,23 @@
                 if(currentActiveTab === 'solar') calculateSolarLive(id);
             }
         }
-
+ 
         function updateBuildField(id, side, idx, field, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if(side === 'legal') target.buildingsLegal[idx][field] = value;
             else target.buildingsIllegal[idx][field] = value;
         }
-
+ 
         function addServiceRow(id) { caseEvalData.find(c => c.id === id).services.push({ name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
         function removeServiceRow(id, idx) { caseEvalData.find(c => c.id === id).services.splice(idx, 1); renderMainForms(); }
         function addSolarServiceRow(id) { solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
         function removeSolarServiceRow(id, idx) { solarData.find(c => c.id === id).solarServices.splice(idx, 1); renderMainForms(); }
-
+ 
         function addLandRow(id) { 
             getTargetDataArray(currentActiveTab).find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", currentPrice: "", sqm: 0, ping: 0 }); 
             renderMainForms(); 
         }
-
+ 
         function removeLandRow(id, idx) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && target.lands) {
@@ -1878,7 +1765,7 @@
                 if (currentActiveTab === 'solar') calculateSolarLive(id);
             }
         }
-
+ 
         function addBuildRow(id, side) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (side === 'legal') target.buildingsLegal.push({ number: "", type: "", year: "", sqm: "", ping: "" });
@@ -1886,7 +1773,7 @@
             renderMainForms();
             if(currentActiveTab === 'solar') calculateSolarLive(id);
         }
-
+ 
         function removeBuildRow(id, side, idx) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target) {
@@ -1900,7 +1787,7 @@
                 if (currentActiveTab === 'solar') calculateSolarLive(id);
             }
         }
-
+ 
         function addDocItem(id, side) {
             let item = prompt("請輸入新增的文件項目：");
             if (item) {
@@ -1916,7 +1803,7 @@
             else target.customDocsRuili.splice(idx, 1);
             renderMainForms();
         }
-
+ 
         function refreshSums() {
             let activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
             if (!activeCase || !activeCase.lands) return;
@@ -1926,21 +1813,20 @@
             if(document.getElementById("sum-land-sqm" + suffix)) document.getElementById("sum-land-sqm" + suffix).innerText = totalLandSqm;
             if(document.getElementById("sum-land-ping" + suffix)) document.getElementById("sum-land-ping" + suffix).innerText = totalLandPing.toFixed(2);
         }
-
-        // 1. 新增案件 (自動帶入建立者身分)
+ 
+        // 1. 新增案件
         function addNewCase() {
             const nid = "id-" + Date.now();
             let dataArr = getTargetDataArray(currentActiveTab);
-            let currentName = currentUser ? currentUser.name : "樊靖畇";
-            let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: currentName, owner: currentName, is_deleted: false, deleted_at: null };
-            
+            let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: "樊靖畇" };
+           
             if(currentActiveTab === 'internal-meet') {
                 obj.meetSubject = "新睿立會議紀錄 " + (dataArr.length + 1);
-                obj.attendees = [currentName]; obj.financeReport = ""; obj.financeReview = ""; obj.financeConsensus = "";
+                obj.attendees = ["樊靖畇"]; obj.financeReport = ""; obj.financeReview = ""; obj.financeConsensus = "";
                 obj.caseReports = []; obj.proposalReports = []; obj.globalConclusion = ""; obj.uploadedFiles = [];
             } else if(currentActiveTab === 'meeting') {
                 obj.meetSubject = "外部對接會議記錄 " + (dataArr.length + 1);
-                obj.ruiliAttendees = [currentName]; obj.externalRepresentatives = []; obj.contents = []; obj.meetSummary = ""; obj.uploadedFiles = [];
+                obj.ruiliAttendees = ["樊靖畇"]; obj.externalRepresentatives = []; obj.contents = []; obj.meetSummary = ""; obj.uploadedFiles = [];
             } else {
                 obj.companyName = "全新案件項目 " + (dataArr.length + 1); 
                 obj.services = []; obj.solarServices = []; obj.lands = []; obj.buildingsLegal = []; obj.buildingsIllegal = []; 
@@ -1950,116 +1836,57 @@
                 obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = "否"; obj.esgStorage = "否";
                 obj.city = ""; obj.region = "";
                 obj.companyAddress = ""; obj.companyPhone = ""; obj.fax = ""; obj.bankAccount = ""; obj.companyRemark = "";
-                obj.evalDate = new Date().toISOString().slice(0, 16); obj.evalManager = currentName; obj.evalStatus = "初期評估"; obj.evalSource = "";
-                obj.solarDate = new Date().toISOString().slice(0, 16); obj.solarManager = currentName; obj.solarStatus = "初期評估"; obj.solarSource = "";
+                obj.evalDate = new Date().toISOString().slice(0, 16); obj.evalManager = "樊靖畇"; obj.evalStatus = "初期評估"; obj.evalSource = "";
+                obj.solarDate = new Date().toISOString().slice(0, 16); obj.solarManager = "樊靖畇"; obj.solarStatus = "初期評估"; obj.solarSource = "";
             }
             dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
             renderSidebarSubLists(); renderMainForms();
-            syncToSupabase(obj);
         }
-
-        // 2. 刪除案件 - 採用 Soft Delete 軟刪除 (加註 is_deleted)
+ 
+        // 2. 刪除案件 - 彈出對話視窗 modal
         function deleteCurrentCase() {
-            let dataArr = getFilteredDataArray(currentActiveTab);
+            let dataArr = getTargetDataArray(currentActiveTab);
             if (dataArr.length === 0) {
                 alert("目前沒有可刪除的項目！");
                 return;
             }
             const activeId = selectedIds[currentActiveTab];
-            const targetCase = dataArr.find(c => c.id === activeId);
-            if (targetCase) {
-                const targetName = targetCase.companyName || targetCase.meetSubject || '當前項目';
-                document.getElementById('delete-target-text').innerText = `確定要刪除「${targetName}」嗎？刪除後業務端將不再顯示。`;
+            const targetIndex = dataArr.findIndex(c => c.id === activeId);
+            if (targetIndex !== -1) {
+                const targetName = dataArr[targetIndex].companyName || dataArr[targetIndex].meetSubject || '當前項目';
+                document.getElementById('delete-target-text').innerText = `確定要刪除「${targetName}」嗎？此動作無法復原。`;
                 document.getElementById('delete-modal').classList.remove('hidden');
             }
         }
-
+ 
         function closeDeleteModal() {
             document.getElementById('delete-modal').classList.add('hidden');
         }
-
+ 
         function confirmDeleteCase() {
             let dataArr = getTargetDataArray(currentActiveTab);
             const activeId = selectedIds[currentActiveTab];
-            const targetCase = dataArr.find(c => c.id === activeId);
-            
-            if (targetCase) {
-                // 標記軟刪除與時間
-                const nowStr = new Date().toTimeString().slice(0, 5);
-                targetCase.is_deleted = true;
-                targetCase.deleted_at = nowStr;
-                
+            const targetIndex = dataArr.findIndex(c => c.id === activeId);
+            if (targetIndex !== -1) {
+                dataArr.splice(targetIndex, 1);
+                if (dataArr.length > 0) {
+                    selectedIds[currentActiveTab] = dataArr[0].id;
+                } else {
+                    selectedIds[currentActiveTab] = null;
+                }
                 closeDeleteModal();
-                
-                // 重新選擇下一個案件
-                const remaining = getFilteredDataArray(currentActiveTab);
-                selectedIds[currentActiveTab] = remaining.length > 0 ? remaining[0].id : null;
-                
                 renderSidebarSubLists();
                 renderMainForms();
-                syncToSupabase(targetCase);
             }
         }
+ 
+        // 4. 儲存案件
+        function saveToCloud() { alert("所有模組與資料皆已成功儲存！"); }
 
-        // 🗑️ 資源回收桶彈窗與一鍵復原 (股東控台專用)
-        function openTrashBinModal() {
-            const trashContainer = document.getElementById('trash-list-container');
-            let trashHTML = '';
-            
-            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
-                const arr = getTargetDataArray(tabId).filter(c => c.is_deleted);
-                arr.forEach(c => {
-                    trashHTML += `
-                        <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700 text-xs">
-                            <div>
-                                <span class="font-bold text-white">${c.companyName || c.meetSubject || '未命名項目'}</span>
-                                <span class="text-slate-400 text-[10px] block">建立業務：${c.owner} | 刪除時間：${c.deleted_at||'未知'}</span>
-                            </div>
-                            <button onclick="restoreCase('${tabId}', '${c.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
-                                <i class="fa-solid fa-rotate-left mr-1"></i>一鍵復原
-                            </button>
-                        </div>
-                    `;
-                });
-            });
-            
-            trashContainer.innerHTML = trashHTML || '<p class="text-xs text-slate-500 text-center py-6">資源回收桶內目前沒有被刪除的案件。</p>';
-            document.getElementById('trash-bin-modal').classList.remove('hidden');
-        }
-
-        function closeTrashBinModal() {
-            document.getElementById('trash-bin-modal').classList.add('hidden');
-        }
-
-        function restoreCase(tabId, id) {
-            let targetCase = getTargetDataArray(tabId).find(c => c.id === id);
-            if (targetCase) {
-                targetCase.is_deleted = false;
-                targetCase.deleted_at = null;
-                openTrashBinModal(); // 刷新回收桶
-                renderSidebarSubLists();
-                renderMainForms();
-                syncToSupabase(targetCase);
-            }
-        }
-
-        // ☁️ 數據自動同步至 Supabase 資料庫
-        async function syncToSupabase(caseData) {
-            if (!supabase) return;
-            const { data, error } = await supabase
-                .from('cases')
-                .upsert(caseData, { onConflict: 'id' });
-            if (error) console.error("Supabase 同步失敗:", error);
-        }
-
-        function saveToCloud() { 
-            let activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
-            if (activeCase) syncToSupabase(activeCase);
-            alert("所有模組與全新數據更新成功！已寫入資料庫與防誤刪備份。"); 
-        }
-
-        window.onload = function() { 
-            toggleCategory('case-eval'); 
+        // 頁面初次渲染
+        window.onload = function() {
+            renderSidebarSubLists();
+            renderMainForms();
         };
     </script>
 </body>
