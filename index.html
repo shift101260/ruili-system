@@ -33,7 +33,7 @@
                 margin: 10mm !important;
             }
             body { background: white !important; color: black !important; overflow: visible !important; }
-            aside, header, .no-print, input[type="file"], button { display: none !important; }
+            aside, header, .no-print, input[type="file"], button, #login-overlay { display: none !important; }
             main { padding: 0 !important; margin: 0 !important; overflow: visible !important; display: block !important; }
             .print-container { 
                 width: 210mm !important; 
@@ -62,7 +62,6 @@
                 padding: 2px !important;
                 font-weight: bold !important;
             }
-            /* 修正一鍵匯出/列印時，標題與欄位標籤文字顯示 */
             .text-white, .text-slate-300, .text-slate-400, .text-amber-300, .text-amber-400, .text-cyan-400, .text-emerald-400, .text-purple-300, .text-purple-400, .text-indigo-300, .text-indigo-400, .text-teal-400, .text-sky-400, .text-violet-400, label { 
                 color: black !important; 
                 -webkit-text-fill-color: black !important;
@@ -77,7 +76,40 @@
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
- 
+
+    <!-- 🔒 全螢幕獨立登入門檻遮罩 (未驗證時完全遮蔽後方系統) -->
+    <div id="login-overlay" class="fixed inset-0 bg-cosmic-950 z-50 flex items-center justify-center p-4">
+        <div class="bg-cosmic-900 border border-cosmic-700/60 rounded-3xl p-8 w-full max-w-md shadow-2xl space-y-6 text-center">
+            <!-- 圖示藍色方塊 -->
+            <div class="w-16 h-16 bg-gradient-to-tr from-cosmic-500 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg mx-auto">
+                <i class="fa-solid fa-user-lock text-white text-2xl"></i>
+            </div>
+            
+            <div>
+                <h2 class="text-2xl font-bold tracking-wide text-white">睿立系統登入</h2>
+                <p class="text-xs text-slate-400 mt-2">請選擇身份並輸入個人密碼以存取資料</p>
+            </div>
+
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">登入權限身份：</label>
+                    <select id="login-role" class="w-full bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400">
+                        <option value="黃逸豪" class="bg-cosmic-900">黃逸豪</option>
+                        <option value="中央控台" class="bg-cosmic-900">中央控台</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">密碼：</label>
+                    <input type="password" id="login-pass" placeholder="請輸入密碼" onkeydown="if(event.key==='Enter') handleRoleLogin()" class="w-full bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 tracking-widest">
+                </div>
+            </div>
+
+            <button onclick="handleRoleLogin()" class="w-full bg-gradient-to-r from-cosmic-500 to-cyan-500 hover:from-cosmic-400 hover:to-cyan-400 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200">
+                驗證登入
+            </button>
+        </div>
+    </div>
+
     <!-- LEFT SIDEBAR -->
     <aside class="w-72 bg-cosmic-900 border-r border-cosmic-700/50 flex flex-col justify-between shrink-0 select-none">
         <div>
@@ -158,15 +190,11 @@
             <div class="flex items-center space-x-3">
                 <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-64 bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-1.5 text-sm text-white focus:outline-none">
                 
-                <!-- 權限者登入選單與密碼驗證區塊 -->
-                <div class="flex items-center space-x-1.5 bg-cosmic-950/80 border border-cosmic-700 p-1 rounded-xl">
-                    <i class="fa-solid fa-user-shield text-cyan-400 text-xs ml-2"></i>
-                    <select id="login-role" class="bg-transparent text-xs text-white focus:outline-none cursor-pointer px-1">
-                        <option value="黃逸豪" class="bg-cosmic-900">黃逸豪</option>
-                        <option value="中央控台" class="bg-cosmic-900">中央控台</option>
-                    </select>
-                    <input type="password" id="login-pass" placeholder="輸入密碼" class="w-24 bg-cosmic-900 border border-cosmic-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none">
-                    <button onclick="handleRoleLogin()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-2.5 py-1 rounded-lg transition font-medium">登入</button>
+                <!-- 已登入使用者提示資訊與登出鈕 -->
+                <div id="current-user-badge" class="hidden flex items-center space-x-2 bg-cosmic-950/80 border border-cyan-500/50 px-3 py-1 rounded-xl text-xs text-cyan-400">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>已登入：<strong id="user-display-name" class="text-white"></strong></span>
+                    <button onclick="handleLogout()" class="ml-2 text-red-400 hover:text-red-300 text-[11px] underline">登出</button>
                 </div>
             </div>
 
@@ -246,12 +274,8 @@
                 clientFilesObj: [{ clientName: "太陽能現場照片.jpg", actualName: "太陽能現場照片.jpg" }], 
                 ruiliFilesObj: [{ clientName: "台電饋線核准信.pdf", actualName: "台電饋線核准信.pdf" }],
                 solarServices: [{ name: "屋頂型太陽能光電自建案", quote: "8500000", contract: "8500000", desc: "規劃建置屋頂型太陽光電系統，預估容量約 200 kWp。", remark: "客戶對遮陽與結構補強高度關注。", p1: "2550000", d1: "", p2: "3400000", d2: "", p3: "1700000", d3: "", p4: "850000", d4: "" }],
-                
-                // 【預估】數據結構
                 estPing: "500", estPrice: "3.5", estRentUnit: "600",
-                // 【現勘】數據結構
                 surveyPing: "500", surveyPanels: "600", surveyWatts: "440", surveyPrice: "4.8", surveyIncome: "0", surveyBill: "0", surveyMaint: "0",
- 
                 planModule: "雙面雙玻高效率單晶模組", planInverter: "台達高階變流器", planType: "鋼構棚架型態", planNote: "設計高度不影響廠房內部採光。",
                 planPreference: "全部躉售", planPartner: "自建",
                 condRoofType: "浪板", condChemProduction: "否", condChemIndustry: "否", condSeaside: "否", condSeasideDist: "1公里內", condShaded: "否",
@@ -262,7 +286,6 @@
  
         let tradingData = [{ id: "trading-1", date: "2026-07-18T12:00", status: "準備簽約", manager: "鄭家承", companyName: "瑞昱地產買賣工業地案" }];
        
-        // ═══ 【四、主功能：會議記錄 全新架構數據庫】 ═══
         let meetingData = [
             { 
                 id: "meet-1", date: "2026-07-18T14:00", manager: "黃逸豪", status: "結案", source: "外部引介",
@@ -308,18 +331,29 @@
         const managersList = ["樊靖畇", "鄭家承", "陳宥騰", "楊裕憲", "楊淯淳", "黃逸豪"];
         const statusConfig = { "初期評估": "bg-emerald-500", "已報價": "bg-blue-500", "準備簽約": "bg-amber-500", "已簽約": "bg-red-500", "結案": "bg-purple-500", "沒下文": "bg-slate-600" };
  
-        // 權限者登入與密碼驗證邏輯
+        // 🔑 門檻登入驗證與遮罩控制邏輯
         function handleRoleLogin() {
             const role = document.getElementById('login-role').value;
             const pass = document.getElementById('login-pass').value;
             
-            // 預設密碼驗證：黃逸豪密碼為 8888，中央控台密碼為 9999
+            // 驗證規則：黃逸豪 (8888)，中央控台 (9999)
             if ((role === '黃逸豪' && pass === '8888') || (role === '中央控台' && pass === '9999')) {
-                alert(`權限驗證成功！歡迎，${role}。`);
+                // 隱藏登入遮罩，解除鎖定
+                document.getElementById('login-overlay').classList.add('hidden');
                 document.getElementById('login-pass').value = '';
+                
+                // 顯示 Header 使用者 Badge
+                document.getElementById('user-display-name').innerText = role;
+                document.getElementById('current-user-badge').classList.remove('hidden');
             } else {
-                alert("密碼錯誤，登入失敗！");
+                alert("密碼不正確，無法進入系統！");
             }
+        }
+
+        function handleLogout() {
+            // 顯示登入遮罩，鎖定系統
+            document.getElementById('login-overlay').classList.remove('hidden');
+            document.getElementById('current-user-badge').classList.add('hidden');
         }
 
         function toggleCategory(catId) {
@@ -488,7 +522,6 @@
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
  
-                                    <!-- 收款期程標題與欄位 -->
                                     <div class="pt-2 border-t border-cosmic-700/20">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
                                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
@@ -663,7 +696,7 @@
                         </div>
                     </div>
  
-                    <!-- 九、檔案上傳 (支援上傳各類型檔案、可編輯顯示名稱，並可點擊開啟檔案) -->
+                    <!-- 九、檔案上傳 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
@@ -720,7 +753,7 @@
             `;
         }
  
-        // ==================== 二、主功能：太陽能自建 (修復 2/6/8 點) ====================
+        // ==================== 二、太陽能自建 HTML ====================
         function generateSolarHTML(c) {
             let totalLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
             let totalLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
@@ -729,7 +762,6 @@
  
             return `
                 <div class="card-box bg-cosmic-800/70 border border-amber-500/40 rounded-2xl p-6 space-y-6 shadow-xl">
-                    <!-- 1. 主功能文字改『太陽能自建』 -->
                     <div class="border-b border-amber-500/40 pb-2"><h3 class="text-sm font-bold text-amber-400"><i class="fa-solid fa-solar-panel mr-2"></i>太陽能自建</h3></div>
  
                     <!-- 一、專案人員 -->
@@ -751,7 +783,7 @@
                         </div>
                     </div>
  
-                    <!-- 3. 更名『二、公司基本資料』並放至一、專案人員下面，2. 新增指定欄位與多行備註 -->
+                    <!-- 二、公司基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">二、公司基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -772,7 +804,7 @@
                         </div>
                     </div>
  
-                    <!-- 4. 三、服務項目 -->
+                    <!-- 三、服務項目 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/40 pb-1.5">
                             <h4 class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-layer-group mr-1.5"></i>三、服務項目</h4>
@@ -791,7 +823,6 @@
                                         <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
-                                    <!-- 7. 收款期程標題與欄位 -->
                                     <div class="pt-2 border-t border-cosmic-700/20">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
                                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
@@ -808,7 +839,7 @@
                         </div>
                     </div>
  
-                    <!-- 5. 四、案件試算 -->
+                    <!-- 四、案件試算 -->
                     <div class="bg-cosmic-950/40 border border-amber-500/30 p-5 rounded-xl space-y-5 card-box">
                         <h4 class="text-xs font-bold text-amber-300 border-b border-cosmic-700/20 pb-1.5"><i class="fa-solid fa-calculator mr-1.5"></i>四、案件試算</h4>
                         
@@ -883,7 +914,7 @@
                         </div>
                     </div>
  
-                    <!-- 五、土地基本資料 (6. +地段地號單筆刪除功能) -->
+                    <!-- 五、土地基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
                             <h4 class="text-xs font-bold text-emerald-400">五、土地基本資料 (平方公尺自動乘*0.3025帶入坪數)</h4>
@@ -918,7 +949,7 @@
                         </div>
                     </div>
  
-                    <!-- 六、建物基本資料 (6. +建號、+違章建物單筆刪除功能) -->
+                    <!-- 六、建物基本資料 -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
@@ -1125,7 +1156,7 @@
                         </div>
                     </div>
  
-                    <!-- 8. 十二、檔案上傳 (升級支援編輯顯示名稱與開啟檔案) -->
+                    <!-- 十二、檔案上傳 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
@@ -1187,11 +1218,10 @@
             return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><div class="flex items-center space-x-2"><label class="text-slate-400 text-xs font-bold shrink-0">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full"></div>${generateFooterHTML()}</div>`;
         }
  
-        // ==================== 四、主功能：會議記錄 ====================
+        // ==================== 四、會議記錄 ====================
         function generateMeetingHTML(c) {
             return `
                 <div class="card-box bg-cosmic-800/70 border border-purple-500/50 rounded-2xl p-6 space-y-6 shadow-xl">
-                    <!-- 1. 四、會議記錄文字更改『會議記錄』 -->
                     <div class="border-b border-purple-500/40 pb-2"><h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-handshake mr-2"></i>會議記錄</h3></div>
                     
                     <!-- 一、會議資訊 -->
@@ -1213,7 +1243,6 @@
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/20 pb-1.5">二、出席單位與人員</h4>
                         
-                        <!-- 睿立出席人員複選 -->
                         <div class="text-xs space-y-1.5">
                             <label class="text-slate-400 block font-medium">睿立出席人員：</label>
                             <div class="flex flex-wrap gap-4 bg-cosmic-950/60 p-2.5 rounded border border-cosmic-700/40">
@@ -1229,7 +1258,6 @@
                             </div>
                         </div>
  
-                        <!-- 外部與會代表實體一體化新增 -->
                         <div class="space-y-3">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <label class="text-xs font-bold text-amber-400">外部與會代表：</label>
@@ -1293,7 +1321,7 @@
                         <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
                     </div>
  
-                    <!-- 8. 五、檔案上傳 (支援編輯名稱及點擊檢視) -->
+                    <!-- 五、檔案上傳 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-purple-500/30 pb-1.5">
                             <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳</span>
@@ -1464,7 +1492,7 @@
                         <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
                     </div>
  
-                    <!-- 8. 六、檔案上傳 (支援點擊開啟檔案與名稱編輯) -->
+                    <!-- 六、檔案上傳 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-indigo-500/30 pb-1.5">
                             <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>六、檔案上傳</span>
@@ -1522,7 +1550,6 @@
         function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
         function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
        
-        // 專案管理檔案上傳與編輯處理 logic (支援Blob網址線上即時開啟)
         function handleProjectFileUpload(inputEl, id, side) {
             let target = caseEvalData.find(c => c.id === id);
             if (target && inputEl.files) {
@@ -1557,7 +1584,6 @@
             }
         }
  
-        // 太陽能自建檔案上傳與編輯處理 logic
         function handleSolarFileUpload(inputEl, id, side) {
             let target = solarData.find(c => c.id === id);
             if (target && inputEl.files) {
@@ -1592,14 +1618,12 @@
             }
         }
  
-        // 內部會議事件
         function updateMeetField(id, field, value) { let t = internalMeetData.find(c => c.id === id); if(t) t[field] = value; }
         function updateMeetSubject(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if(target) { target.meetSubject = value; renderSidebarSubLists(); }
         }
  
-        // 外部會議核心聯動機制
         function updateMeetingMainField(id, field, value) { let t = meetingData.find(c => c.id === id); if(t) t[field] = value; }
         function updateMeetingAttendeeSelection(id, person, isChecked) {
             let target = meetingData.find(c => c.id === id);
@@ -1652,7 +1676,6 @@
             }
         }
  
-        // 內部會議複選
         function updateAttendeeSelection(id, person, isChecked) {
             let target = internalMeetData.find(c => c.id === id);
             if (!target.attendees) target.attendees = [];
@@ -1696,7 +1719,6 @@
             else { target.condRoofEquip = target.condRoofEquip.filter(item => item !== value); }
         }
  
-        /* 太陽能自建計算核心 */
         function calculateSolarLive(id) {
             const activeCase = solarData.find(c => c.id === id);
             if (!activeCase) return;
@@ -1814,7 +1836,6 @@
             if(document.getElementById("sum-land-ping" + suffix)) document.getElementById("sum-land-ping" + suffix).innerText = totalLandPing.toFixed(2);
         }
  
-        // 1. 新增案件
         function addNewCase() {
             const nid = "id-" + Date.now();
             let dataArr = getTargetDataArray(currentActiveTab);
@@ -1843,7 +1864,6 @@
             renderSidebarSubLists(); renderMainForms();
         }
  
-        // 2. 刪除案件 - 彈出對話視窗 modal
         function deleteCurrentCase() {
             let dataArr = getTargetDataArray(currentActiveTab);
             if (dataArr.length === 0) {
@@ -1880,10 +1900,8 @@
             }
         }
  
-        // 4. 儲存案件
         function saveToCloud() { alert("所有模組與資料皆已成功儲存！"); }
 
-        // 頁面初次渲染
         window.onload = function() {
             renderSidebarSubLists();
             renderMainForms();
