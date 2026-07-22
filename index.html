@@ -345,7 +345,7 @@
                 meetSubject: "外部公會對接會", 
                 ruiliAttendees: ["樊靖畇", "黃逸豪"],
                 externalRepresentatives: [
-                    { companyName: "高屏金屬工業同業公會", name: "張總幹事", phone: "07-3331122", taxId: "24558911", address: "高雄市前鎮區成功二路", email: "gonghui@metal.org", website: "https://metal.org" }
+                    { companyName: "高屏金屬工業同業公會", name: "張總幹事", phone: "07-3331122", taxId: "24558911", address: "高雄市前鎮區成功二路88號", companyPhone: "07-3331122", fax: "07-3331123", bankAccount: "台灣銀行前鎮分行 0123-456-789", remark: "公會常務理事會定期聯絡窗口", email: "gonghui@metal.org", website: "https://metal.org" }
                 ],
                 contents: [
                     { proposer: "樊靖畇", content: "說明特定工廠改善計畫編製流程與過關後收費原則。", discussion: "公會詢問是否能為會員舉辦聯合說明會。", conclusion: "排定於下月15日舉辦第一場聯合說明會。" }
@@ -1350,7 +1350,7 @@
             return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><div class="flex items-center space-x-2"><label class="text-slate-400 text-xs font-bold shrink-0">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full"></div>${generateFooterHTML()}</div>`;
         }
 
-        // ==================== 四、會議記錄 ====================
+        // ==================== 四、會議記錄 (已新增：公司地址、公司電話、傳真、公司匯款帳戶、備註多行格式) ====================
         function generateMeetingHTML(c) {
             return `
                 <div class="card-box bg-cosmic-800/70 border border-purple-500/50 rounded-2xl p-6 space-y-6 shadow-xl">
@@ -1404,9 +1404,13 @@
                                             <div><label class="text-slate-400 block mb-0.5">姓名：</label><input type="text" value="${rep.name||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'name', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div><label class="text-slate-400 block mb-0.5">電話：</label><input type="text" value="${rep.phone||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'phone', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div><label class="text-slate-400 block mb-0.5">統編：</label><input type="text" value="${rep.taxId||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'taxId', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                                            <div class="md:col-span-3"><label class="text-slate-400 block mb-0.5">地址：</label><input type="text" value="${rep.address||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'address', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div class="md:col-span-3"><label class="text-slate-400 block mb-0.5">公司地址：</label><input type="text" value="${rep.address||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'address', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">公司電話：</label><input type="text" value="${rep.companyPhone||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'companyPhone', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">傳真：</label><input type="text" value="${rep.fax||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div class="md:col-span-3"><label class="text-slate-400 block mb-0.5">公司匯款帳戶：</label><input type="text" value="${rep.bankAccount||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">電子信箱：</label><input type="text" value="${rep.email||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'email', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">網站連結：</label><input type="text" value="${rep.website||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap">${rep.remark||''}</textarea></div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1767,7 +1771,7 @@
             else { target.ruiliAttendees = target.ruiliAttendees.filter(p => p !== person); }
         }
         function addExternalRepRow(id) {
-            meetingData.find(c => c.id === id).externalRepresentatives.push({ companyName: "", name: "", phone: "", taxId: "", address: "", email: "", website: "" });
+            meetingData.find(c => c.id === id).externalRepresentatives.push({ companyName: "", name: "", phone: "", taxId: "", address: "", companyPhone: "", fax: "", bankAccount: "", remark: "", email: "", website: "" });
             renderMainForms();
         }
         function removeExternalRepRow(id, idx) {
