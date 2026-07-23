@@ -1675,9 +1675,15 @@
         function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
         function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
         
+        // 修正後的檔案上傳邏輯（結合 UUID 及 Math.random 雙重安全機制）
         async function uploadFileToSupabaseStorage(file) {
             try {
-                const filePath = `uploads/${Date.now()}_${file.name}`;
+                // 優先使用標準 crypto.randomUUID()，若舊瀏覽器不支援則回退至 Math.random() 36進位字串
+                const uniqueId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
+                    ? crypto.randomUUID() 
+                    : Math.random().toString(36).substring(2, 10);
+                
+                const filePath = `uploads/${Date.now()}_${uniqueId}_${file.name}`;
                 const { data, error } = await supabaseClient.storage.from('ruili-files').upload(filePath, file);
                 if (error) {
                     console.error("Storage Error:", error);
