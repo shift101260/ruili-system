@@ -64,6 +64,10 @@
                 padding: 2px !important;
                 font-weight: bold !important;
             }
+            textarea {
+                height: auto !important;
+                overflow: visible !important;
+            }
             .text-white, .text-slate-300, .text-slate-400, .text-amber-300, .text-amber-400, .text-cyan-400, .text-emerald-400, .text-purple-300, .text-purple-400, .text-indigo-300, .text-indigo-400, .text-teal-400, .text-sky-400, .text-violet-400, label { 
                 color: black !important; 
                 -webkit-text-fill-color: black !important;
@@ -80,6 +84,12 @@
         #rotate-hint { display: none; }
         @media screen and (max-width: 932px) and (orientation: portrait) {
             #rotate-hint { display: flex; }
+        }
+
+        /* 拖曳區高亮樣式 */
+        .drag-over {
+            border-color: #38bdf8 !important;
+            background-color: rgba(56, 189, 248, 0.1) !important;
         }
     </style>
 </head>
@@ -537,17 +547,33 @@
                 if (!activeCase.uploadedFiles) activeCase.uploadedFiles = [];
                 container.innerHTML = generateInternalMeetHTML(activeCase);
             }
+
+            // 初始化文本框動態高度
+            setTimeout(() => {
+                container.querySelectorAll('textarea').forEach(ta => {
+                    ta.style.height = 'auto';
+                    ta.style.height = (ta.scrollHeight) + 'px';
+                });
+            }, 50);
         }
 
-        // 電腦、平板、手機均可開啟預覽/下載功能
+        // 電腦、平板、手機均可開啟預覽/下載功能 (優化手機 PDF 開啟問題)
         function previewFileUrl(url, fileName) {
             if (!url) {
                 alert("目前檔案尚未有雲端完整 URL，無法開啟。");
                 return;
             }
             const ext = (fileName || '').split('.').pop().toLowerCase();
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
             if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'].includes(ext)) {
-                window.open(url, '_blank');
+                if (isMobile) {
+                    // 手機版針對 PDF 及圖片強制使用 location.href 或另開標籤頁預覽
+                    const win = window.open(url, '_blank');
+                    if (!win) location.href = url;
+                } else {
+                    window.open(url, '_blank');
+                }
             } else {
                 const a = document.createElement('a');
                 a.href = url;
@@ -611,7 +637,7 @@
                             <div><label class="text-slate-400">傳真：</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶：</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司網站連結：</label><input type="text" value="${c.website||''}" oninput="updateField('${c.id}', 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
+                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
 
@@ -633,8 +659,8 @@
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
-                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
                                     </div>
 
                                     <div class="pt-2 border-t border-cosmic-700/20">
@@ -811,11 +837,12 @@
                         </div>
                     </div>
 
-                    <!-- 九、檔案上傳 -->
+                    <!-- 九、檔案上傳 (支援拖曳上傳) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box transition-all" 
+                             ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'client', 'case-eval')">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
-                                <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>九、客戶應備檔案上傳</span>
+                                <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>九、客戶應備檔案上傳 (可直接拖曳檔案至此)</span>
                                 <label class="text-[10px] bg-violet-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-violet-800 transition no-print">
                                     [＋ 上傳各類型檔案]
                                     <input type="file" multiple class="hidden" onchange="handleProjectFileUpload(this, '${c.id}', 'client')">
@@ -840,9 +867,10 @@
                                 `).join('')}
                             </div>
                         </div>
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box transition-all"
+                             ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'ruili', 'case-eval')">
                             <div class="flex justify-between items-center border-b border-cyan-500/30 pb-1">
-                                <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>九、睿立調閱檔案上傳</span>
+                                <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>九、睿立調閱檔案上傳 (可直接拖曳檔案至此)</span>
                                 <label class="text-[10px] bg-cyan-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-cyan-800 transition no-print">
                                     [＋ 上傳各類型檔案]
                                     <input type="file" multiple class="hidden" onchange="handleProjectFileUpload(this, '${c.id}', 'ruili')">
@@ -921,7 +949,7 @@
                             <div><label class="text-slate-400">傳真：</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶：</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司網站連結：</label><input type="text" value="${c.website||''}" oninput="updateField('${c.id}', 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
+                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
 
@@ -941,8 +969,8 @@
                                         <div><label class="text-slate-400 block mb-0.5">簽約金額：</label><input type="number" value="${srv.contract||''}" oninput="updateSolarServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
-                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'desc', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'remark', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
                                     </div>
                                     <div class="pt-2 border-t border-cosmic-700/20">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
@@ -1196,7 +1224,7 @@
                                     <option value="自建" ${c.planPartner==='自建'?'selected':''}>自建</option>
                                 </select>
                             </div>
-                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">系統建置備註說明：</label><textarea oninput="updateField('${c.id}', 'planNote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${c.planNote||''}</textarea></div>
+                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">系統建置備註說明：</label><textarea oninput="updateField('${c.id}', 'planNote', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${c.planNote||''}</textarea></div>
                         </div>
                     </div>
 
@@ -1277,11 +1305,12 @@
                         </div>
                     </div>
 
-                    <!-- 十二、檔案上傳 -->
+                    <!-- 十二、檔案上傳 (支援拖曳上傳) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box transition-all"
+                             ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'client', 'solar')">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
-                                <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、客戶應備檔案上傳</span>
+                                <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、客戶應備檔案上傳 (可直接拖曳檔案至此)</span>
                                 <label class="text-[10px] bg-violet-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-violet-800 transition no-print">
                                     [＋ 上傳各類型檔案]
                                     <input type="file" multiple class="hidden" onchange="handleSolarFileUpload(this, '${c.id}', 'client')">
@@ -1306,9 +1335,10 @@
                                 `).join('')}
                             </div>
                         </div>
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box transition-all"
+                             ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'ruili', 'solar')">
                             <div class="flex justify-between items-center border-b border-cyan-500/30 pb-1">
-                                <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、睿立調閱檔案上傳</span>
+                                <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、睿立調閱檔案上傳 (可直接拖曳檔案至此)</span>
                                 <label class="text-[10px] bg-cyan-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-cyan-800 transition no-print">
                                     [＋ 上傳各類型檔案]
                                     <input type="file" multiple class="hidden" onchange="handleSolarFileUpload(this, '${c.id}', 'ruili')">
@@ -1405,7 +1435,7 @@
                                             <div class="md:col-span-3"><label class="text-slate-400 block mb-0.5">公司匯款帳戶：</label><input type="text" value="${rep.bankAccount||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">電子信箱：</label><input type="text" value="${rep.email||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'email', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">網站連結：</label><input type="text" value="${rep.website||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap" style="overflow:hidden;">${rep.remark||''}</textarea></div>
+                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.remark||''}</textarea></div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1438,16 +1468,17 @@
                         </div>
                     </div>
 
-                    <!-- 四、會議總結 -->
+                    <!-- 四、會議總結 (無限延伸/列印無滾動條) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">四、會議總結：</label>
                         <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
                     </div>
 
-                    <!-- 五、檔案上傳 -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                    <!-- 五、檔案上傳 (支援拖曳上傳) -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box transition-all"
+                         ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'meeting', 'meeting')">
                         <div class="flex justify-between items-center border-b border-purple-500/30 pb-1.5">
-                            <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳</span>
+                            <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳 (可直接拖曳檔案至此)</span>
                             <label class="text-[10px] bg-purple-900 text-white px-2.5 py-1 rounded cursor-pointer hover:bg-purple-800 transition no-print">
                                 [＋ 上傳各類型檔案]
                                 <input type="file" multiple class="hidden" onchange="handleExternalMeetingUpload(this, '${c.id}')">
@@ -1515,26 +1546,26 @@
                         </div>
                     </div>
 
-                    <!-- 二、財務報告 -->
+                    <!-- 二、財務報告 (無限延伸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-emerald-400 border-b border-cosmic-700/20 pb-1.5">二、財務報告</h4>
                         <div class="space-y-3 text-xs">
                             <div>
                                 <label class="text-slate-400 block mb-1">財務報告：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeReport', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${c.financeReport||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeReport', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeReport||''}</textarea>
                             </div>
                             <div>
                                 <label class="text-slate-400 block mb-1">檢討：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeReview', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${c.financeReview||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeReview', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeReview||''}</textarea>
                             </div>
                             <div>
                                 <label class="text-slate-400 block mb-1">共識：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeConsensus', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${c.financeConsensus||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeConsensus', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeConsensus||''}</textarea>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 三、案件報告 -->
+                    <!-- 三、案件報告 (無限延伸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
                             <h4 class="text-xs font-bold text-cyan-400">三、案件報告</h4>
@@ -1559,11 +1590,11 @@
                                     <div class="text-xs space-y-2">
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">案件進度說明：</label>
-                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-none block whitespace-pre-wrap">${rep.desc||''}</textarea>
+                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'desc', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.desc||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">結論：</label>
-                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'conclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-none block whitespace-pre-wrap">${rep.conclusion||''}</textarea>
+                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'conclusion', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1571,7 +1602,7 @@
                         </div>
                     </div>
 
-                    <!-- 四、提案報告 -->
+                    <!-- 四、提案報告 (無限延伸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
                             <h4 class="text-xs font-bold text-purple-400">四、提案報告</h4>
@@ -1590,19 +1621,19 @@
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">項目：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'item', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-10 resize-none block whitespace-pre-wrap">${prop.item||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'item', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.item||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">內容：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'content', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${prop.content||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'content', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.content||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">可行性評估：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'feasibility', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${prop.feasibility||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'feasibility', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.feasibility||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">結論：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'conclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${prop.conclusion||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'conclusion', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1610,16 +1641,17 @@
                         </div>
                     </div>
 
-                    <!-- 五、會議總結論 -->
+                    <!-- 五、會議總結論 (無限延伸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">五、會議總結論：</label>
-                        <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
+                        <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
                     </div>
 
-                    <!-- 六、檔案上傳 -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                    <!-- 六、檔案上傳 (支援拖曳上傳) -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box transition-all"
+                         ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'ruili-meet', 'internal-meet')">
                         <div class="flex justify-between items-center border-b border-indigo-500/30 pb-1.5">
-                            <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>六、檔案上傳</span>
+                            <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>六、檔案上傳 (可直接拖曳檔案至此)</span>
                             <label class="text-[10px] bg-indigo-900 text-white px-2.5 py-1 rounded cursor-pointer hover:bg-indigo-800 transition no-print">
                                 [＋ 上傳各類型檔案]
                                 <input type="file" multiple class="hidden" onchange="handleRuiliMeetUpload(this, '${c.id}')">
@@ -1663,6 +1695,39 @@
                     </div>
                 </footer>
             `;
+        }
+
+        // ==================== 拖曳檔案輔助處理事件 ====================
+        function handleDragOver(e, el) {
+            e.preventDefault();
+            e.stopPropagation();
+            el.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e, el) {
+            e.preventDefault();
+            e.stopPropagation();
+            el.classList.remove('drag-over');
+        }
+
+        async function handleDropFile(e, id, side, type) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.currentTarget.classList.remove('drag-over');
+
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                const fakeInput = { files: files };
+                if (type === 'case-eval') {
+                    await handleProjectFileUpload(fakeInput, id, side);
+                } else if (type === 'solar') {
+                    await handleSolarFileUpload(fakeInput, id, side);
+                } else if (type === 'meeting') {
+                    await handleExternalMeetingUpload(fakeInput, id);
+                } else if (type === 'internal-meet') {
+                    await handleRuiliMeetUpload(fakeInput, id);
+                }
+            }
         }
 
         // ==================== 核心驅動腳本 ====================
