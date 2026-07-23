@@ -76,7 +76,7 @@
             h3, h4 { color: black !important; border-bottom: 1px solid black !important; padding-bottom: 4px !important; }
         }
 
-        /* 📱 一、修改項目：手機直立時顯示旋轉提示；手機橫屏與平板時保持與電腦版一致佈局 */
+        /* 📱 手機直立時顯示旋轉提示 */
         #rotate-hint { display: none; }
         @media screen and (max-width: 932px) and (orientation: portrait) {
             #rotate-hint { display: flex; }
@@ -94,10 +94,9 @@
         <p class="text-xs text-slate-400">系統建議橫屏或使用平板/電腦瀏覽，以利完整進行案件操作與資料試算。</p>
     </div>
 
-    <!-- 🔒 全螢幕獨立登入門檻遮罩 (未驗證時完全遮蔽後方系統) -->
+    <!-- 🔒 全螢幕獨立登入門檻遮罩 -->
     <div id="login-overlay" class="fixed inset-0 bg-cosmic-950 z-50 flex items-center justify-center p-4">
         <div class="bg-cosmic-900 border border-cosmic-700/60 rounded-3xl p-8 w-full max-w-md shadow-2xl space-y-6 text-center">
-            <!-- 圖示藍色方塊 -->
             <div class="w-16 h-16 bg-gradient-to-tr from-cosmic-500 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg mx-auto">
                 <i class="fa-solid fa-user-lock text-white text-2xl"></i>
             </div>
@@ -210,7 +209,7 @@
 
     <!-- MAIN VIEWPORT -->
     <main class="flex-1 flex flex-col overflow-hidden bg-cosmic-950">
-        <!-- TOP BAR (二、修改項目：支援橫屏/平板/電腦完整顯示所有按鍵) -->
+        <!-- TOP BAR (支援平板與手機橫屏顯示) -->
         <header class="h-16 border-b border-cosmic-700/40 px-4 md:px-8 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print overflow-x-auto gap-2">
             <div class="flex items-center space-x-3 shrink-0">
                 <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-48 md:w-64 bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-1.5 text-sm text-white focus:outline-none">
@@ -223,17 +222,18 @@
                 </div>
             </div>
 
+            <!-- 右側功能按鈕 (修正平板/手機版型擠壓，允許縮放不被隱藏) -->
             <div class="flex items-center space-x-2 md:space-x-3 shrink-0">
-                <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md hover:opacity-90 transition shrink-0">
+                <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md hover:opacity-90 transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-plus"></i><span>新增案件</span>
                 </button>
-                <button onclick="deleteCurrentCase()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md transition shrink-0">
+                <button onclick="deleteCurrentCase()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-trash-can"></i><span>刪除案件</span>
                 </button>
-                <button onclick="window.print()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center shadow-lg transition shrink-0">
+                <button onclick="window.print()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center shadow-lg transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-print mr-1.5"></i> 一鍵匯出/列印
                 </button>
-                <button onclick="saveToCloud()" class="bg-emerald-600 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl hover:bg-emerald-500 transition shrink-0">
+                <button onclick="saveToCloud()" class="bg-emerald-600 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl hover:bg-emerald-500 transition shrink-0 whitespace-nowrap">
                     儲存
                 </button>
             </div>
@@ -251,7 +251,7 @@
         </div>
     </main>
 
-    <!-- 自訂刪除案件確認彈窗 (Modal) -->
+    <!-- 自訂刪除案件確認彈窗 -->
     <div id="delete-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center no-print">
         <div class="bg-cosmic-900 border border-cosmic-700 rounded-2xl p-6 w-96 shadow-2xl space-y-5 text-center">
             <div class="w-12 h-12 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto text-xl">
@@ -276,9 +276,7 @@
                 </h3>
                 <button onclick="closeTrashModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div id="trash-items-list" class="space-y-2 max-h-96 overflow-y-auto pr-1">
-                <!-- 刪除案件項目將動態渲染至此 -->
-            </div>
+            <div id="trash-items-list" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
             <div class="text-right pt-2 border-t border-cosmic-700/30">
                 <button onclick="closeTrashModal()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition">關閉</button>
             </div>
@@ -291,9 +289,8 @@
         const SUPABASE_ANON_KEY = "sb_publishable_b712iObCqLZeepWP9SVQaA__Rg2_PTj";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let currentUserRole = "黃逸豪"; // 預設權限身份：黃逸豪 / 中央控台
+        let currentUserRole = "黃逸豪";
 
-        // 資料載入與防空防錯錨點初始化
         let caseEvalData = [
             {
                 id: "eval-1", companyName: "大鼎精密工業股份有限公司", taxId: "83746291", factoryLicense: "64009876", industryType: "金屬製品製造業", contact: "王大鼎", phone: "0912-345678", email: "tading@precision.com", address: "高雄市岡山區本工路88號", companyAddress: "高雄市岡山區本工路88號", companyPhone: "07-6211234", fax: "07-6215678", bankAccount: "玉山銀行岡山分行 0123-456-789012", website: "https://www.tading.com", companyRemark: "",
@@ -386,23 +383,18 @@
         const managersList = ["樊靖畇", "鄭家承", "陳宥騰", "楊裕憲", "楊淯淳", "黃逸豪"];
         const statusConfig = { "初期評估": "bg-emerald-500", "已報價": "bg-blue-500", "準備簽約": "bg-amber-500", "已簽約": "bg-red-500", "結案": "bg-purple-500", "沒下文": "bg-slate-600" };
 
-        // 🔑 門檻登入驗證與遮罩控制邏輯
         function handleRoleLogin() {
             const role = document.getElementById('login-role').value;
             const pass = document.getElementById('login-pass').value;
             
-            // 驗證規則：黃逸豪 (8888)，中央控台 (9999)
             if ((role === '黃逸豪' && pass === '8888') || (role === '中央控台' && pass === '9999')) {
                 currentUserRole = role;
-                // 隱藏登入遮罩，解除鎖定
                 document.getElementById('login-overlay').classList.add('hidden');
                 document.getElementById('login-pass').value = '';
                 
-                // 顯示 Header 使用者 Badge
                 document.getElementById('user-display-name').innerText = role;
                 document.getElementById('current-user-badge').classList.remove('hidden');
 
-                // 控制回收桶按鈕顯示 (僅中央控台可見)
                 const trashBtn = document.getElementById('trash-bin-button-container');
                 if (trashBtn) {
                     if (role === '中央控台') trashBtn.classList.remove('hidden');
@@ -417,7 +409,6 @@
         }
 
         function handleLogout() {
-            // 顯示登入遮罩，鎖定系統
             document.getElementById('login-overlay').classList.remove('hidden');
             document.getElementById('current-user-badge').classList.add('hidden');
         }
@@ -442,21 +433,11 @@
             return [];
         }
 
-        // 💡 判斷案件是否屬於特定使用者 (用於「黃逸豪」身份隔離)
         function isCaseBelongsToUser(caseObj, userName) {
-            if (currentUserRole === '中央控台') return true; // 中央控台可看全部
-            
-            // 檢查主專案經理 / 負責人
-            if (caseObj.evalManager === userName || caseObj.solarManager === userName || caseObj.manager === userName) {
-                return true;
-            }
-            // 檢查會議與會人員
-            if (caseObj.ruiliAttendees && caseObj.ruiliAttendees.includes(userName)) {
-                return true;
-            }
-            if (caseObj.attendees && caseObj.attendees.includes(userName)) {
-                return true;
-            }
+            if (currentUserRole === '中央控台') return true;
+            if (caseObj.evalManager === userName || caseObj.solarManager === userName || caseObj.manager === userName) return true;
+            if (caseObj.ruiliAttendees && caseObj.ruiliAttendees.includes(userName)) return true;
+            if (caseObj.attendees && caseObj.attendees.includes(userName)) return true;
             return false;
         }
 
@@ -466,7 +447,6 @@
                 if (!container) return;
                 let dataArr = getTargetDataArray(tabId);
 
-                // 權限過濾：業務端 (黃逸豪) 隱藏 is_deleted 為 true 的案件，且只能看自己的案件
                 if (currentUserRole !== '中央控台') {
                     dataArr = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
                 }
@@ -559,18 +539,16 @@
             }
         }
 
-        // ==================== 四、修改項目：線上預覽與輔助辨識 ====================
+        // 電腦、平板、手機均可開啟預覽/下載功能
         function previewFileUrl(url, fileName) {
             if (!url) {
-                alert("目前檔案尚未有雲端完整 URL，無法預覽。");
+                alert("目前檔案尚未有雲端完整 URL，無法開啟。");
                 return;
             }
             const ext = (fileName || '').split('.').pop().toLowerCase();
-            // 針對 圖片 (JPG/PNG/WEBP/GIF) 與 PDF，直接開新頁面預覽
             if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'].includes(ext)) {
                 window.open(url, '_blank');
             } else {
-                // Word/Excel 等無法直接瀏覽器內建預覽的檔案維持點擊下載
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = fileName || 'download';
@@ -579,6 +557,11 @@
                 a.click();
                 document.body.removeChild(a);
             }
+        }
+
+        // 通用檔案下載輔助按鈕組件 (加入在垃圾桶左邊)
+        function renderDownloadBtnHTML(fileUrl, fileName) {
+            return `<button onclick="previewFileUrl('${fileUrl||''}', '${fileName||''}')" class="text-cyan-400 hover:text-cyan-300 text-xs mr-2 border border-cyan-500/40 px-2 py-0.5 rounded bg-cosmic-950 no-print" title="點擊下載/開啟檔案"><i class="fa-solid fa-download mr-1"></i>下載</button>`;
         }
 
         // ==================== 一、專案管理 HTML ====================
@@ -828,7 +811,7 @@
                         </div>
                     </div>
 
-                    <!-- 九、檔案上傳 (四、修改項目：點擊可直接線上預覽或下載) -->
+                    <!-- 九、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
@@ -848,7 +831,10 @@
                                         </div>
                                         <div class="flex justify-between items-center pt-1 border-t border-cosmic-700/20 no-print">
                                             <button onclick="previewFileUrl('${f.url}', '${f.clientName || f.actualName}')" class="text-cyan-400 hover:text-cyan-300 text-[11px] font-medium"><i class="fa-solid fa-eye mr-1"></i>預覽/開啟檔案</button>
-                                            <i onclick="removeProjectFile('${c.id}', 'client', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300"></i>
+                                            <div class="flex items-center">
+                                                ${renderDownloadBtnHTML(f.url, f.clientName || f.actualName)}
+                                                <i onclick="removeProjectFile('${c.id}', 'client', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300"></i>
+                                            </div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -872,7 +858,10 @@
                                         </div>
                                         <div class="flex justify-between items-center pt-1 border-t border-cosmic-700/20 no-print">
                                             <button onclick="previewFileUrl('${f.url}', '${f.clientName || f.actualName}')" class="text-cyan-400 hover:text-cyan-300 text-[11px] font-medium"><i class="fa-solid fa-eye mr-1"></i>預覽/開啟檔案</button>
-                                            <i onclick="removeProjectFile('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300"></i>
+                                            <div class="flex items-center">
+                                                ${renderDownloadBtnHTML(f.url, f.clientName || f.actualName)}
+                                                <i onclick="removeProjectFile('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300"></i>
+                                            </div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -885,7 +874,7 @@
             `;
         }
 
-        // ==================== 二、太陽能自建 HTML ====================
+        // ==================== 二、太陽能自建 HTML (已更新十一、客戶應備文件清單) ====================
         function generateSolarHTML(c) {
             let totalLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
             let totalLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
@@ -971,11 +960,11 @@
                         </div>
                     </div>
 
-                    <!-- 四、案件試算 (三、修改項目：文字改為『售電價格』) -->
+                    <!-- 四、案件試算 -->
                     <div class="bg-cosmic-950/40 border border-amber-500/30 p-5 rounded-xl space-y-5 card-box">
                         <h4 class="text-xs font-bold text-amber-300 border-b border-cosmic-700/20 pb-1.5"><i class="fa-solid fa-calculator mr-1.5"></i>四、案件試算</h4>
                         
-                        <!-- ═══ 【預估軌道】 ═══ -->
+                        <!-- 【預估軌道】 -->
                         <div class="space-y-3 bg-cosmic-900/30 p-4 border border-cyan-500/20 rounded-xl">
                             <span class="text-xs font-bold text-cyan-400 tracking-wider flex items-center"><i class="fa-solid fa-chart-pie mr-1.5"></i>【預估】</span>
                             <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
@@ -1006,7 +995,7 @@
                             </div>
                         </div>
 
-                        <!-- ═══ 【現勘軌道】 ═══ -->
+                        <!-- 【現勘軌道】 -->
                         <div class="space-y-3 bg-cosmic-900/30 p-4 border border-purple-500/20 rounded-xl">
                             <span class="text-xs font-bold text-purple-400 tracking-wider flex items-center"><i class="fa-solid fa-compass-drafting mr-1.5"></i>【現勘】</span>
                             <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-purple-500/40 space-y-1.5">
@@ -1270,7 +1259,7 @@
                         </div>
                     </div>
 
-                    <!-- 十一、應備文件清單 -->
+                    <!-- 十一、客戶應備文件清單（新增指定項目：屋頂平面圖、場域線路分佈圖、廠區空拍圖、屋頂現況照片（多角度）） -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
@@ -1288,7 +1277,7 @@
                         </div>
                     </div>
 
-                    <!-- 十二、檔案上傳 (四、修改項目：點擊可直接線上預覽或下載) -->
+                    <!-- 十二、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
@@ -1308,7 +1297,10 @@
                                         </div>
                                         <div class="flex justify-between items-center pt-1 border-t border-cosmic-700/20 no-print">
                                             <button onclick="previewFileUrl('${f.url}', '${f.clientName || f.actualName}')" class="text-cyan-400 hover:text-cyan-300 text-[11px] font-medium"><i class="fa-solid fa-eye mr-1"></i>預覽/開啟檔案</button>
-                                            <i onclick="removeSolarFile('${c.id}', 'client', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300"></i>
+                                            <div class="flex items-center">
+                                                ${renderDownloadBtnHTML(f.url, f.clientName || f.actualName)}
+                                                <i onclick="removeSolarFile('${c.id}', 'client', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300"></i>
+                                            </div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1332,7 +1324,10 @@
                                         </div>
                                         <div class="flex justify-between items-center pt-1 border-t border-cosmic-700/20 no-print">
                                             <button onclick="previewFileUrl('${f.url}', '${f.clientName || f.actualName}')" class="text-cyan-400 hover:text-cyan-300 text-[11px] font-medium"><i class="fa-solid fa-eye mr-1"></i>預覽/開啟檔案</button>
-                                            <i onclick="removeSolarFile('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300"></i>
+                                            <div class="flex items-center">
+                                                ${renderDownloadBtnHTML(f.url, f.clientName || f.actualName)}
+                                                <i onclick="removeSolarFile('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300"></i>
+                                            </div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1350,7 +1345,7 @@
             return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><div class="flex items-center space-x-2"><label class="text-slate-400 text-xs font-bold shrink-0">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full"></div>${generateFooterHTML()}</div>`;
         }
 
-        // ==================== 四、會議記錄 (已新增：公司地址、公司電話、傳真、公司匯款帳戶、備註多行格式) ====================
+        // ==================== 四、會議記錄 (已依指令完成格式更改) ====================
         function generateMeetingHTML(c) {
             return `
                 <div class="card-box bg-cosmic-800/70 border border-purple-500/50 rounded-2xl p-6 space-y-6 shadow-xl">
@@ -1371,7 +1366,7 @@
                         </div>
                     </div>
 
-                    <!-- 二、出席單位與人員 -->
+                    <!-- 二、出席單位與人員 (更改：電話改「聯絡電話」) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/20 pb-1.5">二、出席單位與人員</h4>
                         
@@ -1402,7 +1397,7 @@
                                         <div class="grid grid-cols-1 md:grid-cols-4 gap-2.5 text-xs">
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">公司名稱：</label><input type="text" value="${rep.companyName||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'companyName', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div><label class="text-slate-400 block mb-0.5">姓名：</label><input type="text" value="${rep.name||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'name', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                                            <div><label class="text-slate-400 block mb-0.5">電話：</label><input type="text" value="${rep.phone||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'phone', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">聯絡電話：</label><input type="text" value="${rep.phone||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'phone', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div><label class="text-slate-400 block mb-0.5">統編：</label><input type="text" value="${rep.taxId||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'taxId', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-3"><label class="text-slate-400 block mb-0.5">公司地址：</label><input type="text" value="${rep.address||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'address', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div><label class="text-slate-400 block mb-0.5">公司電話：</label><input type="text" value="${rep.companyPhone||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'companyPhone', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
@@ -1410,7 +1405,7 @@
                                             <div class="md:col-span-3"><label class="text-slate-400 block mb-0.5">公司匯款帳戶：</label><input type="text" value="${rep.bankAccount||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">電子信箱：</label><input type="text" value="${rep.email||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'email', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">網站連結：</label><input type="text" value="${rep.website||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap">${rep.remark||''}</textarea></div>
+                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap" style="overflow:hidden;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';">${rep.remark||''}</textarea></div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1418,7 +1413,7 @@
                         </div>
                     </div>
 
-                    <!-- 三、會議內容 -->
+                    <!-- 三、會議內容 (更改：提案人改會議主題，取消內容與共識討論格式，結論改會議內容，無限延伸無卷軸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
                             <h4 class="text-xs font-bold text-purple-400">三、會議內容</h4>
@@ -1430,20 +1425,12 @@
                                     <i onclick="removeMeetingContentRow('${c.id}', ${idx})" class="fa-solid fa-circle-xmark text-red-400 absolute top-3 right-3 cursor-pointer text-sm hover:text-red-300 no-print"></i>
                                     <div class="grid grid-cols-1 gap-3 text-xs">
                                         <div>
-                                            <label class="text-slate-400 block mb-0.5">提案人：</label>
-                                            <input type="text" value="${item.proposer||''}" oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
+                                            <label class="text-slate-400 block mb-0.5">會議主題：</label>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${item.proposer||''}</textarea>
                                         </div>
                                         <div>
-                                            <label class="text-slate-400 block mb-0.5">內容：</label>
-                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'content', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${item.content||''}</textarea>
-                                        </div>
-                                        <div>
-                                            <label class="text-slate-400 block mb-0.5">共識討論：</label>
-                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'discussion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${item.discussion||''}</textarea>
-                                        </div>
-                                        <div>
-                                            <label class="text-slate-400 block mb-0.5">結論：</label>
-                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${item.conclusion||''}</textarea>
+                                            <label class="text-slate-400 block mb-0.5">會議內容：</label>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] resize-none overflow-hidden block whitespace-pre-wrap">${item.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1451,13 +1438,13 @@
                         </div>
                     </div>
 
-                    <!-- 四、會議總結 -->
+                    <!-- 四、會議總結 (無限延伸無卷軸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">四、會議總結：</label>
-                        <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
+                        <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
                     </div>
 
-                    <!-- 五、檔案上傳 (四、修改項目：點擊可直接線上預覽或下載) -->
+                    <!-- 五、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-purple-500/30 pb-1.5">
                             <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳</span>
@@ -1476,8 +1463,9 @@
                                         <span class="text-[11px] text-slate-500 shrink-0">顯示名稱:</span>
                                         <input type="text" value="${f.clientName}" oninput="updateExternalMeetingFileName('${c.id}', ${i}, this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-1.5 py-0.5 text-white">
                                     </div>
-                                    <div class="md:col-span-3 flex justify-end space-x-3 no-print">
+                                    <div class="md:col-span-3 flex justify-end items-center space-x-2 no-print">
                                         <button onclick="previewFileUrl('${f.url}', '${f.clientName || f.actualName}')" class="text-cyan-400 hover:text-cyan-300 text-[11px] font-medium"><i class="fa-solid fa-eye mr-1"></i>預覽/開啟檔案</button>
+                                        ${renderDownloadBtnHTML(f.url, f.clientName || f.actualName)}
                                         <i onclick="removeExternalMeetingFile('${c.id}', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 flex items-center"></i>
                                     </div>
                                 </div>
@@ -1628,7 +1616,7 @@
                         <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
                     </div>
 
-                    <!-- 六、檔案上傳 (四、修改項目：點擊可直接線上預覽或下載) -->
+                    <!-- 六、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-indigo-500/30 pb-1.5">
                             <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>六、檔案上傳</span>
@@ -1647,8 +1635,9 @@
                                         <span class="text-[11px] text-slate-500 shrink-0">顯示名稱:</span>
                                         <input type="text" value="${f.clientName}" oninput="updateRuiliFileName('${c.id}', ${i}, this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-1.5 py-0.5 text-white">
                                     </div>
-                                    <div class="md:col-span-3 flex justify-end space-x-3 no-print">
+                                    <div class="md:col-span-3 flex justify-end items-center space-x-2 no-print">
                                         <button onclick="previewFileUrl('${f.url}', '${f.clientName || f.actualName}')" class="text-cyan-400 hover:text-cyan-300 text-[11px] font-medium"><i class="fa-solid fa-eye mr-1"></i>預覽/開啟檔案</button>
+                                        ${renderDownloadBtnHTML(f.url, f.clientName || f.actualName)}
                                         <i onclick="removeRuiliMeetFile('${c.id}', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 flex items-center"></i>
                                     </div>
                                 </div>
@@ -1686,14 +1675,13 @@
         function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
         function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
         
-        // Supabase Storage 通用上傳函式 (四、修改項目：確保完整公開 URL 寫入 Supabase 資料庫)
         async function uploadFileToSupabaseStorage(file) {
             try {
                 const filePath = `uploads/${Date.now()}_${file.name}`;
                 const { data, error } = await supabaseClient.storage.from('ruili-files').upload(filePath, file);
                 if (error) {
                     console.error("Storage Error:", error);
-                    return URL.createObjectURL(file); // 備用方案
+                    return URL.createObjectURL(file);
                 }
                 const { data: publicData } = supabaseClient.storage.from('ruili-files').getPublicUrl(filePath);
                 return publicData.publicUrl;
@@ -1782,7 +1770,7 @@
             meetingData.find(c => c.id === id).externalRepresentatives[idx][field] = value;
         }
         function addMeetingContentRow(id) {
-            meetingData.find(c => c.id === id).contents.push({ proposer: "", content: "", discussion: "", conclusion: "" });
+            meetingData.find(c => c.id === id).contents.push({ proposer: "", conclusion: "" });
             renderMainForms();
         }
         function removeMeetingContentRow(id, idx) {
@@ -1974,7 +1962,7 @@
             } else {
                 obj.companyName = "全新案件項目 " + (dataArr.length + 1); 
                 obj.services = []; obj.solarServices = []; obj.lands = []; obj.buildingsLegal = []; obj.buildingsIllegal = []; 
-                obj.customDocsClient = ["電費單", "建築圖", "使用執照"]; obj.customDocsRuili = ["土地謄本"]; 
+                obj.customDocsClient = ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"]; obj.customDocsRuili = ["土地謄本"]; 
                 obj.clientFilesObj = []; obj.ruiliFilesObj = [];
                 obj.electricBill = ""; obj.horsepower = ""; obj.contractCapacity = ""; obj.isHighVoltage = "否"; obj.isTimeRate = "否"; obj.timePeriod = "白天為主";
                 obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = "否"; obj.esgStorage = "否";
@@ -2017,12 +2005,10 @@
             
             if (target) {
                 if (currentUserRole === '中央控台') {
-                    // 中央控台可以直接執行真正的硬刪除 (Hard Delete)
                     const targetIndex = dataArr.findIndex(c => c.id === activeId);
                     if (targetIndex !== -1) dataArr.splice(targetIndex, 1);
                     await supabaseClient.from('cases').delete().eq('id', activeId);
                 } else {
-                    // 業務端：執行軟刪除 (Soft Delete)
                     target.is_deleted = true;
                     target.deleted_at = new Date().toISOString();
                     await supabaseClient.from('cases').upsert({
@@ -2047,7 +2033,6 @@
             }
         }
 
-        // 靜態與手動雲端儲存同步
         async function saveToCloudSilent() {
             const currentObj = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
             if (currentObj) {
@@ -2061,13 +2046,12 @@
             }
         }
 
-        // 五、修改項目：提示文字變更為『資料已儲存！』
         async function saveToCloud() {
             await saveToCloudSilent();
             alert("資料已儲存！");
         }
 
-        // ==================== 回收桶與一鍵復原機制 (中央控台專用) ====================
+        // ==================== 回收桶與一鍵復原機制 ====================
         function openTrashModal() {
             const trashContainer = document.getElementById('trash-items-list');
             let allDeletedCases = [];
@@ -2118,7 +2102,7 @@
                 });
                 renderSidebarSubLists();
                 renderMainForms();
-                openTrashModal(); // 刷新回收桶內部列表
+                openTrashModal();
             }
         }
 
@@ -2151,7 +2135,7 @@
                     'postgres_changes',
                     { event: '*', schema: 'public', table: 'cases' },
                     (payload) => {
-                        fetchSupabaseData(); // 監聽到股東或業務資料變更時即時刷新
+                        fetchSupabaseData();
                     }
                 )
                 .subscribe();
