@@ -503,6 +503,12 @@
             }).join('');
         }
 
+        function autoResizeTextarea(el) {
+            if (!el) return;
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+        }
+
         function renderMainForms() {
             let dataArr = getTargetDataArray(currentActiveTab);
             if (currentUserRole !== '中央控台') {
@@ -539,20 +545,24 @@
                 if (!activeCase.externalRepresentatives) activeCase.externalRepresentatives = [];
                 if (!activeCase.contents) activeCase.contents = [];
                 if (!activeCase.uploadedFiles) activeCase.uploadedFiles = [];
+                if (activeCase.meetSummary === undefined) activeCase.meetSummary = "";
                 container.innerHTML = generateMeetingHTML(activeCase);
             } else if (currentActiveTab === 'internal-meet') {
                 if (!activeCase.attendees) activeCase.attendees = [];
                 if (!activeCase.caseReports) activeCase.caseReports = [];
                 if (!activeCase.proposalReports) activeCase.proposalReports = [];
                 if (!activeCase.uploadedFiles) activeCase.uploadedFiles = [];
+                if (activeCase.financeReport === undefined) activeCase.financeReport = "";
+                if (activeCase.financeReview === undefined) activeCase.financeReview = "";
+                if (activeCase.financeConsensus === undefined) activeCase.financeConsensus = "";
+                if (activeCase.globalConclusion === undefined) activeCase.globalConclusion = "";
                 container.innerHTML = generateInternalMeetHTML(activeCase);
             }
 
             // 初始化文本框動態高度
             setTimeout(() => {
                 container.querySelectorAll('textarea').forEach(ta => {
-                    ta.style.height = 'auto';
-                    ta.style.height = (ta.scrollHeight) + 'px';
+                    autoResizeTextarea(ta);
                 });
             }, 50);
         }
@@ -636,7 +646,7 @@
                             <div><label class="text-slate-400">傳真：</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶：</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司網站連結：</label><input type="text" value="${c.website||''}" oninput="updateField('${c.id}', 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
+                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
 
@@ -658,8 +668,8 @@
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
-                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
                                     </div>
 
                                     <div class="pt-2 border-t border-cosmic-700/20">
@@ -948,7 +958,7 @@
                             <div><label class="text-slate-400">傳真：</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶：</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司網站連結：</label><input type="text" value="${c.website||''}" oninput="updateField('${c.id}', 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
+                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
 
@@ -968,8 +978,8 @@
                                         <div><label class="text-slate-400 block mb-0.5">簽約金額：</label><input type="number" value="${srv.contract||''}" oninput="updateSolarServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'desc', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
-                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'remark', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'desc', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'remark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
                                     </div>
                                     <div class="pt-2 border-t border-cosmic-700/20">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
@@ -1223,7 +1233,7 @@
                                     <option value="自建" ${c.planPartner==='自建'?'selected':''}>自建</option>
                                 </select>
                             </div>
-                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">系統建置備註說明：</label><textarea oninput="updateField('${c.id}', 'planNote', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${c.planNote||''}</textarea></div>
+                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">系統建置備註說明：</label><textarea oninput="updateField('${c.id}', 'planNote', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${c.planNote||''}</textarea></div>
                         </div>
                     </div>
 
@@ -1434,7 +1444,7 @@
                                             <div class="md:col-span-3"><label class="text-slate-400 block mb-0.5">公司匯款帳戶：</label><input type="text" value="${rep.bankAccount||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">電子信箱：</label><input type="text" value="${rep.email||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'email', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">網站連結：</label><input type="text" value="${rep.website||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.remark||''}</textarea></div>
+                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.remark||''}</textarea></div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1455,11 +1465,11 @@
                                     <div class="grid grid-cols-1 gap-3 text-xs">
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">會議主題：</label>
-                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${item.proposer||''}</textarea>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${item.proposer||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">會議內容：</label>
-                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] resize-none overflow-hidden block whitespace-pre-wrap">${item.conclusion||''}</textarea>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] resize-none overflow-hidden block whitespace-pre-wrap">${item.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1470,7 +1480,7 @@
                     <!-- 四、會議總結 (無限延伸/列印無滾動條) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">四、會議總結：</label>
-                        <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
+                        <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
                     </div>
 
                     <!-- 五、檔案上傳 (支援拖曳上傳) -->
@@ -1551,15 +1561,15 @@
                         <div class="space-y-3 text-xs">
                             <div>
                                 <label class="text-slate-400 block mb-1">財務報告：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeReport', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeReport||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeReport', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeReport||''}</textarea>
                             </div>
                             <div>
                                 <label class="text-slate-400 block mb-1">檢討：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeReview', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeReview||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeReview', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeReview||''}</textarea>
                             </div>
                             <div>
                                 <label class="text-slate-400 block mb-1">共識：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeConsensus', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeConsensus||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeConsensus', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeConsensus||''}</textarea>
                             </div>
                         </div>
                     </div>
@@ -1589,11 +1599,11 @@
                                     <div class="text-xs space-y-2">
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">案件進度說明：</label>
-                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'desc', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.desc||''}</textarea>
+                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'desc', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.desc||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">結論：</label>
-                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'conclusion', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.conclusion||''}</textarea>
+                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'conclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1620,19 +1630,19 @@
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">項目：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'item', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.item||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'item', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.item||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">內容：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'content', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.content||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'content', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.content||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">可行性評估：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'feasibility', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.feasibility||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'feasibility', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.feasibility||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">結論：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'conclusion', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.conclusion||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'conclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1643,7 +1653,7 @@
                     <!-- 五、會議總結論 (無限延伸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">五、會議總結論：</label>
-                        <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
+                        <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
                     </div>
 
                     <!-- 六、檔案上傳 (支援拖曳上傳) -->
@@ -1730,14 +1740,26 @@
         }
 
         // ==================== 核心驅動腳本 ====================
-        function updateField(id, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id)[field] = value; }
+        function updateField(id, field, value) { 
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id); 
+            if(target) { target[field] = value; saveToCloudSilent(); }
+        }
         function updateCompanyName(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) { target.companyName = value; renderSidebarSubLists(); }
+            if (target) { target.companyName = value; renderSidebarSubLists(); saveToCloudSilent(); }
         }
-        function updateServiceField(id, idx, field, value) { caseEvalData.find(c => c.id === id).services[idx][field] = value; }
-        function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
-        function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
+        function updateServiceField(id, idx, field, value) { 
+            let target = caseEvalData.find(c => c.id === id);
+            if(target && target.services[idx]) { target.services[idx][field] = value; saveToCloudSilent(); }
+        }
+        function updateSolarServiceField(id, idx, field, value) { 
+            let target = solarData.find(c => c.id === id);
+            if(target && target.solarServices[idx]) { target.solarServices[idx][field] = value; saveToCloudSilent(); }
+        }
+        function updateLandField(id, idx, field, value) { 
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if(target && target.lands[idx]) { target.lands[idx][field] = value; saveToCloudSilent(); }
+        }
         
         async function uploadFileToSupabaseStorage(file, caseId) {
             try {
@@ -1794,6 +1816,7 @@
             let target = caseEvalData.find(c => c.id === id);
             if(side === 'client') target.clientFilesObj[idx].clientName = value;
             else target.ruiliFilesObj[idx].clientName = value;
+            saveToCloudSilent();
         }
         function removeProjectFile(id, side, idx) {
             let target = caseEvalData.find(c => c.id === id);
@@ -1821,6 +1844,7 @@
             let target = solarData.find(c => c.id === id);
             if(side === 'client') target.clientFilesObj[idx].clientName = value;
             else target.ruiliFilesObj[idx].clientName = value;
+            saveToCloudSilent();
         }
         function removeSolarFile(id, side, idx) {
             let target = solarData.find(c => c.id === id);
@@ -1830,40 +1854,59 @@
             saveToCloudSilent();
         }
 
-        function updateMeetField(id, field, value) { let t = internalMeetData.find(c => c.id === id); if(t) t[field] = value; }
+        function updateMeetField(id, field, value) { 
+            let t = internalMeetData.find(c => c.id === id); 
+            if(t) { t[field] = value; saveToCloudSilent(); }
+        }
         function updateMeetSubject(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if(target) { target.meetSubject = value; renderSidebarSubLists(); }
+            if(target) { target.meetSubject = value; renderSidebarSubLists(); saveToCloudSilent(); }
         }
 
-        function updateMeetingMainField(id, field, value) { let t = meetingData.find(c => c.id === id); if(t) t[field] = value; }
+        function updateMeetingMainField(id, field, value) { 
+            let t = meetingData.find(c => c.id === id); 
+            if(t) { t[field] = value; saveToCloudSilent(); }
+        }
         function updateMeetingAttendeeSelection(id, person, isChecked) {
             let target = meetingData.find(c => c.id === id);
             if (!target.ruiliAttendees) target.ruiliAttendees = [];
             if (isChecked) { if(!target.ruiliAttendees.includes(person)) target.ruiliAttendees.push(person); }
             else { target.ruiliAttendees = target.ruiliAttendees.filter(p => p !== person); }
+            saveToCloudSilent();
         }
         function addExternalRepRow(id) {
             meetingData.find(c => c.id === id).externalRepresentatives.push({ companyName: "", name: "", phone: "", taxId: "", address: "", companyPhone: "", fax: "", bankAccount: "", remark: "", email: "", website: "" });
             renderMainForms();
+            saveToCloudSilent();
         }
         function removeExternalRepRow(id, idx) {
             meetingData.find(c => c.id === id).externalRepresentatives.splice(idx, 1);
             renderMainForms();
+            saveToCloudSilent();
         }
         function updateExternalRepField(id, idx, field, value) {
-            meetingData.find(c => c.id === id).externalRepresentatives[idx][field] = value;
+            let target = meetingData.find(c => c.id === id);
+            if(target && target.externalRepresentatives[idx]) {
+                target.externalRepresentatives[idx][field] = value;
+                saveToCloudSilent();
+            }
         }
         function addMeetingContentRow(id) {
             meetingData.find(c => c.id === id).contents.push({ proposer: "", conclusion: "" });
             renderMainForms();
+            saveToCloudSilent();
         }
         function removeMeetingContentRow(id, idx) {
             meetingData.find(c => c.id === id).contents.splice(idx, 1);
             renderMainForms();
+            saveToCloudSilent();
         }
         function updateMeetingContentField(id, idx, field, value) {
-            meetingData.find(c => c.id === id).contents[idx][field] = value;
+            let target = meetingData.find(c => c.id === id);
+            if(target && target.contents[idx]) {
+                target.contents[idx][field] = value;
+                saveToCloudSilent();
+            }
         }
         async function handleExternalMeetingUpload(inputEl, id) {
             let target = meetingData.find(c => c.id === id);
@@ -1877,7 +1920,7 @@
                 saveToCloudSilent();
             }
         }
-        function updateExternalMeetingFileName(id, idx, value) { meetingData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
+        function updateExternalMeetingFileName(id, idx, value) { meetingData.find(c => c.id === id).uploadedFiles[idx].clientName = value; saveToCloudSilent(); }
         function removeExternalMeetingFile(id, idx) { meetingData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
 
         function updateAttendeeSelection(id, person, isChecked) {
@@ -1885,13 +1928,26 @@
             if (!target.attendees) target.attendees = [];
             if (isChecked) { if (!target.attendees.includes(person)) target.attendees.push(person); }
             else { target.attendees = target.attendees.filter(p => p !== person); }
+            saveToCloudSilent();
         }
-        function updateCaseReportField(id, idx, field, value) { internalMeetData.find(c => c.id === id).caseReports[idx][field] = value; }
-        function addRuiliCaseReportRow(id) { internalMeetData.find(c => c.id === id).caseReports.push({ reporter: currentUserRole, caseName: "", desc: "", conclusion: "" }); renderMainForms(); }
-        function removeRuiliCaseReportRow(id, idx) { internalMeetData.find(c => c.id === id).caseReports.splice(idx, 1); renderMainForms(); }
-        function updateProposalField(id, idx, field, value) { internalMeetData.find(c => c.id === id).proposalReports[idx][field] = value; }
-        function addRuiliProposalRow(id) { internalMeetData.find(c => c.id === id).proposalReports.push({ reporter: currentUserRole, item: "", content: "", feasibility: "", conclusion: "" }); renderMainForms(); }
-        function removeRuiliProposalRow(id, idx) { internalMeetData.find(c => c.id === id).proposalReports.splice(idx, 1); renderMainForms(); }
+        function updateCaseReportField(id, idx, field, value) { 
+            let target = internalMeetData.find(c => c.id === id);
+            if(target && target.caseReports[idx]) {
+                target.caseReports[idx][field] = value;
+                saveToCloudSilent();
+            }
+        }
+        function addRuiliCaseReportRow(id) { internalMeetData.find(c => c.id === id).caseReports.push({ reporter: currentUserRole, caseName: "", desc: "", conclusion: "" }); renderMainForms(); saveToCloudSilent(); }
+        function removeRuiliCaseReportRow(id, idx) { internalMeetData.find(c => c.id === id).caseReports.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
+        function updateProposalField(id, idx, field, value) { 
+            let target = internalMeetData.find(c => c.id === id);
+            if(target && target.proposalReports[idx]) {
+                target.proposalReports[idx][field] = value;
+                saveToCloudSilent();
+            }
+        }
+        function addRuiliProposalRow(id) { internalMeetData.find(c => c.id === id).proposalReports.push({ reporter: currentUserRole, item: "", content: "", feasibility: "", conclusion: "" }); renderMainForms(); saveToCloudSilent(); }
+        function removeRuiliProposalRow(id, idx) { internalMeetData.find(c => c.id === id).proposalReports.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
         
         async function handleRuiliMeetUpload(inputEl, id) {
             let target = internalMeetData.find(c => c.id === id);
@@ -1905,7 +1961,7 @@
                 saveToCloudSilent();
             }
         }
-        function updateRuiliFileName(id, idx, value) { internalMeetData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
+        function updateRuiliFileName(id, idx, value) { internalMeetData.find(c => c.id === id).uploadedFiles[idx].clientName = value; saveToCloudSilent(); }
         function removeRuiliMeetFile(id, idx) { internalMeetData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
 
         function updateSolarCheckbox(id, value, isChecked) {
@@ -1913,6 +1969,7 @@
             if (!target.condRoofEquip) target.condRoofEquip = [];
             if (isChecked) { if (!target.condRoofEquip.includes(value)) target.condRoofEquip.push(value); }
             else { target.condRoofEquip = target.condRoofEquip.filter(item => item !== value); }
+            saveToCloudSilent();
         }
 
         function calculateSolarLive(id) {
@@ -1955,6 +2012,7 @@
                 if(pingInput) pingInput.value = ping.toFixed(2);
                 refreshSums();
                 if(currentActiveTab === 'solar') calculateSolarLive(id);
+                saveToCloudSilent();
             }
         }
 
@@ -1962,16 +2020,18 @@
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if(side === 'legal') target.buildingsLegal[idx][field] = value;
             else target.buildingsIllegal[idx][field] = value;
+            saveToCloudSilent();
         }
 
-        function addServiceRow(id) { caseEvalData.find(c => c.id === id).services.push({ name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
-        function removeServiceRow(id, idx) { caseEvalData.find(c => c.id === id).services.splice(idx, 1); renderMainForms(); }
-        function addSolarServiceRow(id) { solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
-        function removeSolarServiceRow(id, idx) { solarData.find(c => c.id === id).solarServices.splice(idx, 1); renderMainForms(); }
+        function addServiceRow(id) { caseEvalData.find(c => c.id === id).services.push({ name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); saveToCloudSilent(); }
+        function removeServiceRow(id, idx) { caseEvalData.find(c => c.id === id).services.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
+        function addSolarServiceRow(id) { solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); saveToCloudSilent(); }
+        function removeSolarServiceRow(id, idx) { solarData.find(c => c.id === id).solarServices.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
 
         function addLandRow(id) { 
             getTargetDataArray(currentActiveTab).find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", currentPrice: "", sqm: 0, ping: 0 }); 
             renderMainForms(); 
+            saveToCloudSilent();
         }
 
         function removeLandRow(id, idx) {
@@ -1981,6 +2041,7 @@
                 renderMainForms();
                 refreshSums();
                 if (currentActiveTab === 'solar') calculateSolarLive(id);
+                saveToCloudSilent();
             }
         }
 
@@ -1990,6 +2051,7 @@
             else target.buildingsIllegal.push({ type: "", year: "", sqm: "", ping: "" });
             renderMainForms();
             if(currentActiveTab === 'solar') calculateSolarLive(id);
+            saveToCloudSilent();
         }
 
         function removeBuildRow(id, side, idx) {
@@ -2003,6 +2065,7 @@
                 renderMainForms();
                 refreshSums();
                 if (currentActiveTab === 'solar') calculateSolarLive(id);
+                saveToCloudSilent();
             }
         }
 
@@ -2013,6 +2076,7 @@
                 if (side === 'client') target.customDocsClient.push(item);
                 else target.customDocsRuili.push(item);
                 renderMainForms();
+                saveToCloudSilent();
             }
         }
         function removeDocItem(id, side, idx) {
@@ -2020,6 +2084,7 @@
             if (side === 'client') target.customDocsClient.splice(idx, 1);
             else target.customDocsRuili.splice(idx, 1);
             renderMainForms();
+            saveToCloudSilent();
         }
 
         function refreshSums() {
