@@ -91,7 +91,7 @@
             🔄
         </div>
         <h3 class="text-lg font-bold text-white mb-2">請將手機轉為橫向以獲得最佳體驗</h3>
-        <p class="text-xs text-slate-400">工廠法規政策顧問，陪企業『轉型』與『體面退場』</p>
+        <p class="text-xs text-slate-400">工廠法規政策顧問，培您轉型與體面退場</p>
     </div>
 
     <!-- 🔒 全螢幕獨立登入門檻遮罩 -->
@@ -303,8 +303,8 @@
                 electricBill: "185000", horsepower: "150", contractCapacity: "120", isHighVoltage: "否", isTimeRate: "是", timePeriod: "白天為主",
                 esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "否",
                 customDocsClient: ["電費單", "使用執照"], customDocsRuili: ["土地謄本", "地籍圖"], 
-                clientFilesObj: [{ clientName: "客戶廠房藍圖.pdf", actualName: "客戶廠房藍圖.pdf" }], 
-                ruiliFilesObj: [{ clientName: "規費核准公文.png", actualName: "規費核准公文.png" }],
+                clientFilesObj: [{ clientName: "客戶廠房藍圖.pdf", actualName: "客戶廠房藍圖.pdf", url: "", path: "" }], 
+                ruiliFilesObj: [{ clientName: "規費核准公文.png", actualName: "規費核准公文.png", url: "", path: "" }],
                 is_deleted: false, deleted_at: null
             }
         ];
@@ -320,8 +320,8 @@
                 electricBill: "450000", horsepower: "300", contractCapacity: "250", isHighVoltage: "是", isTimeRate: "是", timePeriod: "平均分佈",
                 esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "否",
                 customDocsClient: ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"], customDocsRuili: ["土地謄本"], 
-                clientFilesObj: [{ clientName: "太陽能現場照片.jpg", actualName: "太陽能現場照片.jpg" }], 
-                ruiliFilesObj: [{ clientName: "台電饋線核准信.pdf", actualName: "台電饋線核准信.pdf" }],
+                clientFilesObj: [{ clientName: "太陽能現場照片.jpg", actualName: "太陽能現場照片.jpg", url: "", path: "" }], 
+                ruiliFilesObj: [{ clientName: "台電饋線核准信.pdf", actualName: "台電饋線核准信.pdf", url: "", path: "" }],
                 solarServices: [{ name: "屋頂型太陽能光電自建案", quote: "8500000", contract: "8500000", desc: "規劃建置屋頂型太陽光電系統，預估容量約 200 kWp。", remark: "客戶對遮陽與結構補強高度關注。", p1: "2550000", d1: "", p2: "3400000", d2: "", p3: "1700000", d3: "", p4: "850000", d4: "" }],
                 estPing: "500", estPrice: "3.5", estRentUnit: "600",
                 surveyPing: "500", surveyPanels: "600", surveyWatts: "440", surveyPrice: "4.8", surveyIncome: "0", surveyBill: "0", surveyMaint: "0",
@@ -349,7 +349,7 @@
                 ],
                 meetSummary: "探討特定工廠改善計畫及接班企業轉型顧問合作案，公會同意協助引薦會員企業。",
                 uploadedFiles: [
-                    { clientName: "公會合作意向書草案.pdf", actualName: "公會合作意向書草案.pdf" }
+                    { clientName: "公會合作意向書草案.pdf", actualName: "公會合作意向書草案.pdf", url: "", path: "" }
                 ],
                 is_deleted: false, deleted_at: null
             }
@@ -371,7 +371,7 @@
                 ],
                 globalConclusion: "全集團各分支機構深化數位轉型，確保直式A4列印合約與報告完美契合客戶端審查規範。",
                 uploadedFiles: [
-                    { clientName: "上半年財務稽核總表.pdf", actualName: "上半年財務稽核總表.pdf" }
+                    { clientName: "上半年財務稽核總表.pdf", actualName: "上半年財務稽核總表.pdf", url: "", path: "" }
                 ],
                 is_deleted: false, deleted_at: null
             }
@@ -1675,19 +1675,25 @@
         function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
         function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
         
-        async function uploadFileToSupabaseStorage(file) {
+        // 核心修改 1：接收 caseId，建立動態虛擬資料夾路徑
+        async function uploadFileToSupabaseStorage(file, caseId) {
             try {
-                const filePath = `uploads/${Date.now()}_${file.name}`;
+                // 自動以案件 ID 作為前綴，形成所屬專屬資料夾架構：[案件編號/ID]/時間_檔名
+                const folderName = caseId ? caseId : 'uncategorized';
+                const filePath = `${folderName}/${Date.now()}_${file.name}`;
+                
                 const { data, error } = await supabaseClient.storage.from('ruili-files').upload(filePath, file);
                 if (error) {
                     console.error("Storage Error:", error);
-                    return URL.createObjectURL(file);
+                    return { url: URL.createObjectURL(file), path: filePath };
                 }
                 const { data: publicData } = supabaseClient.storage.from('ruili-files').getPublicUrl(filePath);
-                return publicData.publicUrl;
+                
+                // 同時回傳完整 URL 與資料夾相對應的 Path
+                return { url: publicData.publicUrl, path: filePath };
             } catch (err) {
                 console.error("Upload error:", err);
-                return URL.createObjectURL(file);
+                return { url: URL.createObjectURL(file), path: "" };
             }
         }
 
@@ -1696,8 +1702,10 @@
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileUrl = await uploadFileToSupabaseStorage(file);
-                    let fileObj = { clientName: file.name, actualName: file.name, url: fileUrl };
+                    // 核心修改 2：傳入案件 ID
+                    let fileResult = await uploadFileToSupabaseStorage(file, id); 
+                    // 核心修改 3：將 path 一併寫入資料庫
+                    let fileObj = { clientName: file.name, actualName: file.name, url: fileResult.url, path: fileResult.path };
                     if(side === 'client') target.clientFilesObj.push(fileObj);
                     else target.ruiliFilesObj.push(fileObj);
                 }
@@ -1723,8 +1731,8 @@
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileUrl = await uploadFileToSupabaseStorage(file);
-                    let fileObj = { clientName: file.name, actualName: file.name, url: fileUrl };
+                    let fileResult = await uploadFileToSupabaseStorage(file, id);
+                    let fileObj = { clientName: file.name, actualName: file.name, url: fileResult.url, path: fileResult.path };
                     if(side === 'client') target.clientFilesObj.push(fileObj);
                     else target.ruiliFilesObj.push(fileObj);
                 }
@@ -1785,8 +1793,8 @@
             if (target && inputEl.files) {
                 for(let i=0; i<inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileUrl = await uploadFileToSupabaseStorage(file);
-                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileUrl });
+                    let fileResult = await uploadFileToSupabaseStorage(file, id);
+                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileResult.url, path: fileResult.path });
                 }
                 renderMainForms();
                 saveToCloudSilent();
@@ -1813,8 +1821,8 @@
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileUrl = await uploadFileToSupabaseStorage(file);
-                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileUrl });
+                    let fileResult = await uploadFileToSupabaseStorage(file, id);
+                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileResult.url, path: fileResult.path });
                 }
                 renderMainForms();
                 saveToCloudSilent();
