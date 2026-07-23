@@ -219,12 +219,11 @@
 
     <!-- MAIN VIEWPORT -->
     <main class="flex-1 flex flex-col overflow-hidden bg-cosmic-950">
-        <!-- TOP BAR (支援平板與手機橫屏顯示) -->
+        <!-- TOP BAR -->
         <header class="h-16 border-b border-cosmic-700/40 px-4 md:px-8 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print overflow-x-auto gap-2">
             <div class="flex items-center space-x-3 shrink-0">
                 <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-48 md:w-64 bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-1.5 text-sm text-white focus:outline-none">
                 
-                <!-- 已登入使用者提示資訊與登出鈕 -->
                 <div id="current-user-badge" class="hidden flex items-center space-x-2 bg-cosmic-950/80 border border-cyan-500/50 px-3 py-1 rounded-xl text-xs text-cyan-400 shrink-0">
                     <i class="fa-solid fa-user-shield"></i>
                     <span>已登入：<strong id="user-display-name" class="text-white"></strong></span>
@@ -232,7 +231,6 @@
                 </div>
             </div>
 
-            <!-- 右側功能按鈕 (修正平板/手機版型擠壓，允許縮放不被隱藏) -->
             <div class="flex items-center space-x-2 md:space-x-3 shrink-0">
                 <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md hover:opacity-90 transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-plus"></i><span>新增案件</span>
@@ -276,7 +274,7 @@
         </div>
     </div>
 
-    <!-- 股東端專用：資源回收桶 Modal -->
+    <!-- 資源回收桶 Modal -->
     <div id="trash-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
         <div class="bg-cosmic-900 border border-cosmic-700 rounded-2xl p-6 w-full max-w-2xl shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-cosmic-700/50 pb-3">
@@ -300,7 +298,7 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUserRole = "黃逸豪";
-        let isSavingLocal = false; // 標記是否為本機主動儲存
+        let isSavingLocal = false;
 
         let caseEvalData = [
             {
@@ -560,7 +558,6 @@
                 container.innerHTML = generateInternalMeetHTML(activeCase);
             }
 
-            // 初始化文本框動態高度
             setTimeout(() => {
                 container.querySelectorAll('textarea').forEach(ta => {
                     autoResizeTextarea(ta);
@@ -568,7 +565,6 @@
             }, 50);
         }
 
-        // 電腦、平板、手機均可開啟預覽/下載功能 (優化手機 PDF 開啟問題)
         function previewFileUrl(url, fileName) {
             if (!url) {
                 alert("目前檔案尚未有雲端完整 URL，無法開啟。");
@@ -595,7 +591,6 @@
             }
         }
 
-        // 通用檔案下載輔助按鈕組件 (加入在垃圾桶左邊)
         function renderDownloadBtnHTML(fileUrl, fileName) {
             return `<button onclick="previewFileUrl('${fileUrl||''}', '${fileName||''}')" class="text-cyan-400 hover:text-cyan-300 text-xs mr-2 border border-cyan-500/40 px-2 py-0.5 rounded bg-cosmic-950 no-print" title="點擊下載/開啟檔案"><i class="fa-solid fa-download mr-1"></i>下載</button>`;
         }
@@ -611,7 +606,6 @@
                 <div class="card-box bg-cosmic-800/70 border border-cosmic-700/50 rounded-2xl p-6 space-y-6 shadow-xl">
                     <div class="border-b border-cosmic-700/40 pb-2"><h3 class="text-sm font-bold text-cyan-400"><i class="fa-solid fa-network-wired mr-2"></i>專案管理</h3></div>
 
-                    <!-- 一、專案人員 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">一、專案人員</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -630,7 +624,6 @@
                         </div>
                     </div>
 
-                    <!-- 二、公司基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">二、公司基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -651,7 +644,6 @@
                         </div>
                     </div>
 
-                    <!-- 三、服務項目 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/40 pb-1.5">
                             <h4 class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-layer-group mr-1.5"></i>三、服務項目</h4>
@@ -661,18 +653,15 @@
                             ${c.services.map((srv, idx) => `
                                 <div class="bg-cosmic-900/60 border border-cosmic-700/50 p-4 rounded-xl space-y-3 relative card-box">
                                     <i onclick="removeServiceRow('${c.id}', ${idx})" class="fa-solid fa-circle-xmark text-red-400 absolute top-3 right-3 cursor-pointer text-sm hover:text-red-300 no-print"></i>
-                                    
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                                         <div><label class="text-slate-400 block mb-0.5">服務項目：</label><input type="text" value="${srv.name||''}" oninput="updateServiceField('${c.id}', ${idx}, 'name', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                         <div><label class="text-slate-400 block mb-0.5">報價金額：</label><input type="number" value="${srv.quote||''}" oninput="updateServiceField('${c.id}', ${idx}, 'quote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                         <div><label class="text-slate-400 block mb-0.5">簽約金額：</label><input type="number" value="${srv.contract||''}" oninput="updateServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                     </div>
-
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                                         <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
                                     </div>
-
                                     <div class="pt-2 border-t border-cosmic-700/20">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
                                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
@@ -689,7 +678,6 @@
                         </div>
                     </div>
 
-                    <!-- 四、土地基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
                             <h4 class="text-xs font-bold text-emerald-400">四、土地基本資料</h4>
@@ -724,7 +712,6 @@
                         </div>
                     </div>
 
-                    <!-- 五、建物基本資料 -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
@@ -763,7 +750,6 @@
                         </div>
                     </div>
 
-                    <!-- 六、用電狀況 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-amber-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-bolt mr-1.5"></i>六、用電狀況</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
@@ -792,7 +778,6 @@
                         </div>
                     </div>
 
-                    <!-- 七、ESG評估與企業轉型 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-leaf mr-1.5"></i>七、ESG評估與企業轉型</h4>
                         <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
@@ -829,7 +814,6 @@
                         </div>
                     </div>
 
-                    <!-- 八、應備文件清單 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
@@ -923,7 +907,6 @@
                 <div class="card-box bg-cosmic-800/70 border border-amber-500/40 rounded-2xl p-6 space-y-6 shadow-xl">
                     <div class="border-b border-amber-500/40 pb-2"><h3 class="text-sm font-bold text-amber-400"><i class="fa-solid fa-solar-panel mr-2"></i>太陽能自建</h3></div>
 
-                    <!-- 一、專案人員 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">一、專案人員</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -942,7 +925,6 @@
                         </div>
                     </div>
 
-                    <!-- 二、公司基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">二、公司基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -963,7 +945,6 @@
                         </div>
                     </div>
 
-                    <!-- 三、服務項目 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/40 pb-1.5">
                             <h4 class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-layer-group mr-1.5"></i>三、服務項目</h4>
@@ -998,11 +979,9 @@
                         </div>
                     </div>
 
-                    <!-- 四、案件試算 -->
                     <div class="bg-cosmic-950/40 border border-amber-500/30 p-5 rounded-xl space-y-5 card-box">
                         <h4 class="text-xs font-bold text-amber-300 border-b border-cosmic-700/20 pb-1.5"><i class="fa-solid fa-calculator mr-1.5"></i>四、案件試算</h4>
                         
-                        <!-- 【預估軌道】 -->
                         <div class="space-y-3 bg-cosmic-900/30 p-4 border border-cyan-500/20 rounded-xl">
                             <span class="text-xs font-bold text-cyan-400 tracking-wider flex items-center"><i class="fa-solid fa-chart-pie mr-1.5"></i>【預估】</span>
                             <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
@@ -1033,7 +1012,6 @@
                             </div>
                         </div>
 
-                        <!-- 【現勘軌道】 -->
                         <div class="space-y-3 bg-cosmic-900/30 p-4 border border-purple-500/20 rounded-xl">
                             <span class="text-xs font-bold text-purple-400 tracking-wider flex items-center"><i class="fa-solid fa-compass-drafting mr-1.5"></i>【現勘】</span>
                             <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-purple-500/40 space-y-1.5">
@@ -1073,10 +1051,9 @@
                         </div>
                     </div>
 
-                    <!-- 五、土地基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
-                            <h4 class="text-xs font-bold text-emerald-400">五、土地基本資料 (平方公尺自動乘*0.3025帶入坪數)</h4>
+                            <h4 class="text-xs font-bold text-emerald-400">五、土地基本資料</h4>
                             <button onclick="addLandRow('${c.id}')" class="text-[10px] bg-emerald-900 border border-emerald-700 px-2 py-0.5 rounded no-print">[＋ 地段地號]</button>
                         </div>
                         <div class="grid grid-cols-2 gap-3 text-xs pt-1 pb-2 border-b border-cosmic-700/20">
@@ -1108,7 +1085,6 @@
                         </div>
                     </div>
 
-                    <!-- 六、建物基本資料 -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
@@ -1147,7 +1123,6 @@
                         </div>
                     </div>
 
-                    <!-- 七、用電狀況 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-amber-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-bolt mr-1.5"></i>七、用電狀況</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
@@ -1176,7 +1151,6 @@
                         </div>
                     </div>
 
-                    <!-- 八、ESG評估與企業轉型 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-leaf mr-1.5"></i>八、ESG評估與企業轉型</h4>
                         <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
@@ -1213,7 +1187,6 @@
                         </div>
                     </div>
 
-                    <!-- 九、系統規劃方向 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-sky-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-diagram-project mr-1.5"></i>九、系統規劃方向</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -1238,7 +1211,6 @@
                         </div>
                     </div>
 
-                    <!-- 十、建物條件與結構安全現勘評估 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-violet-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-shield-halved mr-1.5"></i>十、建物條件與結構安全現勘評估</h4>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
@@ -1297,7 +1269,6 @@
                         </div>
                     </div>
 
-                    <!-- 十一、客戶應備文件清單 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
@@ -1391,7 +1362,6 @@
                 <div class="card-box bg-cosmic-800/70 border border-purple-500/50 rounded-2xl p-6 space-y-6 shadow-xl">
                     <div class="border-b border-purple-500/40 pb-2"><h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-handshake mr-2"></i>會議記錄</h3></div>
                     
-                    <!-- 一、會議資訊 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-purple-300 border-b border-cosmic-700/20 pb-1.5">一、會議資訊</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
@@ -1406,7 +1376,6 @@
                         </div>
                     </div>
 
-                    <!-- 二、出席單位與人員 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/20 pb-1.5">二、出席單位與人員</h4>
                         
@@ -1453,7 +1422,6 @@
                         </div>
                     </div>
 
-                    <!-- 三、會議內容 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
                             <h4 class="text-xs font-bold text-purple-400">三、會議內容</h4>
@@ -1478,7 +1446,6 @@
                         </div>
                     </div>
 
-                    <!-- 四、會議總結 (無限延伸/列印無滾動條) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">四、會議總結：</label>
                         <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
@@ -1527,7 +1494,6 @@
                         <h3 class="text-sm font-bold text-indigo-400"><i class="fa-solid fa-comments mr-2"></i>睿立會議紀錄</h3>
                     </div>
 
-                    <!-- 一、會議資訊 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-indigo-300 border-b border-cosmic-700/20 pb-1.5">一、會議資訊</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
@@ -1556,7 +1522,6 @@
                         </div>
                     </div>
 
-                    <!-- 二、財務報告 (無限延伸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-emerald-400 border-b border-cosmic-700/20 pb-1.5">二、財務報告</h4>
                         <div class="space-y-3 text-xs">
@@ -1575,7 +1540,6 @@
                         </div>
                     </div>
 
-                    <!-- 三、案件報告 (無限延伸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
                             <h4 class="text-xs font-bold text-cyan-400">三、案件報告</h4>
@@ -1612,7 +1576,6 @@
                         </div>
                     </div>
 
-                    <!-- 四、提案報告 (無限延伸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
                             <h4 class="text-xs font-bold text-purple-400">四、提案報告</h4>
@@ -1651,7 +1614,6 @@
                         </div>
                     </div>
 
-                    <!-- 五、會議總結論 (無限延伸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">五、會議總結論：</label>
                         <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
@@ -1740,7 +1702,6 @@
             }
         }
 
-        // ==================== 核心驅動腳本 ====================
         function updateField(id, field, value) { 
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id); 
             if(target) { target[field] = value; saveToCloudSilent(); }
@@ -1762,6 +1723,7 @@
             if(target && target.lands[idx]) { target.lands[idx][field] = value; saveToCloudSilent(); }
         }
         
+        // 🛠️ 強化後的 Supabase Storage 上傳邏輯（確保案件分夾與報錯捕捉）
         async function uploadFileToSupabaseStorage(file, caseId) {
             try {
                 if (!file) {
@@ -1777,12 +1739,13 @@
                     .from('ruili-files')
                     .upload(filePath, file, {
                         cacheControl: '3600',
-                        upsert: false
+                        upsert: true
                     });
 
                 if (error) {
-                    console.error("Storage Error:", error.message || error);
-                    return { url: URL.createObjectURL(file), path: filePath };
+                    console.error("Supabase Storage Error Details:", error);
+                    alert("上傳至 Supabase Storage 失敗: " + (error.message || JSON.stringify(error)));
+                    return { url: "", path: "" };
                 }
 
                 const { data: publicData } = supabaseClient.storage
@@ -1795,7 +1758,7 @@
                 };
             } catch (err) {
                 console.error("Upload exception caught:", err);
-                return { url: URL.createObjectURL(file), path: "" };
+                return { url: "", path: "" };
             }
         }
 
@@ -2188,16 +2151,9 @@
             }
         }
 
-        // ==================== 持久化儲存 (Supabase + localStorage 備份) ====================
         function saveLocalBackup() {
             try {
-                const allData = {
-                    caseEvalData,
-                    solarData,
-                    tradingData,
-                    meetingData,
-                    internalMeetData
-                };
+                const allData = { caseEvalData, solarData, tradingData, meetingData, internalMeetData };
                 localStorage.setItem('ruili_system_data_backup', JSON.stringify(allData));
             } catch (err) {
                 console.error("Local storage save error:", err);
@@ -2207,8 +2163,7 @@
         async function saveToCloudSilent() {
             const currentObj = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
             if (currentObj) {
-                isSavingLocal = true; // 標記為本機發起的變更
-                // 1. 寫入 Supabase 資料表
+                isSavingLocal = true;
                 const { error } = await supabaseClient.from('cases').upsert({
                     id: currentObj.id,
                     tab_category: currentActiveTab,
@@ -2221,10 +2176,7 @@
                     console.error("Supabase Save Error:", error);
                 }
 
-                // 2. 備份至 localStorage
                 saveLocalBackup();
-
-                // 避免觸發即時同步覆蓋
                 setTimeout(() => { isSavingLocal = false; }, 1000);
             }
         }
@@ -2234,7 +2186,6 @@
             alert("資料已持久化儲存至 Supabase 資料庫與本機快取！");
         }
 
-        // ==================== 回收桶與一鍵復原機制 ====================
         function openTrashModal() {
             const trashContainer = document.getElementById('trash-items-list');
             let allDeletedCases = [];
@@ -2292,7 +2243,6 @@
             }
         }
 
-        // ==================== Supabase 資料載入與 Realtime 即時監聽 ====================
         async function fetchSupabaseData() {
             try {
                 const { data, error } = await supabaseClient.from('cases').select('*');
@@ -2348,7 +2298,6 @@
                     'postgres_changes',
                     { event: '*', schema: 'public', table: 'cases' },
                     (payload) => {
-                        // 如果是自己本機觸發的寫入，不要重複觸發重畫畫面，避免覆蓋輸入中的內容
                         if (!isSavingLocal) {
                             fetchSupabaseData();
                         }
@@ -2357,7 +2306,6 @@
                 .subscribe();
         }
 
-        // 頁面載入自動讀取資料
         document.addEventListener('DOMContentLoaded', function() {
             fetchSupabaseData();
         });
