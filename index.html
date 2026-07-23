@@ -64,10 +64,6 @@
                 padding: 2px !important;
                 font-weight: bold !important;
             }
-            textarea {
-                height: auto !important;
-                overflow: visible !important;
-            }
             .text-white, .text-slate-300, .text-slate-400, .text-amber-300, .text-amber-400, .text-cyan-400, .text-emerald-400, .text-purple-300, .text-purple-400, .text-indigo-300, .text-indigo-400, .text-teal-400, .text-sky-400, .text-violet-400, label { 
                 color: black !important; 
                 -webkit-text-fill-color: black !important;
@@ -84,12 +80,6 @@
         #rotate-hint { display: none; }
         @media screen and (max-width: 932px) and (orientation: portrait) {
             #rotate-hint { display: flex; }
-        }
-
-        /* 拖曳區高亮樣式 */
-        .drag-over {
-            border-color: #38bdf8 !important;
-            background-color: rgba(56, 189, 248, 0.1) !important;
         }
     </style>
 </head>
@@ -219,11 +209,12 @@
 
     <!-- MAIN VIEWPORT -->
     <main class="flex-1 flex flex-col overflow-hidden bg-cosmic-950">
-        <!-- TOP BAR -->
+        <!-- TOP BAR (支援平板與手機橫屏顯示) -->
         <header class="h-16 border-b border-cosmic-700/40 px-4 md:px-8 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print overflow-x-auto gap-2">
             <div class="flex items-center space-x-3 shrink-0">
                 <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-48 md:w-64 bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-1.5 text-sm text-white focus:outline-none">
                 
+                <!-- 已登入使用者提示資訊與登出鈕 -->
                 <div id="current-user-badge" class="hidden flex items-center space-x-2 bg-cosmic-950/80 border border-cyan-500/50 px-3 py-1 rounded-xl text-xs text-cyan-400 shrink-0">
                     <i class="fa-solid fa-user-shield"></i>
                     <span>已登入：<strong id="user-display-name" class="text-white"></strong></span>
@@ -231,6 +222,7 @@
                 </div>
             </div>
 
+            <!-- 右側功能按鈕 (修正平板/手機版型擠壓，允許縮放不被隱藏) -->
             <div class="flex items-center space-x-2 md:space-x-3 shrink-0">
                 <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md hover:opacity-90 transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-plus"></i><span>新增案件</span>
@@ -274,7 +266,7 @@
         </div>
     </div>
 
-    <!-- 資源回收桶 Modal -->
+    <!-- 股東端專用：資源回收桶 Modal -->
     <div id="trash-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
         <div class="bg-cosmic-900 border border-cosmic-700 rounded-2xl p-6 w-full max-w-2xl shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-cosmic-700/50 pb-3">
@@ -298,7 +290,6 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUserRole = "黃逸豪";
-        let isSavingLocal = false;
 
         let caseEvalData = [
             {
@@ -312,8 +303,8 @@
                 electricBill: "185000", horsepower: "150", contractCapacity: "120", isHighVoltage: "否", isTimeRate: "是", timePeriod: "白天為主",
                 esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "否",
                 customDocsClient: ["電費單", "使用執照"], customDocsRuili: ["土地謄本", "地籍圖"], 
-                clientFilesObj: [{ clientName: "客戶廠房藍圖.pdf", actualName: "客戶廠房藍圖.pdf", url: "", path: "" }], 
-                ruiliFilesObj: [{ clientName: "規費核准公文.png", actualName: "規費核准公文.png", url: "", path: "" }],
+                clientFilesObj: [{ clientName: "客戶廠房藍圖.pdf", actualName: "客戶廠房藍圖.pdf" }], 
+                ruiliFilesObj: [{ clientName: "規費核准公文.png", actualName: "規費核准公文.png" }],
                 is_deleted: false, deleted_at: null
             }
         ];
@@ -329,8 +320,8 @@
                 electricBill: "450000", horsepower: "300", contractCapacity: "250", isHighVoltage: "是", isTimeRate: "是", timePeriod: "平均分佈",
                 esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "否",
                 customDocsClient: ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"], customDocsRuili: ["土地謄本"], 
-                clientFilesObj: [{ clientName: "太陽能現場照片.jpg", actualName: "太陽能現場照片.jpg", url: "", path: "" }], 
-                ruiliFilesObj: [{ clientName: "台電饋線核准信.pdf", actualName: "台電饋線核准信.pdf", url: "", path: "" }],
+                clientFilesObj: [{ clientName: "太陽能現場照片.jpg", actualName: "太陽能現場照片.jpg" }], 
+                ruiliFilesObj: [{ clientName: "台電饋線核准信.pdf", actualName: "台電饋線核准信.pdf" }],
                 solarServices: [{ name: "屋頂型太陽能光電自建案", quote: "8500000", contract: "8500000", desc: "規劃建置屋頂型太陽光電系統，預估容量約 200 kWp。", remark: "客戶對遮陽與結構補強高度關注。", p1: "2550000", d1: "", p2: "3400000", d2: "", p3: "1700000", d3: "", p4: "850000", d4: "" }],
                 estPing: "500", estPrice: "3.5", estRentUnit: "600",
                 surveyPing: "500", surveyPanels: "600", surveyWatts: "440", surveyPrice: "4.8", surveyIncome: "0", surveyBill: "0", surveyMaint: "0",
@@ -358,7 +349,7 @@
                 ],
                 meetSummary: "探討特定工廠改善計畫及接班企業轉型顧問合作案，公會同意協助引薦會員企業。",
                 uploadedFiles: [
-                    { clientName: "公會合作意向書草案.pdf", actualName: "公會合作意向書草案.pdf", url: "", path: "" }
+                    { clientName: "公會合作意向書草案.pdf", actualName: "公會合作意向書草案.pdf" }
                 ],
                 is_deleted: false, deleted_at: null
             }
@@ -380,7 +371,7 @@
                 ],
                 globalConclusion: "全集團各分支機構深化數位轉型，確保直式A4列印合約與報告完美契合客戶端審查規範。",
                 uploadedFiles: [
-                    { clientName: "上半年財務稽核總表.pdf", actualName: "上半年財務稽核總表.pdf", url: "", path: "" }
+                    { clientName: "上半年財務稽核總表.pdf", actualName: "上半年財務稽核總表.pdf" }
                 ],
                 is_deleted: false, deleted_at: null
             }
@@ -502,12 +493,6 @@
             }).join('');
         }
 
-        function autoResizeTextarea(el) {
-            if (!el) return;
-            el.style.height = 'auto';
-            el.style.height = (el.scrollHeight) + 'px';
-        }
-
         function renderMainForms() {
             let dataArr = getTargetDataArray(currentActiveTab);
             if (currentUserRole !== '中央控台') {
@@ -544,42 +529,25 @@
                 if (!activeCase.externalRepresentatives) activeCase.externalRepresentatives = [];
                 if (!activeCase.contents) activeCase.contents = [];
                 if (!activeCase.uploadedFiles) activeCase.uploadedFiles = [];
-                if (activeCase.meetSummary === undefined) activeCase.meetSummary = "";
                 container.innerHTML = generateMeetingHTML(activeCase);
             } else if (currentActiveTab === 'internal-meet') {
                 if (!activeCase.attendees) activeCase.attendees = [];
                 if (!activeCase.caseReports) activeCase.caseReports = [];
                 if (!activeCase.proposalReports) activeCase.proposalReports = [];
                 if (!activeCase.uploadedFiles) activeCase.uploadedFiles = [];
-                if (activeCase.financeReport === undefined) activeCase.financeReport = "";
-                if (activeCase.financeReview === undefined) activeCase.financeReview = "";
-                if (activeCase.financeConsensus === undefined) activeCase.financeConsensus = "";
-                if (activeCase.globalConclusion === undefined) activeCase.globalConclusion = "";
                 container.innerHTML = generateInternalMeetHTML(activeCase);
             }
-
-            setTimeout(() => {
-                container.querySelectorAll('textarea').forEach(ta => {
-                    autoResizeTextarea(ta);
-                });
-            }, 50);
         }
 
+        // 電腦、平板、手機均可開啟預覽/下載功能
         function previewFileUrl(url, fileName) {
             if (!url) {
                 alert("目前檔案尚未有雲端完整 URL，無法開啟。");
                 return;
             }
             const ext = (fileName || '').split('.').pop().toLowerCase();
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
             if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'].includes(ext)) {
-                if (isMobile) {
-                    const win = window.open(url, '_blank');
-                    if (!win) location.href = url;
-                } else {
-                    window.open(url, '_blank');
-                }
+                window.open(url, '_blank');
             } else {
                 const a = document.createElement('a');
                 a.href = url;
@@ -591,6 +559,7 @@
             }
         }
 
+        // 通用檔案下載輔助按鈕組件 (加入在垃圾桶左邊)
         function renderDownloadBtnHTML(fileUrl, fileName) {
             return `<button onclick="previewFileUrl('${fileUrl||''}', '${fileName||''}')" class="text-cyan-400 hover:text-cyan-300 text-xs mr-2 border border-cyan-500/40 px-2 py-0.5 rounded bg-cosmic-950 no-print" title="點擊下載/開啟檔案"><i class="fa-solid fa-download mr-1"></i>下載</button>`;
         }
@@ -606,6 +575,7 @@
                 <div class="card-box bg-cosmic-800/70 border border-cosmic-700/50 rounded-2xl p-6 space-y-6 shadow-xl">
                     <div class="border-b border-cosmic-700/40 pb-2"><h3 class="text-sm font-bold text-cyan-400"><i class="fa-solid fa-network-wired mr-2"></i>專案管理</h3></div>
 
+                    <!-- 一、專案人員 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">一、專案人員</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -624,10 +594,11 @@
                         </div>
                     </div>
 
+                    <!-- 二、公司基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">二、公司基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
-                            <div class="md:col-span-2"><label class="text-slate-400">公司名稱：</label><input type="text" value="${c.companyName||''}" oninput="updateCompanyName('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-medium"></div>
+                            <div class="md:col-span-2"><label class="text-slate-400">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-medium"></div>
                             <div><label class="text-slate-400">統編：</label><input type="text" value="${c.taxId||''}" oninput="updateField('${c.id}', 'taxId', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div><label class="text-slate-400">工廠登記證字號：</label><input type="text" value="${c.factoryLicense||''}" oninput="updateField('${c.id}', 'factoryLicense', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div><label class="text-slate-400">產業類型：</label><input type="text" value="${c.industryType||''}" oninput="updateField('${c.id}', 'industryType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
@@ -640,10 +611,11 @@
                             <div><label class="text-slate-400">傳真：</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶：</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司網站連結：</label><input type="text" value="${c.website||''}" oninput="updateField('${c.id}', 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
+                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
 
+                    <!-- 三、服務項目 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/40 pb-1.5">
                             <h4 class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-layer-group mr-1.5"></i>三、服務項目</h4>
@@ -653,15 +625,18 @@
                             ${c.services.map((srv, idx) => `
                                 <div class="bg-cosmic-900/60 border border-cosmic-700/50 p-4 rounded-xl space-y-3 relative card-box">
                                     <i onclick="removeServiceRow('${c.id}', ${idx})" class="fa-solid fa-circle-xmark text-red-400 absolute top-3 right-3 cursor-pointer text-sm hover:text-red-300 no-print"></i>
+                                    
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                                         <div><label class="text-slate-400 block mb-0.5">服務項目：</label><input type="text" value="${srv.name||''}" oninput="updateServiceField('${c.id}', ${idx}, 'name', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                         <div><label class="text-slate-400 block mb-0.5">報價金額：</label><input type="number" value="${srv.quote||''}" oninput="updateServiceField('${c.id}', ${idx}, 'quote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                         <div><label class="text-slate-400 block mb-0.5">簽約金額：</label><input type="number" value="${srv.contract||''}" oninput="updateServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                     </div>
+
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
-                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
+
                                     <div class="pt-2 border-t border-cosmic-700/20">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
                                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
@@ -678,6 +653,7 @@
                         </div>
                     </div>
 
+                    <!-- 四、土地基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
                             <h4 class="text-xs font-bold text-emerald-400">四、土地基本資料</h4>
@@ -712,6 +688,7 @@
                         </div>
                     </div>
 
+                    <!-- 五、建物基本資料 -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
@@ -750,6 +727,7 @@
                         </div>
                     </div>
 
+                    <!-- 六、用電狀況 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-amber-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-bolt mr-1.5"></i>六、用電狀況</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
@@ -778,6 +756,7 @@
                         </div>
                     </div>
 
+                    <!-- 七、ESG評估與企業轉型 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-leaf mr-1.5"></i>七、ESG評估與企業轉型</h4>
                         <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
@@ -814,6 +793,7 @@
                         </div>
                     </div>
 
+                    <!-- 八、應備文件清單 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
@@ -831,12 +811,11 @@
                         </div>
                     </div>
 
-                    <!-- 九、檔案上傳 (支援拖曳上傳) -->
+                    <!-- 九、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box transition-all" 
-                             ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'client', 'case-eval')">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
-                                <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>九、客戶應備檔案上傳 (可直接拖曳檔案至此)</span>
+                                <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>九、客戶應備檔案上傳</span>
                                 <label class="text-[10px] bg-violet-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-violet-800 transition no-print">
                                     [＋ 上傳各類型檔案]
                                     <input type="file" multiple class="hidden" onchange="handleProjectFileUpload(this, '${c.id}', 'client')">
@@ -861,10 +840,9 @@
                                 `).join('')}
                             </div>
                         </div>
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box transition-all"
-                             ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'ruili', 'case-eval')">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-cyan-500/30 pb-1">
-                                <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>九、睿立調閱檔案上傳 (可直接拖曳檔案至此)</span>
+                                <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>九、睿立調閱檔案上傳</span>
                                 <label class="text-[10px] bg-cyan-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-cyan-800 transition no-print">
                                     [＋ 上傳各類型檔案]
                                     <input type="file" multiple class="hidden" onchange="handleProjectFileUpload(this, '${c.id}', 'ruili')">
@@ -896,7 +874,7 @@
             `;
         }
 
-        // ==================== 二、太陽能自建 HTML ====================
+        // ==================== 二、太陽能自建 HTML (已更新十一、客戶應備文件清單) ====================
         function generateSolarHTML(c) {
             let totalLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
             let totalLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
@@ -907,6 +885,7 @@
                 <div class="card-box bg-cosmic-800/70 border border-amber-500/40 rounded-2xl p-6 space-y-6 shadow-xl">
                     <div class="border-b border-amber-500/40 pb-2"><h3 class="text-sm font-bold text-amber-400"><i class="fa-solid fa-solar-panel mr-2"></i>太陽能自建</h3></div>
 
+                    <!-- 一、專案人員 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">一、專案人員</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -925,10 +904,11 @@
                         </div>
                     </div>
 
+                    <!-- 二、公司基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">二、公司基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
-                            <div class="md:col-span-2"><label class="text-slate-400">公司名稱：</label><input type="text" value="${c.companyName||''}" oninput="updateCompanyName('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-medium"></div>
+                            <div class="md:col-span-2"><label class="text-slate-400">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-medium"></div>
                             <div><label class="text-slate-400">統編：</label><input type="text" value="${c.taxId||''}" oninput="updateField('${c.id}', 'taxId', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div><label class="text-slate-400">工廠登記證字號：</label><input type="text" value="${c.factoryLicense||''}" oninput="updateField('${c.id}', 'factoryLicense', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div><label class="text-slate-400">產業類型：</label><input type="text" value="${c.industryType||''}" oninput="updateField('${c.id}', 'industryType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
@@ -941,10 +921,11 @@
                             <div><label class="text-slate-400">傳真：</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶：</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司網站連結：</label><input type="text" value="${c.website||''}" oninput="updateField('${c.id}', 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
+                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
 
+                    <!-- 三、服務項目 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/40 pb-1.5">
                             <h4 class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-layer-group mr-1.5"></i>三、服務項目</h4>
@@ -960,8 +941,8 @@
                                         <div><label class="text-slate-400 block mb-0.5">簽約金額：</label><input type="number" value="${srv.contract||''}" oninput="updateSolarServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'desc', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
-                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'remark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${srv.remark||''}</textarea></div>
                                     </div>
                                     <div class="pt-2 border-t border-cosmic-700/20">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
@@ -979,9 +960,11 @@
                         </div>
                     </div>
 
+                    <!-- 四、案件試算 -->
                     <div class="bg-cosmic-950/40 border border-amber-500/30 p-5 rounded-xl space-y-5 card-box">
                         <h4 class="text-xs font-bold text-amber-300 border-b border-cosmic-700/20 pb-1.5"><i class="fa-solid fa-calculator mr-1.5"></i>四、案件試算</h4>
                         
+                        <!-- 【預估軌道】 -->
                         <div class="space-y-3 bg-cosmic-900/30 p-4 border border-cyan-500/20 rounded-xl">
                             <span class="text-xs font-bold text-cyan-400 tracking-wider flex items-center"><i class="fa-solid fa-chart-pie mr-1.5"></i>【預估】</span>
                             <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
@@ -1012,6 +995,7 @@
                             </div>
                         </div>
 
+                        <!-- 【現勘軌道】 -->
                         <div class="space-y-3 bg-cosmic-900/30 p-4 border border-purple-500/20 rounded-xl">
                             <span class="text-xs font-bold text-purple-400 tracking-wider flex items-center"><i class="fa-solid fa-compass-drafting mr-1.5"></i>【現勘】</span>
                             <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-purple-500/40 space-y-1.5">
@@ -1051,9 +1035,10 @@
                         </div>
                     </div>
 
+                    <!-- 五、土地基本資料 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
-                            <h4 class="text-xs font-bold text-emerald-400">五、土地基本資料</h4>
+                            <h4 class="text-xs font-bold text-emerald-400">五、土地基本資料 (平方公尺自動乘*0.3025帶入坪數)</h4>
                             <button onclick="addLandRow('${c.id}')" class="text-[10px] bg-emerald-900 border border-emerald-700 px-2 py-0.5 rounded no-print">[＋ 地段地號]</button>
                         </div>
                         <div class="grid grid-cols-2 gap-3 text-xs pt-1 pb-2 border-b border-cosmic-700/20">
@@ -1085,6 +1070,7 @@
                         </div>
                     </div>
 
+                    <!-- 六、建物基本資料 -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
@@ -1123,6 +1109,7 @@
                         </div>
                     </div>
 
+                    <!-- 七、用電狀況 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-amber-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-bolt mr-1.5"></i>七、用電狀況</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
@@ -1151,6 +1138,7 @@
                         </div>
                     </div>
 
+                    <!-- 八、ESG評估與企業轉型 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-leaf mr-1.5"></i>八、ESG評估與企業轉型</h4>
                         <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
@@ -1187,6 +1175,7 @@
                         </div>
                     </div>
 
+                    <!-- 九、系統規劃方向 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-sky-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-diagram-project mr-1.5"></i>九、系統規劃方向</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -1207,10 +1196,11 @@
                                     <option value="自建" ${c.planPartner==='自建'?'selected':''}>自建</option>
                                 </select>
                             </div>
-                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">系統建置備註說明：</label><textarea oninput="updateField('${c.id}', 'planNote', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${c.planNote||''}</textarea></div>
+                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">系統建置備註說明：</label><textarea oninput="updateField('${c.id}', 'planNote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block">${c.planNote||''}</textarea></div>
                         </div>
                     </div>
 
+                    <!-- 十、建物條件與結構安全現勘評估 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-violet-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-shield-halved mr-1.5"></i>十、建物條件與結構安全現勘評估</h4>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
@@ -1269,6 +1259,7 @@
                         </div>
                     </div>
 
+                    <!-- 十一、客戶應備文件清單（新增指定項目：屋頂平面圖、場域線路分佈圖、廠區空拍圖、屋頂現況照片（多角度）） -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
@@ -1286,12 +1277,11 @@
                         </div>
                     </div>
 
-                    <!-- 十二、檔案上傳 (支援拖曳上傳) -->
+                    <!-- 十二、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box transition-all"
-                             ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'client', 'solar')">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
-                                <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、客戶應備檔案上傳 (可直接拖曳檔案至此)</span>
+                                <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、客戶應備檔案上傳</span>
                                 <label class="text-[10px] bg-violet-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-violet-800 transition no-print">
                                     [＋ 上傳各類型檔案]
                                     <input type="file" multiple class="hidden" onchange="handleSolarFileUpload(this, '${c.id}', 'client')">
@@ -1316,10 +1306,9 @@
                                 `).join('')}
                             </div>
                         </div>
-                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box transition-all"
-                             ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'ruili', 'solar')">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-cyan-500/30 pb-1">
-                                <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、睿立調閱檔案上傳 (可直接拖曳檔案至此)</span>
+                                <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>十二、睿立調閱檔案上傳</span>
                                 <label class="text-[10px] bg-cyan-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-cyan-800 transition no-print">
                                     [＋ 上傳各類型檔案]
                                     <input type="file" multiple class="hidden" onchange="handleSolarFileUpload(this, '${c.id}', 'ruili')">
@@ -1353,15 +1342,16 @@
 
         // ==================== 三、工廠買賣案件資料表面板 ====================
         function generateTradingHTML(c) {
-            return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><div class="flex items-center space-x-2"><label class="text-slate-400 text-xs font-bold shrink-0">公司名稱：</label><input type="text" value="${c.companyName||''}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full"></div>${generateFooterHTML()}</div>`;
+            return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><div class="flex items-center space-x-2"><label class="text-slate-400 text-xs font-bold shrink-0">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full"></div>${generateFooterHTML()}</div>`;
         }
 
-        // ==================== 四、會議記錄 ====================
+        // ==================== 四、會議記錄 (已依指令完成格式更改) ====================
         function generateMeetingHTML(c) {
             return `
                 <div class="card-box bg-cosmic-800/70 border border-purple-500/50 rounded-2xl p-6 space-y-6 shadow-xl">
                     <div class="border-b border-purple-500/40 pb-2"><h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-handshake mr-2"></i>會議記錄</h3></div>
                     
+                    <!-- 一、會議資訊 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-purple-300 border-b border-cosmic-700/20 pb-1.5">一、會議資訊</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
@@ -1376,6 +1366,7 @@
                         </div>
                     </div>
 
+                    <!-- 二、出席單位與人員 (更改：電話改「聯絡電話」) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/20 pb-1.5">二、出席單位與人員</h4>
                         
@@ -1414,7 +1405,7 @@
                                             <div class="md:col-span-3"><label class="text-slate-400 block mb-0.5">公司匯款帳戶：</label><input type="text" value="${rep.bankAccount||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">電子信箱：</label><input type="text" value="${rep.email||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'email', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">網站連結：</label><input type="text" value="${rep.website||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.remark||''}</textarea></div>
+                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap" style="overflow:hidden;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';">${rep.remark||''}</textarea></div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1422,6 +1413,7 @@
                         </div>
                     </div>
 
+                    <!-- 三、會議內容 (更改：提案人改會議主題，取消內容與共識討論格式，結論改會議內容，無限延伸無卷軸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
                             <h4 class="text-xs font-bold text-purple-400">三、會議內容</h4>
@@ -1434,11 +1426,11 @@
                                     <div class="grid grid-cols-1 gap-3 text-xs">
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">會議主題：</label>
-                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${item.proposer||''}</textarea>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${item.proposer||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">會議內容：</label>
-                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] resize-none overflow-hidden block whitespace-pre-wrap">${item.conclusion||''}</textarea>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] resize-none overflow-hidden block whitespace-pre-wrap">${item.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1446,16 +1438,16 @@
                         </div>
                     </div>
 
+                    <!-- 四、會議總結 (無限延伸無卷軸) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">四、會議總結：</label>
-                        <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
+                        <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
                     </div>
 
-                    <!-- 五、檔案上傳 (支援拖曳上傳) -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box transition-all"
-                         ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'meeting', 'meeting')">
+                    <!-- 五、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-purple-500/30 pb-1.5">
-                            <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳 (可直接拖曳檔案至此)</span>
+                            <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳</span>
                             <label class="text-[10px] bg-purple-900 text-white px-2.5 py-1 rounded cursor-pointer hover:bg-purple-800 transition no-print">
                                 [＋ 上傳各類型檔案]
                                 <input type="file" multiple class="hidden" onchange="handleExternalMeetingUpload(this, '${c.id}')">
@@ -1494,6 +1486,7 @@
                         <h3 class="text-sm font-bold text-indigo-400"><i class="fa-solid fa-comments mr-2"></i>睿立會議紀錄</h3>
                     </div>
 
+                    <!-- 一、會議資訊 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-indigo-300 border-b border-cosmic-700/20 pb-1.5">一、會議資訊</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
@@ -1522,24 +1515,26 @@
                         </div>
                     </div>
 
+                    <!-- 二、財務報告 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-emerald-400 border-b border-cosmic-700/20 pb-1.5">二、財務報告</h4>
                         <div class="space-y-3 text-xs">
                             <div>
                                 <label class="text-slate-400 block mb-1">財務報告：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeReport', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeReport||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeReport', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${c.financeReport||''}</textarea>
                             </div>
                             <div>
                                 <label class="text-slate-400 block mb-1">檢討：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeReview', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeReview||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeReview', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${c.financeReview||''}</textarea>
                             </div>
                             <div>
                                 <label class="text-slate-400 block mb-1">共識：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeConsensus', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${c.financeConsensus||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeConsensus', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-y block whitespace-pre-wrap">${c.financeConsensus||''}</textarea>
                             </div>
                         </div>
                     </div>
 
+                    <!-- 三、案件報告 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
                             <h4 class="text-xs font-bold text-cyan-400">三、案件報告</h4>
@@ -1564,11 +1559,11 @@
                                     <div class="text-xs space-y-2">
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">案件進度說明：</label>
-                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'desc', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.desc||''}</textarea>
+                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-none block whitespace-pre-wrap">${rep.desc||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">結論：</label>
-                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'conclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-none overflow-hidden block whitespace-pre-wrap">${rep.conclusion||''}</textarea>
+                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'conclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-16 resize-none block whitespace-pre-wrap">${rep.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1576,6 +1571,7 @@
                         </div>
                     </div>
 
+                    <!-- 四、提案報告 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
                             <h4 class="text-xs font-bold text-purple-400">四、提案報告</h4>
@@ -1594,19 +1590,19 @@
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">項目：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'item', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.item||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'item', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-10 resize-none block whitespace-pre-wrap">${prop.item||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">內容：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'content', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.content||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'content', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${prop.content||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">可行性評估：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'feasibility', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.feasibility||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'feasibility', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${prop.feasibility||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">結論：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'conclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-none overflow-hidden block whitespace-pre-wrap">${prop.conclusion||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'conclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-12 resize-none block whitespace-pre-wrap">${prop.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1614,16 +1610,16 @@
                         </div>
                     </div>
 
+                    <!-- 五、會議總結論 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">五、會議總結論：</label>
-                        <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
+                        <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
                     </div>
 
-                    <!-- 六、檔案上傳 (支援拖曳上傳) -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box transition-all"
-                         ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(event, this)" ondrop="handleDropFile(event, '${c.id}', 'ruili-meet', 'internal-meet')">
+                    <!-- 六、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-indigo-500/30 pb-1.5">
-                            <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>六、檔案上傳 (可直接拖曳檔案至此)</span>
+                            <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>六、檔案上傳</span>
                             <label class="text-[10px] bg-indigo-900 text-white px-2.5 py-1 rounded cursor-pointer hover:bg-indigo-800 transition no-print">
                                 [＋ 上傳各類型檔案]
                                 <input type="file" multiple class="hidden" onchange="handleRuiliMeetUpload(this, '${c.id}')">
@@ -1669,96 +1665,29 @@
             `;
         }
 
-        // ==================== 拖曳檔案輔助處理事件 ====================
-        function handleDragOver(e, el) {
-            e.preventDefault();
-            e.stopPropagation();
-            el.classList.add('drag-over');
-        }
-
-        function handleDragLeave(e, el) {
-            e.preventDefault();
-            e.stopPropagation();
-            el.classList.remove('drag-over');
-        }
-
-        async function handleDropFile(e, id, side, type) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.currentTarget.classList.remove('drag-over');
-
-            const files = e.dataTransfer.files;
-            if (files && files.length > 0) {
-                const fakeInput = { files: files };
-                if (type === 'case-eval') {
-                    await handleProjectFileUpload(fakeInput, id, side);
-                } else if (type === 'solar') {
-                    await handleSolarFileUpload(fakeInput, id, side);
-                } else if (type === 'meeting') {
-                    await handleExternalMeetingUpload(fakeInput, id);
-                } else if (type === 'internal-meet') {
-                    await handleRuiliMeetUpload(fakeInput, id);
-                }
-            }
-        }
-
-        function updateField(id, field, value) { 
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id); 
-            if(target) { target[field] = value; saveToCloudSilent(); }
-        }
+        // ==================== 核心驅動腳本 ====================
+        function updateField(id, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id)[field] = value; }
         function updateCompanyName(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) { target.companyName = value; renderSidebarSubLists(); saveToCloudSilent(); }
+            if (target) { target.companyName = value; renderSidebarSubLists(); }
         }
-        function updateServiceField(id, idx, field, value) { 
-            let target = caseEvalData.find(c => c.id === id);
-            if(target && target.services[idx]) { target.services[idx][field] = value; saveToCloudSilent(); }
-        }
-        function updateSolarServiceField(id, idx, field, value) { 
-            let target = solarData.find(c => c.id === id);
-            if(target && target.solarServices[idx]) { target.solarServices[idx][field] = value; saveToCloudSilent(); }
-        }
-        function updateLandField(id, idx, field, value) { 
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if(target && target.lands[idx]) { target.lands[idx][field] = value; saveToCloudSilent(); }
-        }
+        function updateServiceField(id, idx, field, value) { caseEvalData.find(c => c.id === id).services[idx][field] = value; }
+        function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
+        function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
         
-        // 🛠️ 強化後的 Supabase Storage 上傳邏輯（確保案件分夾與報錯捕捉）
-        async function uploadFileToSupabaseStorage(file, caseId) {
+        async function uploadFileToSupabaseStorage(file) {
             try {
-                if (!file) {
-                    console.error("Upload error: No file provided.");
-                    return { url: "", path: "" };
-                }
-
-                const sanitizedFileName = file.name.replace(/[^\w\.\-–—\u4e00-\u9fa5]/g, '_');
-                const folderName = caseId ? String(caseId).trim() : 'uncategorized';
-                const filePath = `${folderName}/${Date.now()}_${sanitizedFileName}`;
-
-                const { data, error } = await supabaseClient.storage
-                    .from('ruili-files')
-                    .upload(filePath, file, {
-                        cacheControl: '3600',
-                        upsert: true
-                    });
-
+                const filePath = `uploads/${Date.now()}_${file.name}`;
+                const { data, error } = await supabaseClient.storage.from('ruili-files').upload(filePath, file);
                 if (error) {
-                    console.error("Supabase Storage Error Details:", error);
-                    alert("上傳至 Supabase Storage 失敗: " + (error.message || JSON.stringify(error)));
-                    return { url: "", path: "" };
+                    console.error("Storage Error:", error);
+                    return URL.createObjectURL(file);
                 }
-
-                const { data: publicData } = supabaseClient.storage
-                    .from('ruili-files')
-                    .getPublicUrl(filePath);
-
-                return {
-                    url: publicData ? publicData.publicUrl : "",
-                    path: filePath
-                };
+                const { data: publicData } = supabaseClient.storage.from('ruili-files').getPublicUrl(filePath);
+                return publicData.publicUrl;
             } catch (err) {
-                console.error("Upload exception caught:", err);
-                return { url: "", path: "" };
+                console.error("Upload error:", err);
+                return URL.createObjectURL(file);
             }
         }
 
@@ -1767,8 +1696,8 @@
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileResult = await uploadFileToSupabaseStorage(file, id); 
-                    let fileObj = { clientName: file.name, actualName: file.name, url: fileResult.url, path: fileResult.path };
+                    let fileUrl = await uploadFileToSupabaseStorage(file);
+                    let fileObj = { clientName: file.name, actualName: file.name, url: fileUrl };
                     if(side === 'client') target.clientFilesObj.push(fileObj);
                     else target.ruiliFilesObj.push(fileObj);
                 }
@@ -1780,7 +1709,6 @@
             let target = caseEvalData.find(c => c.id === id);
             if(side === 'client') target.clientFilesObj[idx].clientName = value;
             else target.ruiliFilesObj[idx].clientName = value;
-            saveToCloudSilent();
         }
         function removeProjectFile(id, side, idx) {
             let target = caseEvalData.find(c => c.id === id);
@@ -1795,8 +1723,8 @@
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileResult = await uploadFileToSupabaseStorage(file, id);
-                    let fileObj = { clientName: file.name, actualName: file.name, url: fileResult.url, path: fileResult.path };
+                    let fileUrl = await uploadFileToSupabaseStorage(file);
+                    let fileObj = { clientName: file.name, actualName: file.name, url: fileUrl };
                     if(side === 'client') target.clientFilesObj.push(fileObj);
                     else target.ruiliFilesObj.push(fileObj);
                 }
@@ -1808,7 +1736,6 @@
             let target = solarData.find(c => c.id === id);
             if(side === 'client') target.clientFilesObj[idx].clientName = value;
             else target.ruiliFilesObj[idx].clientName = value;
-            saveToCloudSilent();
         }
         function removeSolarFile(id, side, idx) {
             let target = solarData.find(c => c.id === id);
@@ -1818,73 +1745,54 @@
             saveToCloudSilent();
         }
 
-        function updateMeetField(id, field, value) { 
-            let t = internalMeetData.find(c => c.id === id); 
-            if(t) { t[field] = value; saveToCloudSilent(); }
-        }
+        function updateMeetField(id, field, value) { let t = internalMeetData.find(c => c.id === id); if(t) t[field] = value; }
         function updateMeetSubject(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if(target) { target.meetSubject = value; renderSidebarSubLists(); saveToCloudSilent(); }
+            if(target) { target.meetSubject = value; renderSidebarSubLists(); }
         }
 
-        function updateMeetingMainField(id, field, value) { 
-            let t = meetingData.find(c => c.id === id); 
-            if(t) { t[field] = value; saveToCloudSilent(); }
-        }
+        function updateMeetingMainField(id, field, value) { let t = meetingData.find(c => c.id === id); if(t) t[field] = value; }
         function updateMeetingAttendeeSelection(id, person, isChecked) {
             let target = meetingData.find(c => c.id === id);
             if (!target.ruiliAttendees) target.ruiliAttendees = [];
             if (isChecked) { if(!target.ruiliAttendees.includes(person)) target.ruiliAttendees.push(person); }
             else { target.ruiliAttendees = target.ruiliAttendees.filter(p => p !== person); }
-            saveToCloudSilent();
         }
         function addExternalRepRow(id) {
             meetingData.find(c => c.id === id).externalRepresentatives.push({ companyName: "", name: "", phone: "", taxId: "", address: "", companyPhone: "", fax: "", bankAccount: "", remark: "", email: "", website: "" });
             renderMainForms();
-            saveToCloudSilent();
         }
         function removeExternalRepRow(id, idx) {
             meetingData.find(c => c.id === id).externalRepresentatives.splice(idx, 1);
             renderMainForms();
-            saveToCloudSilent();
         }
         function updateExternalRepField(id, idx, field, value) {
-            let target = meetingData.find(c => c.id === id);
-            if(target && target.externalRepresentatives[idx]) {
-                target.externalRepresentatives[idx][field] = value;
-                saveToCloudSilent();
-            }
+            meetingData.find(c => c.id === id).externalRepresentatives[idx][field] = value;
         }
         function addMeetingContentRow(id) {
             meetingData.find(c => c.id === id).contents.push({ proposer: "", conclusion: "" });
             renderMainForms();
-            saveToCloudSilent();
         }
         function removeMeetingContentRow(id, idx) {
             meetingData.find(c => c.id === id).contents.splice(idx, 1);
             renderMainForms();
-            saveToCloudSilent();
         }
         function updateMeetingContentField(id, idx, field, value) {
-            let target = meetingData.find(c => c.id === id);
-            if(target && target.contents[idx]) {
-                target.contents[idx][field] = value;
-                saveToCloudSilent();
-            }
+            meetingData.find(c => c.id === id).contents[idx][field] = value;
         }
         async function handleExternalMeetingUpload(inputEl, id) {
             let target = meetingData.find(c => c.id === id);
             if (target && inputEl.files) {
                 for(let i=0; i<inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileResult = await uploadFileToSupabaseStorage(file, id);
-                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileResult.url, path: fileResult.path });
+                    let fileUrl = await uploadFileToSupabaseStorage(file);
+                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileUrl });
                 }
                 renderMainForms();
                 saveToCloudSilent();
             }
         }
-        function updateExternalMeetingFileName(id, idx, value) { meetingData.find(c => c.id === id).uploadedFiles[idx].clientName = value; saveToCloudSilent(); }
+        function updateExternalMeetingFileName(id, idx, value) { meetingData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
         function removeExternalMeetingFile(id, idx) { meetingData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
 
         function updateAttendeeSelection(id, person, isChecked) {
@@ -1892,40 +1800,27 @@
             if (!target.attendees) target.attendees = [];
             if (isChecked) { if (!target.attendees.includes(person)) target.attendees.push(person); }
             else { target.attendees = target.attendees.filter(p => p !== person); }
-            saveToCloudSilent();
         }
-        function updateCaseReportField(id, idx, field, value) { 
-            let target = internalMeetData.find(c => c.id === id);
-            if(target && target.caseReports[idx]) {
-                target.caseReports[idx][field] = value;
-                saveToCloudSilent();
-            }
-        }
-        function addRuiliCaseReportRow(id) { internalMeetData.find(c => c.id === id).caseReports.push({ reporter: currentUserRole, caseName: "", desc: "", conclusion: "" }); renderMainForms(); saveToCloudSilent(); }
-        function removeRuiliCaseReportRow(id, idx) { internalMeetData.find(c => c.id === id).caseReports.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
-        function updateProposalField(id, idx, field, value) { 
-            let target = internalMeetData.find(c => c.id === id);
-            if(target && target.proposalReports[idx]) {
-                target.proposalReports[idx][field] = value;
-                saveToCloudSilent();
-            }
-        }
-        function addRuiliProposalRow(id) { internalMeetData.find(c => c.id === id).proposalReports.push({ reporter: currentUserRole, item: "", content: "", feasibility: "", conclusion: "" }); renderMainForms(); saveToCloudSilent(); }
-        function removeRuiliProposalRow(id, idx) { internalMeetData.find(c => c.id === id).proposalReports.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
+        function updateCaseReportField(id, idx, field, value) { internalMeetData.find(c => c.id === id).caseReports[idx][field] = value; }
+        function addRuiliCaseReportRow(id) { internalMeetData.find(c => c.id === id).caseReports.push({ reporter: currentUserRole, caseName: "", desc: "", conclusion: "" }); renderMainForms(); }
+        function removeRuiliCaseReportRow(id, idx) { internalMeetData.find(c => c.id === id).caseReports.splice(idx, 1); renderMainForms(); }
+        function updateProposalField(id, idx, field, value) { internalMeetData.find(c => c.id === id).proposalReports[idx][field] = value; }
+        function addRuiliProposalRow(id) { internalMeetData.find(c => c.id === id).proposalReports.push({ reporter: currentUserRole, item: "", content: "", feasibility: "", conclusion: "" }); renderMainForms(); }
+        function removeRuiliProposalRow(id, idx) { internalMeetData.find(c => c.id === id).proposalReports.splice(idx, 1); renderMainForms(); }
         
         async function handleRuiliMeetUpload(inputEl, id) {
             let target = internalMeetData.find(c => c.id === id);
             if (target && inputEl.files) {
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
-                    let fileResult = await uploadFileToSupabaseStorage(file, id);
-                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileResult.url, path: fileResult.path });
+                    let fileUrl = await uploadFileToSupabaseStorage(file);
+                    target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileUrl });
                 }
                 renderMainForms();
                 saveToCloudSilent();
             }
         }
-        function updateRuiliFileName(id, idx, value) { internalMeetData.find(c => c.id === id).uploadedFiles[idx].clientName = value; saveToCloudSilent(); }
+        function updateRuiliFileName(id, idx, value) { internalMeetData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
         function removeRuiliMeetFile(id, idx) { internalMeetData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
 
         function updateSolarCheckbox(id, value, isChecked) {
@@ -1933,7 +1828,6 @@
             if (!target.condRoofEquip) target.condRoofEquip = [];
             if (isChecked) { if (!target.condRoofEquip.includes(value)) target.condRoofEquip.push(value); }
             else { target.condRoofEquip = target.condRoofEquip.filter(item => item !== value); }
-            saveToCloudSilent();
         }
 
         function calculateSolarLive(id) {
@@ -1976,7 +1870,6 @@
                 if(pingInput) pingInput.value = ping.toFixed(2);
                 refreshSums();
                 if(currentActiveTab === 'solar') calculateSolarLive(id);
-                saveToCloudSilent();
             }
         }
 
@@ -1984,18 +1877,16 @@
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if(side === 'legal') target.buildingsLegal[idx][field] = value;
             else target.buildingsIllegal[idx][field] = value;
-            saveToCloudSilent();
         }
 
-        function addServiceRow(id) { caseEvalData.find(c => c.id === id).services.push({ name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); saveToCloudSilent(); }
-        function removeServiceRow(id, idx) { caseEvalData.find(c => c.id === id).services.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
-        function addSolarServiceRow(id) { solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); saveToCloudSilent(); }
-        function removeSolarServiceRow(id, idx) { solarData.find(c => c.id === id).solarServices.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
+        function addServiceRow(id) { caseEvalData.find(c => c.id === id).services.push({ name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
+        function removeServiceRow(id, idx) { caseEvalData.find(c => c.id === id).services.splice(idx, 1); renderMainForms(); }
+        function addSolarServiceRow(id) { solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
+        function removeSolarServiceRow(id, idx) { solarData.find(c => c.id === id).solarServices.splice(idx, 1); renderMainForms(); }
 
         function addLandRow(id) { 
             getTargetDataArray(currentActiveTab).find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", currentPrice: "", sqm: 0, ping: 0 }); 
             renderMainForms(); 
-            saveToCloudSilent();
         }
 
         function removeLandRow(id, idx) {
@@ -2005,7 +1896,6 @@
                 renderMainForms();
                 refreshSums();
                 if (currentActiveTab === 'solar') calculateSolarLive(id);
-                saveToCloudSilent();
             }
         }
 
@@ -2015,7 +1905,6 @@
             else target.buildingsIllegal.push({ type: "", year: "", sqm: "", ping: "" });
             renderMainForms();
             if(currentActiveTab === 'solar') calculateSolarLive(id);
-            saveToCloudSilent();
         }
 
         function removeBuildRow(id, side, idx) {
@@ -2029,7 +1918,6 @@
                 renderMainForms();
                 refreshSums();
                 if (currentActiveTab === 'solar') calculateSolarLive(id);
-                saveToCloudSilent();
             }
         }
 
@@ -2040,7 +1928,6 @@
                 if (side === 'client') target.customDocsClient.push(item);
                 else target.customDocsRuili.push(item);
                 renderMainForms();
-                saveToCloudSilent();
             }
         }
         function removeDocItem(id, side, idx) {
@@ -2048,7 +1935,6 @@
             if (side === 'client') target.customDocsClient.splice(idx, 1);
             else target.customDocsRuili.splice(idx, 1);
             renderMainForms();
-            saveToCloudSilent();
         }
 
         function refreshSums() {
@@ -2118,7 +2004,6 @@
             const target = dataArr.find(c => c.id === activeId);
             
             if (target) {
-                isSavingLocal = true;
                 if (currentUserRole === '中央控台') {
                     const targetIndex = dataArr.findIndex(c => c.id === activeId);
                     if (targetIndex !== -1) dataArr.splice(targetIndex, 1);
@@ -2135,8 +2020,6 @@
                     });
                 }
 
-                saveLocalBackup();
-
                 const visibleCases = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
                 if (visibleCases.length > 0) {
                     selectedIds[currentActiveTab] = visibleCases[0].id;
@@ -2147,45 +2030,28 @@
                 closeDeleteModal();
                 renderSidebarSubLists();
                 renderMainForms();
-                setTimeout(() => { isSavingLocal = false; }, 1000);
-            }
-        }
-
-        function saveLocalBackup() {
-            try {
-                const allData = { caseEvalData, solarData, tradingData, meetingData, internalMeetData };
-                localStorage.setItem('ruili_system_data_backup', JSON.stringify(allData));
-            } catch (err) {
-                console.error("Local storage save error:", err);
             }
         }
 
         async function saveToCloudSilent() {
             const currentObj = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
             if (currentObj) {
-                isSavingLocal = true;
-                const { error } = await supabaseClient.from('cases').upsert({
+                await supabaseClient.from('cases').upsert({
                     id: currentObj.id,
                     tab_category: currentActiveTab,
                     data: currentObj,
                     is_deleted: currentObj.is_deleted || false,
                     deleted_at: currentObj.deleted_at || null
                 });
-                
-                if (error) {
-                    console.error("Supabase Save Error:", error);
-                }
-
-                saveLocalBackup();
-                setTimeout(() => { isSavingLocal = false; }, 1000);
             }
         }
 
         async function saveToCloud() {
             await saveToCloudSilent();
-            alert("資料已持久化儲存至 Supabase 資料庫與本機快取！");
+            alert("資料已儲存！");
         }
 
+        // ==================== 回收桶與一鍵復原機制 ====================
         function openTrashModal() {
             const trashContainer = document.getElementById('trash-items-list');
             let allDeletedCases = [];
@@ -2225,7 +2091,6 @@
             const dataArr = getTargetDataArray(tabId);
             const target = dataArr.find(c => c.id === id);
             if (target) {
-                isSavingLocal = true;
                 target.is_deleted = false;
                 target.deleted_at = null;
                 await supabaseClient.from('cases').upsert({
@@ -2235,59 +2100,31 @@
                     is_deleted: false,
                     deleted_at: null
                 });
-                saveLocalBackup();
                 renderSidebarSubLists();
                 renderMainForms();
                 openTrashModal();
-                setTimeout(() => { isSavingLocal = false; }, 1000);
             }
         }
 
+        // ==================== Supabase 資料載入與 Realtime 即時監聽 ====================
         async function fetchSupabaseData() {
-            try {
-                const { data, error } = await supabaseClient.from('cases').select('*');
-                if (error) {
-                    console.error("Fetch Supabase Error:", error);
-                    loadLocalBackup();
-                    return;
-                }
-                if (data && data.length > 0) {
-                    caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
-                    data.forEach(row => {
-                        const caseObj = { ...row.data, is_deleted: row.is_deleted, deleted_at: row.deleted_at };
-                        if (row.tab_category === 'case-eval') caseEvalData.push(caseObj);
-                        else if (row.tab_category === 'solar') solarData.push(caseObj);
-                        else if (row.tab_category === 'trading') tradingData.push(caseObj);
-                        else if (row.tab_category === 'meeting') meetingData.push(caseObj);
-                        else if (row.tab_category === 'internal-meet') internalMeetData.push(caseObj);
-                    });
-                    saveLocalBackup();
-                    renderSidebarSubLists();
-                    renderMainForms();
-                } else {
-                    loadLocalBackup();
-                }
-            } catch (err) {
-                console.error("Fetch Exception:", err);
-                loadLocalBackup();
+            const { data, error } = await supabaseClient.from('cases').select('*');
+            if (error) {
+                console.error("Fetch Supabase Error:", error);
+                return;
             }
-        }
-
-        function loadLocalBackup() {
-            const backup = localStorage.getItem('ruili_system_data_backup');
-            if (backup) {
-                try {
-                    const parsed = JSON.parse(backup);
-                    if (parsed.caseEvalData) caseEvalData = parsed.caseEvalData;
-                    if (parsed.solarData) solarData = parsed.solarData;
-                    if (parsed.tradingData) tradingData = parsed.tradingData;
-                    if (parsed.meetingData) meetingData = parsed.meetingData;
-                    if (parsed.internalMeetData) internalMeetData = parsed.internalMeetData;
-                    renderSidebarSubLists();
-                    renderMainForms();
-                } catch (e) {
-                    console.error("Parsing local backup failed:", e);
-                }
+            if (data && data.length > 0) {
+                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
+                data.forEach(row => {
+                    const caseObj = { ...row.data, is_deleted: row.is_deleted, deleted_at: row.deleted_at };
+                    if (row.tab_category === 'case-eval') caseEvalData.push(caseObj);
+                    else if (row.tab_category === 'solar') solarData.push(caseObj);
+                    else if (row.tab_category === 'trading') tradingData.push(caseObj);
+                    else if (row.tab_category === 'meeting') meetingData.push(caseObj);
+                    else if (row.tab_category === 'internal-meet') internalMeetData.push(caseObj);
+                });
+                renderSidebarSubLists();
+                renderMainForms();
             }
         }
 
@@ -2298,17 +2135,11 @@
                     'postgres_changes',
                     { event: '*', schema: 'public', table: 'cases' },
                     (payload) => {
-                        if (!isSavingLocal) {
-                            fetchSupabaseData();
-                        }
+                        fetchSupabaseData();
                     }
                 )
                 .subscribe();
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchSupabaseData();
-        });
 
         window.onload = function() {
             renderSidebarSubLists();
