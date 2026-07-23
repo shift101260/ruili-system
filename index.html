@@ -209,20 +209,26 @@
 
     <!-- MAIN VIEWPORT -->
     <main class="flex-1 flex flex-col overflow-hidden bg-cosmic-950">
-        <!-- TOP BAR (支援平板與手機橫屏顯示) -->
+        <!-- TOP BAR -->
         <header class="h-16 border-b border-cosmic-700/40 px-4 md:px-8 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print overflow-x-auto gap-2">
             <div class="flex items-center space-x-3 shrink-0">
                 <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-48 md:w-64 bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-1.5 text-sm text-white focus:outline-none">
                 
-                <!-- 已登入使用者提示資訊與登出鈕 -->
+                <!-- 已登入使用者提示資訊 -->
                 <div id="current-user-badge" class="hidden flex items-center space-x-2 bg-cosmic-950/80 border border-cyan-500/50 px-3 py-1 rounded-xl text-xs text-cyan-400 shrink-0">
                     <i class="fa-solid fa-user-shield"></i>
                     <span>已登入：<strong id="user-display-name" class="text-white"></strong></span>
                     <button onclick="handleLogout()" class="ml-2 text-red-400 hover:text-red-300 text-[11px] underline">登出</button>
                 </div>
+
+                <!-- 🔄 自動同步狀態提示徽章 -->
+                <div id="sync-status-badge" class="hidden flex items-center space-x-1.5 text-xs px-2.5 py-1 rounded-lg bg-cosmic-900 border border-cosmic-700 text-slate-400">
+                    <i id="sync-icon" class="fa-solid fa-cloud"></i>
+                    <span id="sync-text">已連線</span>
+                </div>
             </div>
 
-            <!-- 右側功能按鈕 (修正平板/手機版型擠壓，允許縮放不被隱藏) -->
+            <!-- 右側功能按鈕 -->
             <div class="flex items-center space-x-2 md:space-x-3 shrink-0">
                 <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md hover:opacity-90 transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-plus"></i><span>新增案件</span>
@@ -291,97 +297,60 @@
 
         let currentUserRole = "黃逸豪";
 
-        let caseEvalData = [
-            {
-                id: "eval-1", companyName: "大鼎精密工業股份有限公司", taxId: "83746291", factoryLicense: "64009876", industryType: "金屬製品製造業", contact: "王大鼎", phone: "0912-345678", email: "tading@precision.com", address: "高雄市岡山區本工路88號", companyAddress: "高雄市岡山區本工路88號", companyPhone: "07-6211234", fax: "07-6215678", bankAccount: "玉山銀行岡山分行 0123-456-789012", website: "https://www.tading.com", companyRemark: "",
-                city: "高雄市", region: "岡山區",
-                evalDate: "2026-07-18T16:00", evalManager: "樊靖畇", evalStatus: "初期評估", evalSource: "公會引介",
-                services: [{ name: "特定工廠轉型諮詢", desc: "改善計畫編製與變更審查手續", remark: "落實接班企業諮詢體系。", quote: "350000", contract: "350000", p1: "100000", d1: "", p2: "150000", d2: "", p3: "100000", d3: "", p4: "", d4: "" }],
-                lands: [{ section: "岡山段", number: "105-02", pattern: "都市計畫使用分區", customPattern: "工業區特定目的專用", currentPrice: "12000", sqm: "1500", ping: "453.75" }],
-                buildingsLegal: [{ number: "402", type: "鋼構廠房", year: "2005", sqm: "800", ping: "242" }],
-                buildingsIllegal: [{ type: "頂樓鋼棚加蓋", year: "2010", sqm: "400", ping: "121" }],
-                electricBill: "185000", horsepower: "150", contractCapacity: "120", isHighVoltage: "否", isTimeRate: "是", timePeriod: "白天為主",
-                esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "否",
-                customDocsClient: ["電費單", "使用執照"], customDocsRuili: ["土地謄本", "地籍圖"], 
-                clientFilesObj: [{ clientName: "客戶廠房藍圖.pdf", actualName: "客戶廠房藍圖.pdf" }], 
-                ruiliFilesObj: [{ clientName: "規費核准公文.png", actualName: "規費核准公文.png" }],
-                is_deleted: false, deleted_at: null
-            }
-        ];
+        let caseEvalData = [];
+        let solarData = [];
+        let tradingData = [];
+        let meetingData = [];
+        let internalMeetData = [];
 
-        let solarData = [
-            {
-                id: "solar-1", companyName: "國泰鋼鐵工業廠房", taxId: "24558911", factoryLicense: "64001234", industryType: "鋼鐵冶煉業", contact: "陳廠長", phone: "0933-445566", email: "cathay@steel.com", address: "高雄市小港區沿海三路15號", companyAddress: "高雄市小港區沿海三路15號", companyPhone: "07-8112233", fax: "07-8114455", bankAccount: "華南銀行小港分行 9876-543-210987", website: "", companyRemark: "",
-                city: "高雄市", region: "小港區",
-                solarDate: "2026-07-18T14:30", solarManager: "樊靖畇", solarStatus: "初期評估", solarSource: "自主開發",
-                lands: [{ section: "沿海段", number: "88-12", pattern: "都市計畫使用分區", customPattern: "乙種工業區", currentPrice: "25000", sqm: "3000", ping: "907.5" }],
-                buildingsLegal: [{ number: "1025", type: "高架鋼骨廠房", year: "2012", sqm: "2000", ping: "605" }],
-                buildingsIllegal: [{ type: "後方雨遮擴建", year: "2015", sqm: "300", ping: "90.75" }],
-                electricBill: "450000", horsepower: "300", contractCapacity: "250", isHighVoltage: "是", isTimeRate: "是", timePeriod: "平均分佈",
-                esgHasSuccessor: "是", esgIsExport: "是", esgEuCarbon: "是", esgGreenCert: "是", esgStorage: "否",
-                customDocsClient: ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"], customDocsRuili: ["土地謄本"], 
-                clientFilesObj: [{ clientName: "太陽能現場照片.jpg", actualName: "太陽能現場照片.jpg" }], 
-                ruiliFilesObj: [{ clientName: "台電饋線核准信.pdf", actualName: "台電饋線核准信.pdf" }],
-                solarServices: [{ name: "屋頂型太陽能光電自建案", quote: "8500000", contract: "8500000", desc: "規劃建置屋頂型太陽光電系統，預估容量約 200 kWp。", remark: "客戶對遮陽與結構補強高度關注。", p1: "2550000", d1: "", p2: "3400000", d2: "", p3: "1700000", d3: "", p4: "850000", d4: "" }],
-                estPing: "500", estPrice: "3.5", estRentUnit: "600",
-                surveyPing: "500", surveyPanels: "600", surveyWatts: "440", surveyPrice: "4.8", surveyIncome: "0", surveyBill: "0", surveyMaint: "0",
-                planModule: "雙面雙玻高效率單晶模組", planInverter: "台達高階變流器", planType: "鋼構棚架型態", planNote: "設計高度不影響廠房內部採光。",
-                planPreference: "全部躉售", planPartner: "自建",
-                condRoofType: "浪板", condChemProduction: "否", condChemIndustry: "否", condSeaside: "否", condSeasideDist: "1公里內", condShaded: "否",
-                condRoofEquip: ["無"], condHasReport: "否", condAcceptTest: "是", condHasReinforce: "否", condReinforceYear: "",
-                condStructure: "結構安全，無須大幅補強", condRoof: "浪板防漏防水施工強化", condLine: "台電併聯饋線充裕", condNote: "吊裝施工動線流暢。",
-                is_deleted: false, deleted_at: null
-            }
-        ];
-
-        let tradingData = [{ id: "trading-1", date: "2026-07-18T12:00", status: "準備簽約", manager: "黃逸豪", companyName: "瑞昱地產買賣工業地案", is_deleted: false, deleted_at: null }];
-        
-        let meetingData = [
-            { 
-                id: "meet-1", date: "2026-07-18T14:00", manager: "樊靖畇", status: "結案", source: "外部引介",
-                meetSubject: "外部公會對接會", 
-                ruiliAttendees: ["樊靖畇", "黃逸豪"],
-                externalRepresentatives: [
-                    { companyName: "高屏金屬工業同業公會", name: "張總幹事", phone: "07-3331122", taxId: "24558911", address: "高雄市前鎮區成功二路88號", companyPhone: "07-3331122", fax: "07-3331123", bankAccount: "台灣銀行前鎮分行 0123-456-789", remark: "公會常務理事會定期聯絡窗口", email: "gonghui@metal.org", website: "https://metal.org" }
-                ],
-                contents: [
-                    { proposer: "樊靖畇", content: "說明特定工廠改善計畫編製流程與過關後收費原則。", discussion: "公會詢問是否能為會員舉辦聯合說明會。", conclusion: "排定於下月15日舉辦第一場聯合說明會。" }
-                ],
-                meetSummary: "探討特定工廠改善計畫及接班企業轉型顧問合作案，公會同意協助引薦會員企業。",
-                uploadedFiles: [
-                    { clientName: "公會合作意向書草案.pdf", actualName: "公會合作意向書草案.pdf" }
-                ],
-                is_deleted: false, deleted_at: null
-            }
-        ];
-
-        let internalMeetData = [
-            { 
-                id: "int-1", date: "2026-07-18T09:00", manager: "樊靖畇", status: "結案", source: "內部會議",
-                meetSubject: "週度戰略發展常會", 
-                attendees: ["樊靖畇", "鄭家承", "陳宥騰"],
-                financeReport: "本月睿立資產與元業綠能營收保持穩定，特定工廠二代 successor 培訓平台報名人數超預期。",
-                financeReview: "應收帳款回收天數需再縮短，第二期款項需於改善計畫書送審後5日內催收完畢。",
-                financeConsensus: "後續顧問服務均落實「過關後才收費」原則，並提高跨部門案源引介獎金。",
-                caseReports: [
-                    { reporter: "樊靖畇", caseName: "大鼎精密轉型案", desc: "目前已完成多地號地籍與有保存登記建物面積校正，預計下週進場做特定目的專用轉型變更編製。", conclusion: "維持常規推進速度。" }
-                ],
-                proposalReports: [
-                    { reporter: "樊靖畇", item: "工廠健康檢查線上自動化系統開發", content: "結合網頁設計公司，建立客戶自主上傳電費單及使用執照即可初步估算屋頂光電與特工合規性的平台。", feasibility: "技術可行性高，已進入第二階段使用者流程確認。", conclusion: "全力推進，預計10月上線。" }
-                ],
-                globalConclusion: "全集團各分支機構深化數位轉型，確保直式A4列印合約與報告完美契合客戶端審查規範。",
-                uploadedFiles: [
-                    { clientName: "上半年財務稽核總表.pdf", actualName: "上半年財務稽核總表.pdf" }
-                ],
-                is_deleted: false, deleted_at: null
-            }
-        ];
-
-        let selectedIds = { "case-eval": "eval-1", "solar": "solar-1", "trading": "trading-1", "meeting": "meet-1", "internal-meet": "int-1" };
+        let selectedIds = { "case-eval": null, "solar": null, "trading": null, "meeting": null, "internal-meet": null };
         let currentActiveTab = "case-eval";
 
         const managersList = ["樊靖畇", "鄭家承", "陳宥騰", "楊裕憲", "楊淯淳", "黃逸豪"];
         const statusConfig = { "初期評估": "bg-emerald-500", "已報價": "bg-blue-500", "準備簽約": "bg-amber-500", "已簽約": "bg-red-500", "結案": "bg-purple-500", "沒下文": "bg-slate-600" };
+
+        // ⏱️ 防抖與打斷自動防護計時器
+        let autoSaveTimer = null;
+        let isUserTyping = false;
+
+        function setSyncBadgeStatus(state, text) {
+            const badge = document.getElementById('sync-status-badge');
+            const icon = document.getElementById('sync-icon');
+            const label = document.getElementById('sync-text');
+            if(!badge) return;
+            badge.classList.remove('hidden');
+            
+            if (state === 'saving') {
+                icon.className = 'fa-solid fa-spinner animate-spin text-amber-400';
+                label.innerText = text || '雲端同步中...';
+                label.className = 'text-amber-400 font-medium';
+            } else if (state === 'saved') {
+                icon.className = 'fa-solid fa-cloud-check text-emerald-400';
+                label.innerText = text || '資料已同步';
+                label.className = 'text-emerald-400 font-medium';
+            } else if (state === 'error') {
+                icon.className = 'fa-solid fa-triangle-exclamation text-red-400';
+                label.innerText = text || '同步失敗';
+                label.className = 'text-red-400 font-medium';
+            } else {
+                icon.className = 'fa-solid fa-cloud text-slate-400';
+                label.innerText = text || '已連線';
+                label.className = 'text-slate-400';
+            }
+        }
+
+        // 🛡️ 第二步優化：具備 Debounce 防抖與自動儲存防護
+        function triggerAutoSave() {
+            isUserTyping = true;
+            setSyncBadgeStatus('saving', '編輯中...');
+            
+            if (autoSaveTimer) clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(async () => {
+                await saveToCloudSilent();
+                isUserTyping = false;
+                setSyncBadgeStatus('saved', '雲端已同步');
+            }, 800); // 停止輸入 0.8 秒後自動寫入資料庫
+        }
 
         function handleRoleLogin() {
             const role = document.getElementById('login-role').value;
@@ -498,6 +467,11 @@
             if (currentUserRole !== '中央控台') {
                 dataArr = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
             }
+
+            if (!selectedIds[currentActiveTab] && dataArr.length > 0) {
+                selectedIds[currentActiveTab] = dataArr[0].id;
+            }
+
             const activeCase = dataArr.find(c => c.id === selectedIds[currentActiveTab]) || dataArr[0];
             const container = document.getElementById(currentActiveTab + "-container");
             if (!container) return;
@@ -539,7 +513,6 @@
             }
         }
 
-        // 電腦、平板、手機均可開啟預覽/下載功能
         function previewFileUrl(url, fileName) {
             if (!url) {
                 alert("目前檔案尚未有雲端完整 URL，無法開啟。");
@@ -559,7 +532,6 @@
             }
         }
 
-        // 通用檔案下載輔助按鈕組件 (加入在垃圾桶左邊)
         function renderDownloadBtnHTML(fileUrl, fileName) {
             return `<button onclick="previewFileUrl('${fileUrl||''}', '${fileName||''}')" class="text-cyan-400 hover:text-cyan-300 text-xs mr-2 border border-cyan-500/40 px-2 py-0.5 rounded bg-cosmic-950 no-print" title="點擊下載/開啟檔案"><i class="fa-solid fa-download mr-1"></i>下載</button>`;
         }
@@ -811,7 +783,7 @@
                         </div>
                     </div>
 
-                    <!-- 九、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
+                    <!-- 九、檔案上傳 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
@@ -874,7 +846,7 @@
             `;
         }
 
-        // ==================== 二、太陽能自建 HTML (已更新十一、客戶應備文件清單) ====================
+        // ==================== 二、太陽能自建 HTML ====================
         function generateSolarHTML(c) {
             let totalLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
             let totalLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
@@ -1259,7 +1231,7 @@
                         </div>
                     </div>
 
-                    <!-- 十一、客戶應備文件清單（新增指定項目：屋頂平面圖、場域線路分佈圖、廠區空拍圖、屋頂現況照片（多角度）） -->
+                    <!-- 十一、客戶應備文件清單 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
@@ -1277,7 +1249,7 @@
                         </div>
                     </div>
 
-                    <!-- 十二、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
+                    <!-- 十二、檔案上傳 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
@@ -1345,7 +1317,7 @@
             return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><div class="flex items-center space-x-2"><label class="text-slate-400 text-xs font-bold shrink-0">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full"></div>${generateFooterHTML()}</div>`;
         }
 
-        // ==================== 四、會議記錄 (已依指令完成格式更改) ====================
+        // ==================== 四、會議記錄 ====================
         function generateMeetingHTML(c) {
             return `
                 <div class="card-box bg-cosmic-800/70 border border-purple-500/50 rounded-2xl p-6 space-y-6 shadow-xl">
@@ -1366,7 +1338,7 @@
                         </div>
                     </div>
 
-                    <!-- 二、出席單位與人員 (更改：電話改「聯絡電話」) -->
+                    <!-- 二、出席單位與人員 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/20 pb-1.5">二、出席單位與人員</h4>
                         
@@ -1405,7 +1377,7 @@
                                             <div class="md:col-span-3"><label class="text-slate-400 block mb-0.5">公司匯款帳戶：</label><input type="text" value="${rep.bankAccount||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">電子信箱：</label><input type="text" value="${rep.email||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'email', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">網站連結：</label><input type="text" value="${rep.website||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap" style="overflow:hidden;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';">${rep.remark||''}</textarea></div>
+                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white h-16 resize-y block whitespace-pre-wrap">${rep.remark||''}</textarea></div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1413,7 +1385,7 @@
                         </div>
                     </div>
 
-                    <!-- 三、會議內容 (更改：提案人改會議主題，取消內容與共識討論格式，結論改會議內容，無限延伸無卷軸) -->
+                    <!-- 三、會議內容 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
                             <h4 class="text-xs font-bold text-purple-400">三、會議內容</h4>
@@ -1426,11 +1398,11 @@
                                     <div class="grid grid-cols-1 gap-3 text-xs">
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">會議主題：</label>
-                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${item.proposer||''}</textarea>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${item.proposer||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">會議內容：</label>
-                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] resize-none overflow-hidden block whitespace-pre-wrap">${item.conclusion||''}</textarea>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] resize-none overflow-hidden block whitespace-pre-wrap">${item.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1438,13 +1410,13 @@
                         </div>
                     </div>
 
-                    <!-- 四、會議總結 (無限延伸無卷軸) -->
+                    <!-- 四、會議總結 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">四、會議總結：</label>
-                        <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value); this.style.height='auto';this.style.height=this.scrollHeight+'px';" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
+                        <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
                     </div>
 
-                    <!-- 五、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
+                    <!-- 五、檔案上傳 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-purple-500/30 pb-1.5">
                             <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳</span>
@@ -1616,7 +1588,7 @@
                         <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white h-20 text-xs resize-y block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
                     </div>
 
-                    <!-- 六、檔案上傳 (右邊垃圾桶左側加入檔案點擊下載功能) -->
+                    <!-- 六、檔案上傳 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <div class="flex justify-between items-center border-b border-indigo-500/30 pb-1.5">
                             <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>六、檔案上傳</span>
@@ -1665,20 +1637,50 @@
             `;
         }
 
-        // ==================== 核心驅動腳本 ====================
-        function updateField(id, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id)[field] = value; }
+        // ==================== 核心驅動腳本 (加入自動防護與節流防抖機制) ====================
+        function updateField(id, field, value) { 
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                target[field] = value; 
+                triggerAutoSave();
+            }
+        }
+
         function updateCompanyName(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) { target.companyName = value; renderSidebarSubLists(); }
+            if (target) { 
+                target.companyName = value; 
+                renderSidebarSubLists(); 
+                triggerAutoSave();
+            }
         }
-        function updateServiceField(id, idx, field, value) { caseEvalData.find(c => c.id === id).services[idx][field] = value; }
-        function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
-        function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
+
+        function updateServiceField(id, idx, field, value) { 
+            let target = caseEvalData.find(c => c.id === id);
+            if (target && target.services[idx]) {
+                target.services[idx][field] = value;
+                triggerAutoSave();
+            }
+        }
+
+        function updateSolarServiceField(id, idx, field, value) { 
+            let target = solarData.find(c => c.id === id);
+            if (target && target.solarServices[idx]) {
+                target.solarServices[idx][field] = value;
+                triggerAutoSave();
+            }
+        }
+
+        function updateLandField(id, idx, field, value) { 
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target && target.lands[idx]) {
+                target.lands[idx][field] = value;
+                triggerAutoSave();
+            }
+        }
         
-        // 修正後的檔案上傳邏輯（結合 UUID 及 Math.random 雙重安全機制）
         async function uploadFileToSupabaseStorage(file) {
             try {
-                // 優先使用標準 crypto.randomUUID()，若舊瀏覽器不支援則回退至 Math.random() 36進位字串
                 const uniqueId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
                     ? crypto.randomUUID() 
                     : Math.random().toString(36).substring(2, 10);
@@ -1700,6 +1702,7 @@
         async function handleProjectFileUpload(inputEl, id, side) {
             let target = caseEvalData.find(c => c.id === id);
             if (target && inputEl.files) {
+                setSyncBadgeStatus('saving', '檔案上傳中...');
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
                     let fileUrl = await uploadFileToSupabaseStorage(file);
@@ -1708,25 +1711,34 @@
                     else target.ruiliFilesObj.push(fileObj);
                 }
                 renderMainForms();
-                saveToCloudSilent();
+                await saveToCloudSilent();
+                setSyncBadgeStatus('saved', '雲端已同步');
             }
         }
+
         function updateProjectFileName(id, side, idx, value) {
             let target = caseEvalData.find(c => c.id === id);
-            if(side === 'client') target.clientFilesObj[idx].clientName = value;
-            else target.ruiliFilesObj[idx].clientName = value;
+            if (target) {
+                if(side === 'client') target.clientFilesObj[idx].clientName = value;
+                else target.ruiliFilesObj[idx].clientName = value;
+                triggerAutoSave();
+            }
         }
+
         function removeProjectFile(id, side, idx) {
             let target = caseEvalData.find(c => c.id === id);
-            if(side === 'client') target.clientFilesObj.splice(idx, 1);
-            else target.ruiliFilesObj.splice(idx, 1);
-            renderMainForms();
-            saveToCloudSilent();
+            if (target) {
+                if(side === 'client') target.clientFilesObj.splice(idx, 1);
+                else target.ruiliFilesObj.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
         }
 
         async function handleSolarFileUpload(inputEl, id, side) {
             let target = solarData.find(c => c.id === id);
             if (target && inputEl.files) {
+                setSyncBadgeStatus('saving', '檔案上傳中...');
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
                     let fileUrl = await uploadFileToSupabaseStorage(file);
@@ -1735,105 +1747,227 @@
                     else target.ruiliFilesObj.push(fileObj);
                 }
                 renderMainForms();
-                saveToCloudSilent();
+                await saveToCloudSilent();
+                setSyncBadgeStatus('saved', '雲端已同步');
             }
         }
+
         function updateSolarFileName(id, side, idx, value) {
             let target = solarData.find(c => c.id === id);
-            if(side === 'client') target.clientFilesObj[idx].clientName = value;
-            else target.ruiliFilesObj[idx].clientName = value;
+            if (target) {
+                if(side === 'client') target.clientFilesObj[idx].clientName = value;
+                else target.ruiliFilesObj[idx].clientName = value;
+                triggerAutoSave();
+            }
         }
+
         function removeSolarFile(id, side, idx) {
             let target = solarData.find(c => c.id === id);
-            if(side === 'client') target.clientFilesObj.splice(idx, 1);
-            else target.ruiliFilesObj.splice(idx, 1);
-            renderMainForms();
-            saveToCloudSilent();
+            if (target) {
+                if(side === 'client') target.clientFilesObj.splice(idx, 1);
+                else target.ruiliFilesObj.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
         }
 
-        function updateMeetField(id, field, value) { let t = internalMeetData.find(c => c.id === id); if(t) t[field] = value; }
+        function updateMeetField(id, field, value) { 
+            let t = internalMeetData.find(c => c.id === id); 
+            if(t) {
+                t[field] = value; 
+                triggerAutoSave();
+            }
+        }
+
         function updateMeetSubject(id, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if(target) { target.meetSubject = value; renderSidebarSubLists(); }
+            if(target) { 
+                target.meetSubject = value; 
+                renderSidebarSubLists(); 
+                triggerAutoSave();
+            }
         }
 
-        function updateMeetingMainField(id, field, value) { let t = meetingData.find(c => c.id === id); if(t) t[field] = value; }
+        function updateMeetingMainField(id, field, value) { 
+            let t = meetingData.find(c => c.id === id); 
+            if(t) {
+                t[field] = value; 
+                triggerAutoSave();
+            }
+        }
+
         function updateMeetingAttendeeSelection(id, person, isChecked) {
             let target = meetingData.find(c => c.id === id);
-            if (!target.ruiliAttendees) target.ruiliAttendees = [];
-            if (isChecked) { if(!target.ruiliAttendees.includes(person)) target.ruiliAttendees.push(person); }
-            else { target.ruiliAttendees = target.ruiliAttendees.filter(p => p !== person); }
+            if (target) {
+                if (!target.ruiliAttendees) target.ruiliAttendees = [];
+                if (isChecked) { if(!target.ruiliAttendees.includes(person)) target.ruiliAttendees.push(person); }
+                else { target.ruiliAttendees = target.ruiliAttendees.filter(p => p !== person); }
+                triggerAutoSave();
+            }
         }
+
         function addExternalRepRow(id) {
             meetingData.find(c => c.id === id).externalRepresentatives.push({ companyName: "", name: "", phone: "", taxId: "", address: "", companyPhone: "", fax: "", bankAccount: "", remark: "", email: "", website: "" });
             renderMainForms();
+            triggerAutoSave();
         }
+
         function removeExternalRepRow(id, idx) {
             meetingData.find(c => c.id === id).externalRepresentatives.splice(idx, 1);
             renderMainForms();
+            triggerAutoSave();
         }
+
         function updateExternalRepField(id, idx, field, value) {
-            meetingData.find(c => c.id === id).externalRepresentatives[idx][field] = value;
+            let t = meetingData.find(c => c.id === id);
+            if (t && t.externalRepresentatives[idx]) {
+                t.externalRepresentatives[idx][field] = value;
+                triggerAutoSave();
+            }
         }
+
         function addMeetingContentRow(id) {
             meetingData.find(c => c.id === id).contents.push({ proposer: "", conclusion: "" });
             renderMainForms();
+            triggerAutoSave();
         }
+
         function removeMeetingContentRow(id, idx) {
             meetingData.find(c => c.id === id).contents.splice(idx, 1);
             renderMainForms();
+            triggerAutoSave();
         }
+
         function updateMeetingContentField(id, idx, field, value) {
-            meetingData.find(c => c.id === id).contents[idx][field] = value;
+            let t = meetingData.find(c => c.id === id);
+            if (t && t.contents[idx]) {
+                t.contents[idx][field] = value;
+                triggerAutoSave();
+            }
         }
+
         async function handleExternalMeetingUpload(inputEl, id) {
             let target = meetingData.find(c => c.id === id);
             if (target && inputEl.files) {
+                setSyncBadgeStatus('saving', '檔案上傳中...');
                 for(let i=0; i<inputEl.files.length; i++) {
                     let file = inputEl.files[i];
                     let fileUrl = await uploadFileToSupabaseStorage(file);
                     target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileUrl });
                 }
                 renderMainForms();
-                saveToCloudSilent();
+                await saveToCloudSilent();
+                setSyncBadgeStatus('saved', '雲端已同步');
             }
         }
-        function updateExternalMeetingFileName(id, idx, value) { meetingData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
-        function removeExternalMeetingFile(id, idx) { meetingData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
+
+        function updateExternalMeetingFileName(id, idx, value) { 
+            let t = meetingData.find(c => c.id === id);
+            if (t && t.uploadedFiles[idx]) {
+                t.uploadedFiles[idx].clientName = value; 
+                triggerAutoSave();
+            }
+        }
+
+        function removeExternalMeetingFile(id, idx) { 
+            let t = meetingData.find(c => c.id === id);
+            if (t) {
+                t.uploadedFiles.splice(idx, 1); 
+                renderMainForms(); 
+                triggerAutoSave();
+            }
+        }
 
         function updateAttendeeSelection(id, person, isChecked) {
             let target = internalMeetData.find(c => c.id === id);
-            if (!target.attendees) target.attendees = [];
-            if (isChecked) { if (!target.attendees.includes(person)) target.attendees.push(person); }
-            else { target.attendees = target.attendees.filter(p => p !== person); }
+            if (target) {
+                if (!target.attendees) target.attendees = [];
+                if (isChecked) { if (!target.attendees.includes(person)) target.attendees.push(person); }
+                else { target.attendees = target.attendees.filter(p => p !== person); }
+                triggerAutoSave();
+            }
         }
-        function updateCaseReportField(id, idx, field, value) { internalMeetData.find(c => c.id === id).caseReports[idx][field] = value; }
-        function addRuiliCaseReportRow(id) { internalMeetData.find(c => c.id === id).caseReports.push({ reporter: currentUserRole, caseName: "", desc: "", conclusion: "" }); renderMainForms(); }
-        function removeRuiliCaseReportRow(id, idx) { internalMeetData.find(c => c.id === id).caseReports.splice(idx, 1); renderMainForms(); }
-        function updateProposalField(id, idx, field, value) { internalMeetData.find(c => c.id === id).proposalReports[idx][field] = value; }
-        function addRuiliProposalRow(id) { internalMeetData.find(c => c.id === id).proposalReports.push({ reporter: currentUserRole, item: "", content: "", feasibility: "", conclusion: "" }); renderMainForms(); }
-        function removeRuiliProposalRow(id, idx) { internalMeetData.find(c => c.id === id).proposalReports.splice(idx, 1); renderMainForms(); }
+
+        function updateCaseReportField(id, idx, field, value) { 
+            let t = internalMeetData.find(c => c.id === id);
+            if (t && t.caseReports[idx]) {
+                t.caseReports[idx][field] = value; 
+                triggerAutoSave();
+            }
+        }
+
+        function addRuiliCaseReportRow(id) { 
+            internalMeetData.find(c => c.id === id).caseReports.push({ reporter: currentUserRole, caseName: "", desc: "", conclusion: "" }); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function removeRuiliCaseReportRow(id, idx) { 
+            internalMeetData.find(c => c.id === id).caseReports.splice(idx, 1); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function updateProposalField(id, idx, field, value) { 
+            let t = internalMeetData.find(c => c.id === id);
+            if (t && t.proposalReports[idx]) {
+                t.proposalReports[idx][field] = value; 
+                triggerAutoSave();
+            }
+        }
+
+        function addRuiliProposalRow(id) { 
+            internalMeetData.find(c => c.id === id).proposalReports.push({ reporter: currentUserRole, item: "", content: "", feasibility: "", conclusion: "" }); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function removeRuiliProposalRow(id, idx) { 
+            internalMeetData.find(c => c.id === id).proposalReports.splice(idx, 1); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
         
         async function handleRuiliMeetUpload(inputEl, id) {
             let target = internalMeetData.find(c => c.id === id);
             if (target && inputEl.files) {
+                setSyncBadgeStatus('saving', '檔案上傳中...');
                 for (let i = 0; i < inputEl.files.length; i++) {
                     let file = inputEl.files[i];
                     let fileUrl = await uploadFileToSupabaseStorage(file);
                     target.uploadedFiles.push({ clientName: file.name, actualName: file.name, url: fileUrl });
                 }
                 renderMainForms();
-                saveToCloudSilent();
+                await saveToCloudSilent();
+                setSyncBadgeStatus('saved', '雲端已同步');
             }
         }
-        function updateRuiliFileName(id, idx, value) { internalMeetData.find(c => c.id === id).uploadedFiles[idx].clientName = value; }
-        function removeRuiliMeetFile(id, idx) { internalMeetData.find(c => c.id === id).uploadedFiles.splice(idx, 1); renderMainForms(); saveToCloudSilent(); }
+
+        function updateRuiliFileName(id, idx, value) { 
+            let t = internalMeetData.find(c => c.id === id);
+            if (t && t.uploadedFiles[idx]) {
+                t.uploadedFiles[idx].clientName = value; 
+                triggerAutoSave();
+            }
+        }
+
+        function removeRuiliMeetFile(id, idx) { 
+            let t = internalMeetData.find(c => c.id === id);
+            if (t) {
+                t.uploadedFiles.splice(idx, 1); 
+                renderMainForms(); 
+                triggerAutoSave();
+            }
+        }
 
         function updateSolarCheckbox(id, value, isChecked) {
             let target = solarData.find(c => c.id === id);
-            if (!target.condRoofEquip) target.condRoofEquip = [];
-            if (isChecked) { if (!target.condRoofEquip.includes(value)) target.condRoofEquip.push(value); }
-            else { target.condRoofEquip = target.condRoofEquip.filter(item => item !== value); }
+            if (target) {
+                if (!target.condRoofEquip) target.condRoofEquip = [];
+                if (isChecked) { if (!target.condRoofEquip.includes(value)) target.condRoofEquip.push(value); }
+                else { target.condRoofEquip = target.condRoofEquip.filter(item => item !== value); }
+                triggerAutoSave();
+            }
         }
 
         function calculateSolarLive(id) {
@@ -1876,23 +2010,47 @@
                 if(pingInput) pingInput.value = ping.toFixed(2);
                 refreshSums();
                 if(currentActiveTab === 'solar') calculateSolarLive(id);
+                triggerAutoSave();
             }
         }
 
         function updateBuildField(id, side, idx, field, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if(side === 'legal') target.buildingsLegal[idx][field] = value;
-            else target.buildingsIllegal[idx][field] = value;
+            if (target) {
+                if(side === 'legal') target.buildingsLegal[idx][field] = value;
+                else target.buildingsIllegal[idx][field] = value;
+                triggerAutoSave();
+            }
         }
 
-        function addServiceRow(id) { caseEvalData.find(c => c.id === id).services.push({ name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
-        function removeServiceRow(id, idx) { caseEvalData.find(c => c.id === id).services.splice(idx, 1); renderMainForms(); }
-        function addSolarServiceRow(id) { solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); renderMainForms(); }
-        function removeSolarServiceRow(id, idx) { solarData.find(c => c.id === id).solarServices.splice(idx, 1); renderMainForms(); }
+        function addServiceRow(id) { 
+            caseEvalData.find(c => c.id === id).services.push({ name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function removeServiceRow(id, idx) { 
+            caseEvalData.find(c => c.id === id).services.splice(idx, 1); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function addSolarServiceRow(id) { 
+            solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function removeSolarServiceRow(id, idx) { 
+            solarData.find(c => c.id === id).solarServices.splice(idx, 1); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
 
         function addLandRow(id) { 
             getTargetDataArray(currentActiveTab).find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", currentPrice: "", sqm: 0, ping: 0 }); 
             renderMainForms(); 
+            triggerAutoSave();
         }
 
         function removeLandRow(id, idx) {
@@ -1902,6 +2060,7 @@
                 renderMainForms();
                 refreshSums();
                 if (currentActiveTab === 'solar') calculateSolarLive(id);
+                triggerAutoSave();
             }
         }
 
@@ -1911,6 +2070,7 @@
             else target.buildingsIllegal.push({ type: "", year: "", sqm: "", ping: "" });
             renderMainForms();
             if(currentActiveTab === 'solar') calculateSolarLive(id);
+            triggerAutoSave();
         }
 
         function removeBuildRow(id, side, idx) {
@@ -1924,6 +2084,7 @@
                 renderMainForms();
                 refreshSums();
                 if (currentActiveTab === 'solar') calculateSolarLive(id);
+                triggerAutoSave();
             }
         }
 
@@ -1934,13 +2095,16 @@
                 if (side === 'client') target.customDocsClient.push(item);
                 else target.customDocsRuili.push(item);
                 renderMainForms();
+                triggerAutoSave();
             }
         }
+
         function removeDocItem(id, side, idx) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (side === 'client') target.customDocsClient.splice(idx, 1);
             else target.customDocsRuili.splice(idx, 1);
             renderMainForms();
+            triggerAutoSave();
         }
 
         function refreshSums() {
@@ -2042,19 +2206,25 @@
         async function saveToCloudSilent() {
             const currentObj = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
             if (currentObj) {
-                await supabaseClient.from('cases').upsert({
+                const { error } = await supabaseClient.from('cases').upsert({
                     id: currentObj.id,
                     tab_category: currentActiveTab,
                     data: currentObj,
                     is_deleted: currentObj.is_deleted || false,
                     deleted_at: currentObj.deleted_at || null
                 });
+                if (error) {
+                    console.error("Save error:", error);
+                    setSyncBadgeStatus('error', '儲存失敗');
+                }
             }
         }
 
         async function saveToCloud() {
+            setSyncBadgeStatus('saving', '手動儲存中...');
             await saveToCloudSilent();
-            alert("資料已儲存！");
+            setSyncBadgeStatus('saved', '雲端已儲存');
+            alert("資料已手動儲存！");
         }
 
         // ==================== 回收桶與一鍵復原機制 ====================
@@ -2112,14 +2282,14 @@
             }
         }
 
-        // ==================== Supabase 資料載入與 Realtime 即時監聽 ====================
-        async function fetchSupabaseData() {
+        // ==================== Supabase 資料載入與 第一步：優化 Realtime 靜默更新 ====================
+        async function fetchSupabaseData(silent = false) {
             const { data, error } = await supabaseClient.from('cases').select('*');
             if (error) {
                 console.error("Fetch Supabase Error:", error);
                 return;
             }
-            if (data && data.length > 0) {
+            if (data) {
                 caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
                 data.forEach(row => {
                     const caseObj = { ...row.data, is_deleted: row.is_deleted, deleted_at: row.deleted_at };
@@ -2129,8 +2299,17 @@
                     else if (row.tab_category === 'meeting') meetingData.push(caseObj);
                     else if (row.tab_category === 'internal-meet') internalMeetData.push(caseObj);
                 });
+                
+                // 🛡️ 防護 1：始終更新左側目錄選單（確保最新案件清單同步）
                 renderSidebarSubLists();
-                renderMainForms();
+
+                // 🛡️ 防護 2：如果使用者正在輸入打字、或表單中有輸入框處於 active 焦點狀態，避開表單強行重繪
+                const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+                const isFormFocused = ['input', 'textarea', 'select'].includes(activeTag);
+
+                if (!silent && !isUserTyping && !isFormFocused) {
+                    renderMainForms();
+                }
             }
         }
 
@@ -2141,7 +2320,8 @@
                     'postgres_changes',
                     { event: '*', schema: 'public', table: 'cases' },
                     (payload) => {
-                        fetchSupabaseData();
+                        // 靜默拉取最新資料，不干擾使用者當前游標與輸入動作
+                        fetchSupabaseData(true);
                     }
                 )
                 .subscribe();
