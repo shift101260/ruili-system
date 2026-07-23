@@ -300,6 +300,7 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUserRole = "黃逸豪";
+        let isSavingLocal = false; // 標記是否為本機主動儲存
 
         let caseEvalData = [
             {
@@ -633,7 +634,7 @@
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">二、公司基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
-                            <div class="md:col-span-2"><label class="text-slate-400">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-medium"></div>
+                            <div class="md:col-span-2"><label class="text-slate-400">公司名稱：</label><input type="text" value="${c.companyName||''}" oninput="updateCompanyName('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-medium"></div>
                             <div><label class="text-slate-400">統編：</label><input type="text" value="${c.taxId||''}" oninput="updateField('${c.id}', 'taxId', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div><label class="text-slate-400">工廠登記證字號：</label><input type="text" value="${c.factoryLicense||''}" oninput="updateField('${c.id}', 'factoryLicense', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div><label class="text-slate-400">產業類型：</label><input type="text" value="${c.industryType||''}" oninput="updateField('${c.id}', 'industryType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
@@ -945,7 +946,7 @@
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/30 pb-1.5">二、公司基本資料</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
-                            <div class="md:col-span-2"><label class="text-slate-400">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-medium"></div>
+                            <div class="md:col-span-2"><label class="text-slate-400">公司名稱：</label><input type="text" value="${c.companyName||''}" oninput="updateCompanyName('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-medium"></div>
                             <div><label class="text-slate-400">統編：</label><input type="text" value="${c.taxId||''}" oninput="updateField('${c.id}', 'taxId', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div><label class="text-slate-400">工廠登記證字號：</label><input type="text" value="${c.factoryLicense||''}" oninput="updateField('${c.id}', 'factoryLicense', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div><label class="text-slate-400">產業類型：</label><input type="text" value="${c.industryType||''}" oninput="updateField('${c.id}', 'industryType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
@@ -1381,7 +1382,7 @@
 
         // ==================== 三、工廠買賣案件資料表面板 ====================
         function generateTradingHTML(c) {
-            return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><div class="flex items-center space-x-2"><label class="text-slate-400 text-xs font-bold shrink-0">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full"></div>${generateFooterHTML()}</div>`;
+            return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><div class="flex items-center space-x-2"><label class="text-slate-400 text-xs font-bold shrink-0">公司名稱：</label><input type="text" value="${c.companyName||''}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full"></div>${generateFooterHTML()}</div>`;
         }
 
         // ==================== 四、會議記錄 ====================
@@ -2154,6 +2155,7 @@
             const target = dataArr.find(c => c.id === activeId);
             
             if (target) {
+                isSavingLocal = true;
                 if (currentUserRole === '中央控台') {
                     const targetIndex = dataArr.findIndex(c => c.id === activeId);
                     if (targetIndex !== -1) dataArr.splice(targetIndex, 1);
@@ -2182,6 +2184,7 @@
                 closeDeleteModal();
                 renderSidebarSubLists();
                 renderMainForms();
+                setTimeout(() => { isSavingLocal = false; }, 1000);
             }
         }
 
@@ -2204,6 +2207,7 @@
         async function saveToCloudSilent() {
             const currentObj = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
             if (currentObj) {
+                isSavingLocal = true; // 標記為本機發起的變更
                 // 1. 寫入 Supabase 資料表
                 const { error } = await supabaseClient.from('cases').upsert({
                     id: currentObj.id,
@@ -2219,6 +2223,9 @@
 
                 // 2. 備份至 localStorage
                 saveLocalBackup();
+
+                // 避免觸發即時同步覆蓋
+                setTimeout(() => { isSavingLocal = false; }, 1000);
             }
         }
 
@@ -2267,6 +2274,7 @@
             const dataArr = getTargetDataArray(tabId);
             const target = dataArr.find(c => c.id === id);
             if (target) {
+                isSavingLocal = true;
                 target.is_deleted = false;
                 target.deleted_at = null;
                 await supabaseClient.from('cases').upsert({
@@ -2280,6 +2288,7 @@
                 renderSidebarSubLists();
                 renderMainForms();
                 openTrashModal();
+                setTimeout(() => { isSavingLocal = false; }, 1000);
             }
         }
 
@@ -2339,7 +2348,10 @@
                     'postgres_changes',
                     { event: '*', schema: 'public', table: 'cases' },
                     (payload) => {
-                        fetchSupabaseData();
+                        // 如果是自己本機觸發的寫入，不要重複觸發重畫畫面，避免覆蓋輸入中的內容
+                        if (!isSavingLocal) {
+                            fetchSupabaseData();
+                        }
                     }
                 )
                 .subscribe();
