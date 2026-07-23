@@ -1681,16 +1681,32 @@
         
         async function uploadFileToSupabaseStorage(file) {
             try {
+                // 1. 安全檔名清洗（Clean Filename）：過濾 Emoji、中文標點與特殊字元
+                const rawExtension = file.name.includes('.') ? file.name.split('.').pop() : '';
+                const baseName = file.name.includes('.') ? file.name.substring(0, file.name.lastIndexOf('.')) : file.name;
+                
+                // 僅保留字母、數字、點、底線、減號，其他一律轉為底線
+                let cleanBase = baseName.replace(/[^a-zA-Z0-9.\-_]/g, '_').replace(/_+/g, '_');
+                if (!cleanBase || cleanBase === '_') cleanBase = 'file';
+                
+                const cleanExt = rawExtension.replace(/[^a-zA-Z0-9]/g, '');
+                const safeFileName = cleanExt ? `${cleanBase}.${cleanExt}` : cleanBase;
+
+                // 2. 建立唯一路徑
                 const uniqueId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
                     ? crypto.randomUUID() 
                     : Math.random().toString(36).substring(2, 10);
                 
-                const filePath = `uploads/${Date.now()}_${uniqueId}_${file.name}`;
+                const filePath = `uploads/${Date.now()}_${uniqueId}_${safeFileName}`;
+                
+                // 3. 上傳至 Supabase Storage
                 const { data, error } = await supabaseClient.storage.from('ruili-files').upload(filePath, file);
                 if (error) {
                     console.error("Storage Error:", error);
                     return URL.createObjectURL(file);
                 }
+                
+                // 4. 取得公開存取網址
                 const { data: publicData } = supabaseClient.storage.from('ruili-files').getPublicUrl(filePath);
                 return publicData.publicUrl;
             } catch (err) {
