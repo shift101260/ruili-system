@@ -1675,24 +1675,44 @@
         function updateSolarServiceField(id, idx, field, value) { solarData.find(c => c.id === id).solarServices[idx][field] = value; }
         function updateLandField(id, idx, field, value) { getTargetDataArray(currentActiveTab).find(c => c.id === id).lands[idx][field] = value; }
         
-        // 核心修改 1：接收 caseId，建立動態虛擬資料夾路徑
+        // 核心修改：嚴謹升級版 uploadFileToSupabaseStorage 函式
         async function uploadFileToSupabaseStorage(file, caseId) {
             try {
-                // 自動以案件 ID 作為前綴，形成所屬專屬資料夾架構：[案件編號/ID]/時間_檔名
-                const folderName = caseId ? caseId : 'uncategorized';
-                const filePath = `${folderName}/${Date.now()}_${file.name}`;
-                
-                const { data, error } = await supabaseClient.storage.from('ruili-files').upload(filePath, file);
+                if (!file) {
+                    console.error("Upload error: No file provided.");
+                    return { url: "", path: "" };
+                }
+
+                // 清理特殊字元以防路徑異常，確保儲存路徑合法性
+                const sanitizedFileName = file.name.replace(/[^\w\.\-–—\u4e00-\u9fa5]/g, '_');
+                const folderName = caseId ? String(caseId).trim() : 'uncategorized';
+                const filePath = `${folderName}/${Date.now()}_${sanitizedFileName}`;
+
+                // 上傳至 Supabase Storage 'ruili-files' bucket
+                const { data, error } = await supabaseClient.storage
+                    .from('ruili-files')
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
                 if (error) {
-                    console.error("Storage Error:", error);
+                    console.error("Storage Error:", error.message || error);
+                    // 上傳失敗時的備用處理，防止流程中斷
                     return { url: URL.createObjectURL(file), path: filePath };
                 }
-                const { data: publicData } = supabaseClient.storage.from('ruili-files').getPublicUrl(filePath);
-                
-                // 同時回傳完整 URL 與資料夾相對應的 Path
-                return { url: publicData.publicUrl, path: filePath };
+
+                // 取得公開下載/存取 URL
+                const { data: publicData } = supabaseClient.storage
+                    .from('ruili-files')
+                    .getPublicUrl(filePath);
+
+                return {
+                    url: publicData ? publicData.publicUrl : "",
+                    path: filePath
+                };
             } catch (err) {
-                console.error("Upload error:", err);
+                console.error("Upload exception caught:", err);
                 return { url: URL.createObjectURL(file), path: "" };
             }
         }
