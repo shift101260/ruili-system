@@ -64,6 +64,10 @@
                 padding: 2px !important;
                 font-weight: bold !important;
             }
+            textarea {
+                height: auto !important;
+                overflow: visible !important;
+            }
             .text-white, .text-slate-300, .text-slate-400, .text-amber-300, .text-amber-400, .text-cyan-400, .text-emerald-400, .text-purple-300, .text-purple-400, .text-indigo-300, .text-indigo-400, .text-teal-400, .text-sky-400, .text-violet-400, label { 
                 color: black !important; 
                 -webkit-text-fill-color: black !important;
@@ -313,6 +317,13 @@
         let autoSaveTimer = null;
         let isUserTyping = false;
 
+        // 📐 自動延伸 Textarea 高度函數
+        function autoResizeTextarea(el) {
+            if (!el) return;
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+
         function setSyncBadgeStatus(state, text) {
             const badge = document.getElementById('sync-status-badge');
             const icon = document.getElementById('sync-icon');
@@ -511,6 +522,11 @@
                 if (!activeCase.uploadedFiles) activeCase.uploadedFiles = [];
                 container.innerHTML = generateInternalMeetHTML(activeCase);
             }
+
+            // 自動適應全部 Textarea 高度
+            setTimeout(() => {
+                container.querySelectorAll('textarea').forEach(el => autoResizeTextarea(el));
+            }, 0);
         }
 
         function previewFileUrl(url, fileName) {
@@ -616,7 +632,7 @@
                             <div><label class="text-slate-400">傳真：</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶：</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司網站連結：</label><input type="text" value="${c.website||''}" oninput="updateField('${c.id}', 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-y block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
+                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
 
@@ -638,8 +654,8 @@
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-y block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
-                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-y block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
                                     </div>
 
                                     <div class="pt-2 border-t border-cosmic-700/20">
@@ -926,7 +942,7 @@
                             <div><label class="text-slate-400">傳真：</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶：</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
                             <div class="md:col-span-2"><label class="text-slate-400">公司網站連結：</label><input type="text" value="${c.website||''}" oninput="updateField('${c.id}', 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
-                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-y block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
+                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
                         </div>
                     </div>
 
@@ -946,8 +962,8 @@
                                         <div><label class="text-slate-400 block mb-0.5">簽約金額：</label><input type="number" value="${srv.contract||''}" oninput="updateSolarServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-y block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
-                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-y block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'desc', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
+                                        <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateSolarServiceField('${c.id}', ${idx}, 'remark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
                                     </div>
                                     <div class="pt-2 border-t border-cosmic-700/20">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
@@ -1201,7 +1217,7 @@
                                     <option value="自建" ${c.planPartner==='自建'?'selected':''}>自建</option>
                                 </select>
                             </div>
-                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">系統建置備註說明：</label><textarea oninput="updateField('${c.id}', 'planNote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-y block whitespace-pre-wrap">${c.planNote||''}</textarea></div>
+                            <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">系統建置備註說明：</label><textarea oninput="updateField('${c.id}', 'planNote', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${c.planNote||''}</textarea></div>
                         </div>
                     </div>
 
@@ -1410,7 +1426,7 @@
                                             <div class="md:col-span-3"><label class="text-slate-400 block mb-0.5">公司匯款帳戶：</label><input type="text" value="${rep.bankAccount||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">電子信箱：</label><input type="text" value="${rep.email||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'email', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                             <div class="md:col-span-2"><label class="text-slate-400 block mb-0.5">網站連結：</label><input type="text" value="${rep.website||''}" oninput="updateExternalRepField('${c.id}', ${idx}, 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[64px] resize-y block whitespace-pre-wrap">${rep.remark||''}</textarea></div>
+                                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">備註：</label><textarea oninput="updateExternalRepField('${c.id}', ${idx}, 'remark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${rep.remark||''}</textarea></div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1431,11 +1447,11 @@
                                     <div class="grid grid-cols-1 gap-3 text-xs">
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">會議主題：</label>
-                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[40px] resize-none overflow-hidden block whitespace-pre-wrap">${item.proposer||''}</textarea>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'proposer', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white overflow-hidden resize-none block whitespace-pre-wrap">${item.proposer||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">會議內容：</label>
-                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] resize-none overflow-hidden block whitespace-pre-wrap">${item.conclusion||''}</textarea>
+                                            <textarea oninput="updateMeetingContentField('${c.id}', ${idx}, 'conclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white overflow-hidden resize-none block whitespace-pre-wrap">${item.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1446,7 +1462,7 @@
                     <!-- 四、會議總結 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">四、會議總結：</label>
-                        <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-none overflow-hidden block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
+                        <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white text-xs overflow-hidden resize-none block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
                     </div>
 
                     <!-- 五、檔案上傳 (支援拖曳上傳) -->
@@ -1526,15 +1542,15 @@
                         <div class="space-y-3 text-xs">
                             <div>
                                 <label class="text-slate-400 block mb-1">財務報告：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeReport', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-y block whitespace-pre-wrap">${c.financeReport||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeReport', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white overflow-hidden resize-none block whitespace-pre-wrap">${c.financeReport||''}</textarea>
                             </div>
                             <div>
                                 <label class="text-slate-400 block mb-1">檢討：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeReview', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-y block whitespace-pre-wrap">${c.financeReview||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeReview', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white overflow-hidden resize-none block whitespace-pre-wrap">${c.financeReview||''}</textarea>
                             </div>
                             <div>
                                 <label class="text-slate-400 block mb-1">共識：</label>
-                                <textarea oninput="updateMeetField('${c.id}', 'financeConsensus', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-y block whitespace-pre-wrap">${c.financeConsensus||''}</textarea>
+                                <textarea oninput="updateMeetField('${c.id}', 'financeConsensus', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white overflow-hidden resize-none block whitespace-pre-wrap">${c.financeConsensus||''}</textarea>
                             </div>
                         </div>
                     </div>
@@ -1564,11 +1580,11 @@
                                     <div class="text-xs space-y-2">
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">案件進度說明：</label>
-                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'desc', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-y block whitespace-pre-wrap">${rep.desc||''}</textarea>
+                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'desc', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white overflow-hidden resize-none block whitespace-pre-wrap">${rep.desc||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">結論：</label>
-                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'conclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[64px] resize-y block whitespace-pre-wrap">${rep.conclusion||''}</textarea>
+                                            <textarea oninput="updateCaseReportField('${c.id}', ${idx}, 'conclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white overflow-hidden resize-none block whitespace-pre-wrap">${rep.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1595,19 +1611,19 @@
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">項目：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'item', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[40px] resize-y block whitespace-pre-wrap">${prop.item||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'item', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${prop.item||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">內容：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'content', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-y block whitespace-pre-wrap">${prop.content||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'content', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${prop.content||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">可行性評估：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'feasibility', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-y block whitespace-pre-wrap">${prop.feasibility||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'feasibility', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${prop.feasibility||''}</textarea>
                                         </div>
                                         <div>
                                             <label class="text-slate-400 block mb-0.5">結論：</label>
-                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'conclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white min-h-[48px] resize-y block whitespace-pre-wrap">${prop.conclusion||''}</textarea>
+                                            <textarea oninput="updateProposalField('${c.id}', ${idx}, 'conclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${prop.conclusion||''}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1618,7 +1634,7 @@
                     <!-- 五、會議總結論 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-1.5 card-box">
                         <label class="text-xs font-bold text-amber-400 block">五、會議總結論：</label>
-                        <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white min-h-[80px] text-xs resize-y block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
+                        <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white text-xs overflow-hidden resize-none block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
                     </div>
 
                     <!-- 六、檔案上傳 (支援拖曳上傳) -->
