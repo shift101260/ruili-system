@@ -48,7 +48,7 @@
                 width: 100% !important;
                 font-size: 12pt !important;
             }
-            aside, header, .no-print, input[type="file"], button, #login-overlay, #trash-modal, #rotate-hint, #delete-modal {
+            aside, header, .no-print, input[type="file"], button, #login-overlay, #trash-modal, #delete-modal {
                 display: none !important;
             }
             main {
@@ -116,24 +116,9 @@
                 padding-bottom: 4px !important;
             }
         }
-
-        /* 📱 手機直立時顯示旋轉提示 */
-        #rotate-hint { display: none; }
-        @media screen and (max-width: 932px) and (orientation: portrait) {
-            #rotate-hint { display: flex; }
-        }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
-
-    <!-- 🔄 手機直拿時的旋轉提示 UX 設計 -->
-    <div id="rotate-hint" class="fixed inset-0 bg-cosmic-950/95 z-50 flex-col items-center justify-center p-6 text-center no-print">
-        <div class="w-16 h-16 bg-cyan-500/20 text-cyan-400 rounded-full flex items-center justify-center text-3xl mb-4 animate-bounce">
-            🔄
-        </div>
-        <h3 class="text-lg font-bold text-white mb-2">請將手機轉為橫向以獲得最佳體驗</h3>
-        <p class="text-xs text-slate-400">工廠法規政策顧問，培您轉型與體面退場</p>
-    </div>
 
     <!-- 🔒 全螢幕獨立登入門檻遮罩 -->
     <div id="login-overlay" class="fixed inset-0 bg-cosmic-950 z-50 flex items-center justify-center p-4">
