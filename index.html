@@ -712,7 +712,7 @@
                             <div><label class="text-slate-400 block mb-0.5">區域：</label><input type="text" value="${c.region||''}" oninput="updateField('${c.id}', 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                         </div>
 
-                        <!-- 📌 新增：土地欄位名稱標題區塊 -->
+                        <!-- 📌 土地欄位名稱標題區塊 -->
                         <div class="grid grid-cols-7 gap-1 text-[11px] text-slate-400 font-bold text-center pt-2 pb-1 pr-7">
                             <div>地段</div>
                             <div>地號</div>
@@ -748,16 +748,15 @@
                         </div>
                     </div>
 
-                    <!-- 五、建物基本資料 -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
-                        <!-- 有保存登記建物 -->
+                    <!-- 五、建物基本資料 (已調整：有保存登記在上，違章建物在下) -->
+                    <div class="grid grid-cols-1 gap-4 text-xs">
+                        <!-- 有保存登記建物 (上方) -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-blue-400">五、有保存登記建物</span>
                                 <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
                             </div>
 
-                            <!-- 📌 新增：有保存登記建物欄位名稱標題區塊 -->
                             <div class="grid grid-cols-5 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
                                 <div>建號</div>
                                 <div>建物類別</div>
@@ -781,14 +780,13 @@
                             <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping">${totalLegalPing}</strong> 坪</div>
                         </div>
 
-                        <!-- 違章建物 -->
+                        <!-- 違章建物 (下方) -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-red-400">五、違章建物</span>
                                 <button onclick="addBuildRow('${c.id}', 'illegal')" class="text-[10px] bg-red-950 border border-red-900 px-1.5 py-0.5 rounded no-print">[＋ 違章建物]</button>
                             </div>
 
-                            <!-- 📌 新增：違章建物欄位名稱標題區塊 -->
                             <div class="grid grid-cols-4 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
                                 <div>類別</div>
                                 <div>建造年份</div>
@@ -1038,7 +1036,7 @@
                                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
                                             ${[1,2,3,4].map(p => `
                                                 <div class="bg-cosmic-950/50 p-1.5 rounded border border-cosmic-700/30">
-                                                    <input type="number" value="${srv['p'+p]||''}" placeholder="第${p}期金額" oninput="updateSolarServiceField('${c.id}', ${idx}, 'p${p}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center mb-1">
+                                                    <input type="number" value="${srv['p'+p]||''}" placeholder="第${p}期金額" oninput="updateSolarServiceField('${c.id}', ${idx}, 'p'+p, this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center mb-1">
                                                     <input type="date" value="${srv['d'+p]||''}" onchange="updateSolarServiceField('${c.id}', ${idx}, 'd'+p, this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center">
                                                 </div>
                                             `).join('')}
@@ -1135,7 +1133,7 @@
                             <div><label class="text-slate-400 block mb-0.5">區域：</label><input type="text" value="${c.region||''}" oninput="updateField('${c.id}', 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                         </div>
 
-                        <!-- 📌 新增：土地欄位名稱標題區塊 -->
+                        <!-- 📌 土地欄位名稱標題區塊 -->
                         <div class="grid grid-cols-7 gap-1 text-[11px] text-slate-400 font-bold text-center pt-2 pb-1 pr-7">
                             <div>地段</div>
                             <div>地號</div>
@@ -1171,16 +1169,15 @@
                         </div>
                     </div>
 
-                    <!-- 六、建物基本資料 -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
-                        <!-- 有保存登記建物 -->
+                    <!-- 六、建物基本資料 (已調整：有保存登記在上，違章建物在下) -->
+                    <div class="grid grid-cols-1 gap-4 text-xs">
+                        <!-- 有保存登記建物 (上方) -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-blue-400">六、有保存登記建物</span>
                                 <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
                             </div>
 
-                            <!-- 📌 新增：有保存登記建物欄位名稱標題區塊 -->
                             <div class="grid grid-cols-5 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
                                 <div>建號</div>
                                 <div>建物類別</div>
@@ -1204,14 +1201,13 @@
                             <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping-sol">${totalLegalPing}</strong> 坪</div>
                         </div>
 
-                        <!-- 違章建物 -->
+                        <!-- 違章建物 (下方) -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-red-400">六、違章建物</span>
                                 <button onclick="addBuildRow('${c.id}', 'illegal')" class="text-[10px] bg-red-950 border border-red-900 px-1.5 py-0.5 rounded no-print">[＋ 違章建物]</button>
                             </div>
 
-                            <!-- 📌 新增：違章建物欄位名稱標題區塊 -->
                             <div class="grid grid-cols-4 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
                                 <div>類別</div>
                                 <div>建造年份</div>
@@ -2421,13 +2417,10 @@
                             <span class="text-[10px] text-slate-400 bg-cosmic-800 px-2 py-0.5 rounded border border-cosmic-700">類別: ${item.tabId}</span>
                             <span class="text-[10px] text-slate-500 block mt-1">刪除時間: ${item.deleted_at ? new Date(item.deleted_at).toLocaleString() : '未知'}</span>
                         </div>
-                        <button onclick="restoreCase('${item.id}', '${item.tabId}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
-                            <i class="fa-solid fa-rotate-left mr-1"></i>一鍵復原
-                        </button>
+                        <button onclick="restoreCase('${item.id}', '${item.tabId}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">復原案件</button>
                     </div>
                 `).join('');
             }
-
             document.getElementById('trash-modal').classList.remove('hidden');
         }
 
@@ -2436,11 +2429,12 @@
         }
 
         async function restoreCase(id, tabId) {
-            const dataArr = getTargetDataArray(tabId);
-            const target = dataArr.find(c => c.id === id);
+            let dataArr = getTargetDataArray(tabId);
+            let target = dataArr.find(c => c.id === id);
             if (target) {
                 target.is_deleted = false;
                 target.deleted_at = null;
+                
                 await supabaseClient.from('cases').upsert({
                     id: target.id,
                     tab_category: tabId,
@@ -2448,61 +2442,55 @@
                     is_deleted: false,
                     deleted_at: null
                 });
+
+                closeTrashModal();
                 renderSidebarSubLists();
                 renderMainForms();
-                openTrashModal();
+                alert(`「${target.companyName || target.meetSubject}」已成功復原！`);
             }
         }
 
-        // ==================== Supabase 資料載入與 第一步：優化 Realtime 靜默更新 ====================
-        async function fetchSupabaseData(silent = false) {
+        // ==================== Supabase Realtime & 資料讀取 ====================
+        async function fetchSupabaseData() {
+            setSyncBadgeStatus('saving', '資料載入中...');
             const { data, error } = await supabaseClient.from('cases').select('*');
             if (error) {
-                console.error("Fetch Supabase Error:", error);
+                console.error("Fetch Error:", error);
+                setSyncBadgeStatus('error', '載入失敗');
                 return;
             }
+
+            caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
+
             if (data) {
-                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
                 data.forEach(row => {
-                    const caseObj = { ...row.data, is_deleted: row.is_deleted, deleted_at: row.deleted_at };
-                    if (row.tab_category === 'case-eval') caseEvalData.push(caseObj);
-                    else if (row.tab_category === 'solar') solarData.push(caseObj);
-                    else if (row.tab_category === 'trading') tradingData.push(caseObj);
-                    else if (row.tab_category === 'meeting') meetingData.push(caseObj);
-                    else if (row.tab_category === 'internal-meet') internalMeetData.push(caseObj);
+                    const cData = row.data;
+                    cData.is_deleted = row.is_deleted || false;
+                    cData.deleted_at = row.deleted_at || null;
+
+                    if (row.tab_category === 'case-eval') caseEvalData.push(cData);
+                    else if (row.tab_category === 'solar') solarData.push(cData);
+                    else if (row.tab_category === 'trading') tradingData.push(cData);
+                    else if (row.tab_category === 'meeting') meetingData.push(cData);
+                    else if (row.tab_category === 'internal-meet') internalMeetData.push(cData);
                 });
-                
-                // 🛡️ 防護 1：始終更新左側目錄選單（確保最新案件清單同步）
-                renderSidebarSubLists();
-
-                // 🛡️ 防護 2：如果使用者正在輸入打字、或表單中有輸入框處於 active 焦點狀態，避開表單強行重繪
-                const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
-                const isFormFocused = ['input', 'textarea', 'select'].includes(activeTag);
-
-                if (!silent && !isUserTyping && !isFormFocused) {
-                    renderMainForms();
-                }
             }
+
+            renderSidebarSubLists();
+            renderMainForms();
+            setSyncBadgeStatus('saved', '雲端已同步');
         }
 
         function initSupabaseRealtime() {
             supabaseClient
-                .channel('schema-db-changes')
-                .on(
-                    'postgres_changes',
-                    { event: '*', schema: 'public', table: 'cases' },
-                    (payload) => {
-                        // 靜默拉取最新資料，不干擾使用者當前游標與輸入動作
-                        fetchSupabaseData(true);
+                .channel('cases-db-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
+                    if (!isUserTyping) {
+                        fetchSupabaseData();
                     }
-                )
+                })
                 .subscribe();
         }
-
-        window.onload = function() {
-            renderSidebarSubLists();
-            renderMainForms();
-        };
     </script>
 </body>
 </html>
