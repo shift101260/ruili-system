@@ -28,56 +28,93 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
+        /* 自訂滾動條 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #060b19; }
+        ::-webkit-scrollbar-thumb { background: #1a3160; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #315cb5; }
+
         /* 📜 N版極致：專屬直式 A4 滿頁匯出與物理屏蔽排版優化 */
         @media print {
             @page {
-                size: portrait;
+                size: portrait A4;
                 margin: 10mm !important;
             }
-            body { background: white !important; color: black !important; overflow: visible !important; }
-            aside, header, .no-print, input[type="file"], button, #login-overlay, #trash-modal, #rotate-hint { display: none !important; }
-            main { padding: 0 !important; margin: 0 !important; overflow: visible !important; display: block !important; }
+            html, body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                overflow: visible !important;
+                height: auto !important;
+                width: 100% !important;
+                font-size: 12pt !important;
+            }
+            aside, header, .no-print, input[type="file"], button, #login-overlay, #trash-modal, #rotate-hint, #delete-modal {
+                display: none !important;
+            }
+            main {
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
+                display: block !important;
+                background: transparent !important;
+            }
             .print-container { 
-                width: 210mm !important; 
+                width: 100% !important; 
                 max-width: 100% !important;
-                background: white !important; 
-                color: black !important; 
-                padding: 0mm !important;
+                background: #ffffff !important; 
+                color: #000000 !important; 
+                padding: 0 !important;
                 box-shadow: none !important;
                 border: none !important;
                 display: block !important;
             }
             .card-box {
-                background: transparent !important;
-                border: 1px solid #000 !important;
-                color: black !important;
+                background: #ffffff !important;
+                border: 1px solid #000000 !important;
+                color: #000000 !important;
                 padding: 12px !important;
-                border-radius: 8px !important;
+                border-radius: 6px !important;
+                box-shadow: none !important;
                 page-break-inside: avoid !important;
+                margin-bottom: 12px !important;
             }
             input, select, textarea { 
                 background: transparent !important; 
-                color: black !important; 
+                color: #000000 !important; 
                 border: none !important; 
-                border-bottom: 1px solid #666 !important;
+                border-bottom: 1px solid #444444 !important;
                 border-radius: 0 !important;
-                padding: 2px !important;
+                padding: 2px 4px !important;
                 font-weight: bold !important;
+                box-shadow: none !important;
+                outline: none !important;
             }
             textarea {
                 height: auto !important;
                 overflow: visible !important;
+                resize: none !important;
             }
             .text-white, .text-slate-300, .text-slate-400, .text-amber-300, .text-amber-400, .text-cyan-400, .text-emerald-400, .text-purple-300, .text-purple-400, .text-indigo-300, .text-indigo-400, .text-teal-400, .text-sky-400, .text-violet-400, label { 
-                color: black !important; 
-                -webkit-text-fill-color: black !important;
+                color: #000000 !important; 
+                -webkit-text-fill-color: #000000 !important;
                 opacity: 1 !important;
                 display: inline-block !important;
                 font-weight: bold !important;
             }
-            .bg-cosmic-950, .bg-cosmic-900, .bg-cosmic-800, .bg-cosmic-950\/40, .bg-cosmic-900\/60, .bg-cosmic-950\/60, .bg-cosmic-900\/30, .bg-cosmic-950\/80, .bg-cosmic-950\/50 { background: transparent !important; }
-            footer { border-top: 1px solid black !important; color: black !important; margin-top: 20px !important; }
-            h3, h4 { color: black !important; border-bottom: 1px solid black !important; padding-bottom: 4px !important; }
+            .bg-cosmic-950, .bg-cosmic-900, .bg-cosmic-800, .bg-cosmic-950\/40, .bg-cosmic-900\/60, .bg-cosmic-950\/60, .bg-cosmic-900\/30, .bg-cosmic-950\/80, .bg-cosmic-950\/50, .bg-cosmic-900\/80, .bg-cosmic-900\/30 {
+                background: transparent !important;
+            }
+            footer {
+                border-top: 1px solid #000000 !important;
+                color: #000000 !important;
+                margin-top: 20px !important;
+                padding-top: 10px !important;
+            }
+            h3, h4 {
+                color: #000000 !important;
+                border-bottom: 1px solid #000000 !important;
+                padding-bottom: 4px !important;
+            }
         }
 
         /* 📱 手機直立時顯示旋轉提示 */
