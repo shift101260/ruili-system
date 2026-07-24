@@ -609,10 +609,15 @@
 
         // ==================== 一、專案管理 HTML ====================
         function generateCaseEvalHTML(c) {
-            let totalLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
-            let totalLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
-            let totalLegalPing = c.buildingsLegal ? c.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-            let totalIllegalPing = c.buildingsIllegal ? c.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+            let rawLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
+            let totalLandSqm = Math.round(rawLandSqm * 100) / 100;
+            let rawLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
+            let totalLandPing = Math.round(rawLandPing * 100) / 100;
+            
+            let rawLegalPing = c.buildingsLegal ? c.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+            let totalLegalPing = Math.round(rawLegalPing * 100) / 100;
+            let rawIllegalPing = c.buildingsIllegal ? c.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+            let totalIllegalPing = Math.round(rawIllegalPing * 100) / 100;
 
             return `
                 <div class="card-box bg-cosmic-800/70 border border-cosmic-700/50 rounded-2xl p-6 space-y-6 shadow-xl">
@@ -706,6 +711,18 @@
                             <div><label class="text-slate-400 block mb-0.5">縣市：</label><input type="text" value="${c.city||''}" oninput="updateField('${c.id}', 'city', this.value)" placeholder="例如：高雄市" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                             <div><label class="text-slate-400 block mb-0.5">區域：</label><input type="text" value="${c.region||''}" oninput="updateField('${c.id}', 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                         </div>
+
+                        <!-- 📌 新增：土地欄位名稱標題區塊 -->
+                        <div class="grid grid-cols-7 gap-1 text-[11px] text-slate-400 font-bold text-center pt-2 pb-1 pr-7">
+                            <div>地段</div>
+                            <div>地號</div>
+                            <div>使用分區 / 類別</div>
+                            <div>自填細部類別</div>
+                            <div>權利範圍</div>
+                            <div>平方公尺</div>
+                            <div>換算坪數</div>
+                        </div>
+
                         <div class="space-y-1.5 pt-1">
                             ${c.lands.map((l, idx) => `
                                 <div class="flex items-center space-x-1 text-[11px]">
@@ -717,7 +734,7 @@
                                             <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
                                         </select>
                                         <input type="text" value="${l.customPattern||''}" placeholder="自填細部類別" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center">
-                                        <input type="number" value="${l.currentPrice||''}" placeholder="公告現值" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="text" value="${l.currentPrice||''}" placeholder="權利範圍" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
                                         <input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
                                         <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-ping-${idx}" readonly class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
                                     </div>
@@ -733,17 +750,29 @@
 
                     <!-- 五、建物基本資料 -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
+                        <!-- 有保存登記建物 -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-blue-400">五、有保存登記建物</span>
                                 <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
                             </div>
+
+                            <!-- 📌 新增：有保存登記建物欄位名稱標題區塊 -->
+                            <div class="grid grid-cols-5 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
+                                <div>建號</div>
+                                <div>建物類別</div>
+                                <div>建造年份</div>
+                                <div>權利範圍</div>
+                                <div>坪數</div>
+                            </div>
+
                             <div class="space-y-1">${c.buildingsLegal.map((b, i) => `
                                 <div class="flex items-center space-x-1">
-                                    <div class="grid grid-cols-4 gap-1 flex-1">
+                                    <div class="grid grid-cols-5 gap-1 flex-1">
                                         <input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                         <input type="text" value="${b.type||''}" placeholder="建物類別" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                         <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                         <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                     </div>
                                     <i onclick="removeBuildRow('${c.id}', 'legal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆建號"></i>
@@ -751,16 +780,28 @@
                             `).join('')}</div>
                             <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping">${totalLegalPing}</strong> 坪</div>
                         </div>
+
+                        <!-- 違章建物 -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-red-400">五、違章建物</span>
                                 <button onclick="addBuildRow('${c.id}', 'illegal')" class="text-[10px] bg-red-950 border border-red-900 px-1.5 py-0.5 rounded no-print">[＋ 違章建物]</button>
                             </div>
+
+                            <!-- 📌 新增：違章建物欄位名稱標題區塊 -->
+                            <div class="grid grid-cols-4 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
+                                <div>類別</div>
+                                <div>建造年份</div>
+                                <div>權利範圍</div>
+                                <div>坪數</div>
+                            </div>
+
                             <div class="space-y-1">${c.buildingsIllegal.map((b, i) => `
                                 <div class="flex items-center space-x-1">
-                                    <div class="grid grid-cols-3 gap-1 flex-1">
+                                    <div class="grid grid-cols-4 gap-1 flex-1">
                                         <input type="text" value="${b.type||''}" placeholder="類別" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                         <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                         <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                     </div>
                                     <i onclick="removeBuildRow('${c.id}', 'illegal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆違章建物"></i>
@@ -919,10 +960,15 @@
 
         // ==================== 二、太陽能自建 HTML ====================
         function generateSolarHTML(c) {
-            let totalLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
-            let totalLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
-            let totalLegalPing = c.buildingsLegal ? c.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-            let totalIllegalPing = c.buildingsIllegal ? c.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+            let rawLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
+            let totalLandSqm = Math.round(rawLandSqm * 100) / 100;
+            let rawLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
+            let totalLandPing = Math.round(rawLandPing * 100) / 100;
+
+            let rawLegalPing = c.buildingsLegal ? c.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+            let totalLegalPing = Math.round(rawLegalPing * 100) / 100;
+            let rawIllegalPing = c.buildingsIllegal ? c.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+            let totalIllegalPing = Math.round(rawIllegalPing * 100) / 100;
 
             return `
                 <div class="card-box bg-cosmic-800/70 border border-amber-500/40 rounded-2xl p-6 space-y-6 shadow-xl">
@@ -1088,6 +1134,18 @@
                             <div><label class="text-slate-400 block mb-0.5">縣市：</label><input type="text" value="${c.city||''}" oninput="updateField('${c.id}', 'city', this.value)" placeholder="例如：高雄市" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                             <div><label class="text-slate-400 block mb-0.5">區域：</label><input type="text" value="${c.region||''}" oninput="updateField('${c.id}', 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                         </div>
+
+                        <!-- 📌 新增：土地欄位名稱標題區塊 -->
+                        <div class="grid grid-cols-7 gap-1 text-[11px] text-slate-400 font-bold text-center pt-2 pb-1 pr-7">
+                            <div>地段</div>
+                            <div>地號</div>
+                            <div>使用分區 / 類別</div>
+                            <div>自填細部類別</div>
+                            <div>權利範圍</div>
+                            <div>平方公尺</div>
+                            <div>換算坪數</div>
+                        </div>
+
                         <div class="space-y-1.5 pt-1">
                             ${c.lands.map((l, idx) => `
                                 <div class="flex items-center space-x-1 text-[11px]">
@@ -1099,7 +1157,7 @@
                                             <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
                                         </select>
                                         <input type="text" value="${l.customPattern||''}" placeholder="自填細部類別" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center">
-                                        <input type="number" value="${l.currentPrice||''}" placeholder="公告現值" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="text" value="${l.currentPrice||''}" placeholder="權利範圍" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
                                         <input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
                                         <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-ping-${idx}" readonly class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
                                     </div>
@@ -1115,17 +1173,29 @@
 
                     <!-- 六、建物基本資料 -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
+                        <!-- 有保存登記建物 -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-blue-400">六、有保存登記建物</span>
                                 <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
                             </div>
+
+                            <!-- 📌 新增：有保存登記建物欄位名稱標題區塊 -->
+                            <div class="grid grid-cols-5 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
+                                <div>建號</div>
+                                <div>建物類別</div>
+                                <div>建造年份</div>
+                                <div>權利範圍</div>
+                                <div>坪數</div>
+                            </div>
+
                             <div class="space-y-1">${c.buildingsLegal.map((b, i) => `
                                 <div class="flex items-center space-x-1">
-                                    <div class="grid grid-cols-4 gap-1 flex-1">
+                                    <div class="grid grid-cols-5 gap-1 flex-1">
                                         <input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                         <input type="text" value="${b.type||''}" placeholder="建物類別" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                         <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                         <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                     </div>
                                     <i onclick="removeBuildRow('${c.id}', 'legal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆建號"></i>
@@ -1133,16 +1203,28 @@
                             `).join('')}</div>
                             <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping-sol">${totalLegalPing}</strong> 坪</div>
                         </div>
+
+                        <!-- 違章建物 -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-red-400">六、違章建物</span>
                                 <button onclick="addBuildRow('${c.id}', 'illegal')" class="text-[10px] bg-red-950 border border-red-900 px-1.5 py-0.5 rounded no-print">[＋ 違章建物]</button>
                             </div>
+
+                            <!-- 📌 新增：違章建物欄位名稱標題區塊 -->
+                            <div class="grid grid-cols-4 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
+                                <div>類別</div>
+                                <div>建造年份</div>
+                                <div>權利範圍</div>
+                                <div>坪數</div>
+                            </div>
+
                             <div class="space-y-1">${c.buildingsIllegal.map((b, i) => `
                                 <div class="flex items-center space-x-1">
-                                    <div class="grid grid-cols-3 gap-1 flex-1">
+                                    <div class="grid grid-cols-4 gap-1 flex-1">
                                         <input type="text" value="${b.type||''}" placeholder="類別" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                         <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                         <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
                                     </div>
                                     <i onclick="removeBuildRow('${c.id}', 'illegal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆違章建物"></i>
@@ -2153,8 +2235,8 @@
 
         function addBuildRow(id, side) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (side === 'legal') target.buildingsLegal.push({ number: "", type: "", year: "", sqm: "", ping: "" });
-            else target.buildingsIllegal.push({ type: "", year: "", sqm: "", ping: "" });
+            if (side === 'legal') target.buildingsLegal.push({ number: "", type: "", year: "", rights: "", sqm: "", ping: "" });
+            else target.buildingsIllegal.push({ type: "", year: "", rights: "", sqm: "", ping: "" });
             renderMainForms();
             if(currentActiveTab === 'solar') calculateSolarLive(id);
             triggerAutoSave();
@@ -2197,8 +2279,11 @@
         function refreshSums() {
             let activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
             if (!activeCase || !activeCase.lands) return;
-            let totalLandSqm = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
-            let totalLandPing = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
+            let rawLandSqm = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
+            let totalLandSqm = Math.round(rawLandSqm * 100) / 100;
+            let rawLandPing = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
+            let totalLandPing = Math.round(rawLandPing * 100) / 100;
+
             const suffix = currentActiveTab === 'case-eval' ? '' : '-sol';
             if(document.getElementById("sum-land-sqm" + suffix)) document.getElementById("sum-land-sqm" + suffix).innerText = totalLandSqm;
             if(document.getElementById("sum-land-ping" + suffix)) document.getElementById("sum-land-ping" + suffix).innerText = totalLandPing.toFixed(2);
