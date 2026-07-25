@@ -34,50 +34,7 @@
         ::-webkit-scrollbar-thumb { background: #1a3160; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #315cb5; }
 
-        /* ==========================================
-           📱 手機直屏 (Portrait) 專用優化樣式
-           ========================================== */
-        @media screen and (max-width: 768px) {
-            /* 1. 排版容器彈性調整 */
-            .main-layout, .dashboard-container {
-                flex-direction: column !important;
-                padding: 8px;
-            }
-
-            /* 2. 側邊欄適應手機版寬度 */
-            .sidebar {
-                width: 100% !important;
-                margin-bottom: 12px;
-            }
-
-            /* 3. 確保表格在手機版保持欄位對齊並可橫向滑動 */
-            .responsive-table-container {
-                width: 100%;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .responsive-table {
-                width: 100%;
-                min-width: 600px; /* 保持最低寬度以防欄位過度擠壓 */
-                border-collapse: collapse;
-            }
-
-            .responsive-table th, 
-            .responsive-table td {
-                padding: 6px 4px;
-                font-size: 11px;
-                white-space: nowrap;
-            }
-
-            .responsive-table input, 
-            .responsive-table select {
-                font-size: 11px;
-                padding: 4px;
-            }
-        }
-
-        /* 📜 專屬直式 A4 滿頁匯出與排版優化 */
+        /* 📜 N版極致：專屬直式 A4 滿頁匯出與物理屏蔽排版優化 */
         @media print {
             @page {
                 size: portrait A4;
@@ -196,7 +153,7 @@
     </div>
 
     <!-- LEFT SIDEBAR -->
-    <aside class="sidebar w-64 lg:w-72 bg-cosmic-900 border-r border-cosmic-700/50 flex flex-col justify-between shrink-0 select-none">
+    <aside class="w-64 lg:w-72 bg-cosmic-900 border-r border-cosmic-700/50 flex flex-col justify-between shrink-0 select-none">
         <div>
             <div class="p-4 lg:p-6 border-b border-cosmic-700/30 flex items-center space-x-3">
                 <div class="w-10 h-10 bg-gradient-to-tr from-cosmic-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shrink-0">
@@ -277,8 +234,8 @@
     </aside>
 
     <!-- MAIN VIEWPORT -->
-    <main class="main-layout flex-1 flex flex-col overflow-hidden bg-cosmic-950">
-        <!-- TOP BAR -->
+    <main class="flex-1 flex flex-col overflow-hidden bg-cosmic-950">
+        <!-- TOP BAR (針對平板橫放優化適應度) -->
         <header class="h-16 border-b border-cosmic-700/40 px-3 lg:px-6 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print overflow-x-auto gap-2">
             <div class="flex items-center space-x-2 lg:space-x-3 shrink-0">
                 <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-40 lg:w-60 bg-cosmic-950 border border-cosmic-700 rounded-xl px-3 py-1.5 text-xs lg:text-sm text-white focus:outline-none">
@@ -297,7 +254,7 @@
                 </div>
             </div>
 
-            <!-- 右側功能按鈕 -->
+            <!-- 右側功能按鈕 (確保平板橫放不折行、完整顯示) -->
             <div class="flex items-center space-x-1.5 lg:space-x-2 shrink-0">
                 <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-2.5 lg:px-3 py-2 rounded-xl flex items-center space-x-1 shadow-md hover:opacity-90 transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-plus"></i><span>新增案件</span>
@@ -378,9 +335,11 @@
         const managersList = ["樊靖畇", "鄭家承", "陳宥騰", "楊裕憲", "楊淯淳", "黃逸豪"];
         const statusConfig = { "初期評估": "bg-emerald-500", "已報價": "bg-blue-500", "準備簽約": "bg-amber-500", "已簽約": "bg-red-500", "結案": "bg-purple-500", "沒下文": "bg-slate-600" };
 
+        // ⏱️ 防抖與打斷自動防護計時器
         let autoSaveTimer = null;
         let isUserTyping = false;
 
+        // 📐 自動延伸 Textarea 高度函數
         function autoResizeTextarea(el) {
             if (!el) return;
             el.style.height = 'auto';
@@ -535,6 +494,7 @@
             }).join('');
         }
 
+        // 確保土地所有權人資料結構兼具舊版相容性與多所有權人擴充性
         function ensureLandOwnerGroups(c) {
             if (!c.landOwnerGroups || !Array.isArray(c.landOwnerGroups) || c.landOwnerGroups.length === 0) {
                 c.landOwnerGroups = [{
@@ -658,7 +618,7 @@
             }
         }
 
-        // ==================== 一、專案管理 HTML ====================
+        // ==================== 一、專案管理 HTML (新增所有權人功能) ====================
         function generateCaseEvalHTML(c) {
             ensureLandOwnerGroups(c);
 
@@ -749,7 +709,7 @@
                         </div>
                     </div>
 
-                    <!-- 四、土地基本資料 -->
+                    <!-- 四、土地基本資料 (支援新增所有權人與獨立計算區塊) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-6 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-2">
                             <h4 class="text-xs font-bold text-emerald-400">四、土地基本資料</h4>
@@ -770,6 +730,7 @@
                                         <i onclick="removeLandOwnerGroup('${c.id}', ${gIdx})" class="fa-solid fa-circle-xmark text-red-400 absolute top-3 right-3 cursor-pointer text-base hover:text-red-300 no-print" title="刪除此所有權人區塊"></i>
                                     ` : ''}
 
+                                    <!-- 第一排：土地所有權人、縣市、區域、地段 -->
                                     <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs pt-1 pb-2 border-b border-cosmic-700/20">
                                         <div><label class="text-slate-400 block mb-0.5">土地所有權人：</label><input type="text" value="${grp.ownerName||''}" oninput="updateLandOwnerGroupField('${c.id}', ${gIdx}, 'ownerName', this.value)" placeholder="所有權人" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                                         <div><label class="text-slate-400 block mb-0.5">縣市：</label><input type="text" value="${grp.city||''}" oninput="updateLandOwnerGroupField('${c.id}', ${gIdx}, 'city', this.value)" placeholder="例如：高雄市" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
@@ -777,47 +738,42 @@
                                         <div><label class="text-slate-400 block mb-0.5">地段：</label><input type="text" value="${grp.landSection||''}" oninput="updateLandOwnerGroupField('${c.id}', ${gIdx}, 'landSection', this.value)" placeholder="例如：岡山段" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                                     </div>
 
+                                    <!-- 📌 土地表格標題與新增按鈕 -->
                                     <div class="flex justify-between items-center pt-1">
-                                        <span class="text-xs text-slate-300 font-bold">地號詳細清單：</span>
+                                        <div class="grid grid-cols-8 gap-1 text-[11px] text-slate-400 font-bold text-center flex-1 pr-7">
+                                            <div class="col-span-1">地號</div>
+                                            <div class="col-span-1">登記日期</div>
+                                            <div class="col-span-2">使用分區 / 類別</div>
+                                            <div class="col-span-1">面積</div>
+                                            <div class="col-span-1">權利範圍</div>
+                                            <div class="col-span-1">平方公尺</div>
+                                            <div class="col-span-1">換算坪數</div>
+                                        </div>
                                         <button onclick="addGroupLandRow('${c.id}', ${gIdx})" class="text-[10px] bg-emerald-900 hover:bg-emerald-800 border border-emerald-700 px-2 py-0.5 rounded text-white shrink-0 no-print">[＋ 地號]</button>
                                     </div>
 
-                                    <div class="responsive-table-container space-y-1.5 pt-1">
-                                        <table class="responsive-table">
-                                            <thead>
-                                                <tr class="text-[11px] text-slate-400 font-bold text-center">
-                                                    <th>地號</th>
-                                                    <th>登記日期</th>
-                                                    <th>使用分區 / 類別</th>
-                                                    <th>面積</th>
-                                                    <th>權利範圍</th>
-                                                    <th>平方公尺</th>
-                                                    <th>換算坪數</th>
-                                                    <th>操作</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                ${grp.lands.map((l, lIdx) => `
-                                                    <tr>
-                                                        <td><input type="text" value="${l.section||''}" placeholder="地號" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center w-full"></td>
-                                                        <td><input type="text" value="${l.number||''}" placeholder="112/05/20" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'number', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-center text-white w-full"></td>
-                                                        <td>
-                                                            <select onchange="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'pattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium w-full">
-                                                                <option value="都市計畫使用分區" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
-                                                                <option value="非都市計畫使用地類別" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
-                                                            </select>
-                                                        </td>
-                                                        <td><input type="number" value="${l.landArea||''}" placeholder="面積" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'landArea', this.value); autoCalcGroupSqm('${c.id}', ${gIdx}, ${lIdx});" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center font-medium w-full"></td>
-                                                        <td><input type="text" value="${l.currentPrice||''}" placeholder="例如 1/2" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'currentPrice', this.value); autoCalcGroupSqm('${c.id}', ${gIdx}, ${lIdx});" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center w-full"></td>
-                                                        <td><input type="number" value="${l.sqm||''}" placeholder="平方公尺" id="calc-grp-sqm-${gIdx}-${lIdx}" oninput="calculateGroupLandPingField('${c.id}', ${gIdx}, ${lIdx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold w-full"></td>
-                                                        <td><input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-grp-ping-${gIdx}-${lIdx}" readonly class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center w-full"></td>
-                                                        <td><i onclick="removeGroupLandRow('${c.id}', ${gIdx}, ${lIdx})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1.5 no-print" title="刪除此筆地號"></i></td>
-                                                    </tr>
-                                                `).join('')}
-                                            </tbody>
-                                        </table>
+                                    <!-- 下面表格內容 -->
+                                    <div class="space-y-1.5 pt-1">
+                                        ${grp.lands.map((l, lIdx) => `
+                                            <div class="flex items-center space-x-1 text-[11px]">
+                                                <div class="grid grid-cols-8 gap-1 flex-1">
+                                                    <input type="text" value="${l.section||''}" placeholder="地號" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'section', this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                                    <input type="text" value="${l.number||''}" placeholder="112/05/20" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'number', this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-center text-white">
+                                                    <select onchange="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'pattern', this.value)" class="col-span-2 bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium">
+                                                        <option value="都市計畫使用分區" class="text-center" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
+                                                        <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
+                                                    </select>
+                                                    <input type="number" value="${l.landArea||''}" placeholder="面積" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'landArea', this.value); autoCalcGroupSqm('${c.id}', ${gIdx}, ${lIdx});" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center font-medium">
+                                                    <input type="text" value="${l.currentPrice||''}" placeholder="例如 1/2" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'currentPrice', this.value); autoCalcGroupSqm('${c.id}', ${gIdx}, ${lIdx});" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                                    <input type="number" value="${l.sqm||''}" placeholder="平方公尺" id="calc-grp-sqm-${gIdx}-${lIdx}" oninput="calculateGroupLandPingField('${c.id}', ${gIdx}, ${lIdx}, this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
+                                                    <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-grp-ping-${gIdx}-${lIdx}" readonly class="col-span-1 bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
+                                                </div>
+                                                <i onclick="removeGroupLandRow('${c.id}', ${gIdx}, ${lIdx})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1.5 no-print shrink-0" title="刪除此筆地號"></i>
+                                            </div>
+                                        `).join('')}
                                     </div>
 
+                                    <!-- 下面的土地總面積與換算總坪數 -->
                                     <div class="p-2.5 bg-cosmic-950 rounded text-xs mt-2 flex justify-between border border-cosmic-700/40">
                                         <span>土地總面積: <strong class="text-emerald-400" id="sum-grp-land-sqm-${gIdx}">${totalGrpSqm}</strong> ㎡</span>
                                         <span>換算總坪數: <strong class="text-emerald-400" id="sum-grp-land-ping-${gIdx}">${totalGrpPing.toFixed(2)}</strong> 坪</span>
@@ -835,32 +791,26 @@
                                 <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
                             </div>
 
-                            <div class="responsive-table-container space-y-1">
-                                <table class="responsive-table">
-                                    <thead>
-                                        <tr class="text-[11px] text-slate-400 font-bold text-center">
-                                            <th>建號</th>
-                                            <th>建物類別</th>
-                                            <th>建造年份</th>
-                                            <th>權利範圍</th>
-                                            <th>坪數</th>
-                                            <th>操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${c.buildingsLegal.map((b, i) => `
-                                            <tr>
-                                                <td><input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="text" value="${b.type||''}" placeholder="建物類別" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><i onclick="removeBuildRow('${c.id}', 'legal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆建號"></i></td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
+                            <div class="grid grid-cols-5 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
+                                <div>建號</div>
+                                <div>建物類別</div>
+                                <div>建造年份</div>
+                                <div>權利範圍</div>
+                                <div>坪數</div>
                             </div>
+
+                            <div class="space-y-1">${c.buildingsLegal.map((b, i) => `
+                                <div class="flex items-center space-x-1">
+                                    <div class="grid grid-cols-5 gap-1 flex-1">
+                                        <input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.type||''}" placeholder="建物類別" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                    </div>
+                                    <i onclick="removeBuildRow('${c.id}', 'legal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆建號"></i>
+                                </div>
+                            `).join('')}</div>
                             <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping">${totalLegalPing}</strong> 坪</div>
                         </div>
 
@@ -870,30 +820,24 @@
                                 <button onclick="addBuildRow('${c.id}', 'illegal')" class="text-[10px] bg-red-950 border border-red-900 px-1.5 py-0.5 rounded no-print">[＋ 違章建物]</button>
                             </div>
 
-                            <div class="responsive-table-container space-y-1">
-                                <table class="responsive-table">
-                                    <thead>
-                                        <tr class="text-[11px] text-slate-400 font-bold text-center">
-                                            <th>類別</th>
-                                            <th>建造年份</th>
-                                            <th>權利範圍</th>
-                                            <th>坪數</th>
-                                            <th>操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${c.buildingsIllegal.map((b, i) => `
-                                            <tr>
-                                                <td><input type="text" value="${b.type||''}" placeholder="類別" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><i onclick="removeBuildRow('${c.id}', 'illegal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆違章建物"></i></td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
+                            <div class="grid grid-cols-4 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
+                                <div>類別</div>
+                                <div>建造年份</div>
+                                <div>權利範圍</div>
+                                <div>坪數</div>
                             </div>
+
+                            <div class="space-y-1">${c.buildingsIllegal.map((b, i) => `
+                                <div class="flex items-center space-x-1">
+                                    <div class="grid grid-cols-4 gap-1 flex-1">
+                                        <input type="text" value="${b.type||''}" placeholder="類別" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                    </div>
+                                    <i onclick="removeBuildRow('${c.id}', 'illegal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆違章建物"></i>
+                                </div>
+                            `).join('')}</div>
                             <div class="pt-1 text-[11px]">違章建物總坪數: <strong class="text-red-400" id="sum-illegal-ping">${totalIllegalPing}</strong> 坪</div>
                         </div>
                     </div>
@@ -982,7 +926,7 @@
                         </div>
                     </div>
 
-                    <!-- 九、檔案上傳 -->
+                    <!-- 九、檔案上傳 (支援拖曳上傳) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropFile(event, '${c.id}', 'project', 'client')" class="bg-cosmic-950/40 border-2 border-dashed border-cosmic-700/60 hover:border-violet-400 p-4 rounded-xl space-y-3 transition card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
@@ -1220,40 +1164,34 @@
                             <div><label class="text-slate-400 block mb-0.5">區域：</label><input type="text" value="${c.region||''}" oninput="updateField('${c.id}', 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                         </div>
 
-                        <div class="responsive-table-container space-y-1.5 pt-1">
-                            <table class="responsive-table">
-                                <thead>
-                                    <tr class="text-[11px] text-slate-400 font-bold text-center">
-                                        <th>地段</th>
-                                        <th>地號</th>
-                                        <th>使用分區/類別</th>
-                                        <th>自填細部類別</th>
-                                        <th>權利範圍</th>
-                                        <th>平方公尺</th>
-                                        <th>換算坪數</th>
-                                        <th>操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${c.lands.map((l, idx) => `
-                                        <tr>
-                                            <td><input type="text" value="${l.section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center w-full"></td>
-                                            <td><input type="text" value="${l.number||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center w-full"></td>
-                                            <td>
-                                                <select onchange="updateLandField('${c.id}', ${idx}, 'pattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium w-full">
-                                                    <option value="都市計畫使用分區" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
-                                                    <option value="非都市計畫使用地類別" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
-                                                </select>
-                                            </td>
-                                            <td><input type="text" value="${l.customPattern||''}" placeholder="自填細部類別" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center w-full"></td>
-                                            <td><input type="text" value="${l.currentPrice||''}" placeholder="例如 1/2" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value); autoCalcSqm('${c.id}', ${idx});" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center w-full"></td>
-                                            <td><input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold w-full"></td>
-                                            <td><input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-ping-${idx}" readonly class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center w-full"></td>
-                                            <td><i onclick="removeLandRow('${c.id}', ${idx})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1.5 no-print" title="刪除此筆地號"></i></td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
+                        <div class="grid grid-cols-7 gap-1 text-[11px] text-slate-400 font-bold text-center pt-2 pb-1 pr-7">
+                            <div>地段</div>
+                            <div>地號</div>
+                            <div>使用分區 / 類別</div>
+                            <div>自填細部類別</div>
+                            <div>權利範圍</div>
+                            <div>平方公尺</div>
+                            <div>換算坪數</div>
+                        </div>
+
+                        <div class="space-y-1.5 pt-1">
+                            ${c.lands.map((l, idx) => `
+                                <div class="flex items-center space-x-1 text-[11px]">
+                                    <div class="grid grid-cols-7 gap-1 flex-1">
+                                        <input type="text" value="${l.section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="text" value="${l.number||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <select onchange="updateLandField('${c.id}', ${idx}, 'pattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium">
+                                            <option value="都市計畫使用分區" class="text-center" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
+                                            <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
+                                        </select>
+                                        <input type="text" value="${l.customPattern||''}" placeholder="自填細部類別" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center">
+                                        <input type="text" value="${l.currentPrice||''}" placeholder="例如 1/2" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value); autoCalcSqm('${c.id}', ${idx});" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
+                                        <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-ping-${idx}" readonly class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
+                                    </div>
+                                    <i onclick="removeLandRow('${c.id}', ${idx})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1.5 no-print shrink-0" title="刪除此筆地號"></i>
+                                </div>
+                            `).join('')}
                         </div>
                         <div class="p-2.5 bg-cosmic-950 rounded text-xs mt-2 flex justify-between border border-cosmic-700/40">
                             <span>土地總面積: <strong class="text-emerald-400" id="sum-land-sqm-sol">${totalLandSqm}</strong> ㎡</span>
@@ -1269,32 +1207,26 @@
                                 <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
                             </div>
 
-                            <div class="responsive-table-container space-y-1">
-                                <table class="responsive-table">
-                                    <thead>
-                                        <tr class="text-[11px] text-slate-400 font-bold text-center">
-                                            <th>建號</th>
-                                            <th>建物類別</th>
-                                            <th>建造年份</th>
-                                            <th>權利範圍</th>
-                                            <th>坪數</th>
-                                            <th>操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${c.buildingsLegal.map((b, i) => `
-                                            <tr>
-                                                <td><input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="text" value="${b.type||''}" placeholder="建物類別" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><i onclick="removeBuildRow('${c.id}', 'legal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆建號"></i></td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
+                            <div class="grid grid-cols-5 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
+                                <div>建號</div>
+                                <div>建物類別</div>
+                                <div>建造年份</div>
+                                <div>權利範圍</div>
+                                <div>坪數</div>
                             </div>
+
+                            <div class="space-y-1">${c.buildingsLegal.map((b, i) => `
+                                <div class="flex items-center space-x-1">
+                                    <div class="grid grid-cols-5 gap-1 flex-1">
+                                        <input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.type||''}" placeholder="建物類別" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                    </div>
+                                    <i onclick="removeBuildRow('${c.id}', 'legal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆建號"></i>
+                                </div>
+                            `).join('')}</div>
                             <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping-sol">${totalLegalPing}</strong> 坪</div>
                         </div>
 
@@ -1304,30 +1236,24 @@
                                 <button onclick="addBuildRow('${c.id}', 'illegal')" class="text-[10px] bg-red-950 border border-red-900 px-1.5 py-0.5 rounded no-print">[＋ 違章建物]</button>
                             </div>
 
-                            <div class="responsive-table-container space-y-1">
-                                <table class="responsive-table">
-                                    <thead>
-                                        <tr class="text-[11px] text-slate-400 font-bold text-center">
-                                            <th>類別</th>
-                                            <th>建造年份</th>
-                                            <th>權利範圍</th>
-                                            <th>坪數</th>
-                                            <th>操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${c.buildingsIllegal.map((b, i) => `
-                                            <tr>
-                                                <td><input type="text" value="${b.type||''}" placeholder="類別" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center w-full"></td>
-                                                <td><i onclick="removeBuildRow('${c.id}', 'illegal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆違章建物"></i></td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
+                            <div class="grid grid-cols-4 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pr-6">
+                                <div>類別</div>
+                                <div>建造年份</div>
+                                <div>權利範圍</div>
+                                <div>坪數</div>
                             </div>
+
+                            <div class="space-y-1">${c.buildingsIllegal.map((b, i) => `
+                                <div class="flex items-center space-x-1">
+                                    <div class="grid grid-cols-4 gap-1 flex-1">
+                                        <input type="text" value="${b.type||''}" placeholder="類別" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.rights||''}" placeholder="權利範圍" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'rights', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                    </div>
+                                    <i onclick="removeBuildRow('${c.id}', 'illegal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆違章建物"></i>
+                                </div>
+                            `).join('')}</div>
                             <div class="pt-1 text-[11px]">違章建物總坪數: <strong class="text-red-400" id="sum-illegal-ping-sol">${totalIllegalPing}</strong> 坪</div>
                         </div>
                     </div>
@@ -1500,7 +1426,7 @@
                         </div>
                     </div>
 
-                    <!-- 十二、檔案上傳 -->
+                    <!-- 十二、檔案上傳 (支援拖曳上傳) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropFile(event, '${c.id}', 'solar', 'client')" class="bg-cosmic-950/40 border-2 border-dashed border-cosmic-700/60 hover:border-violet-400 p-4 rounded-xl space-y-3 transition card-box">
                             <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
@@ -1667,7 +1593,7 @@
                         <textarea oninput="updateMeetingMainField('${c.id}', 'meetSummary', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white text-xs overflow-hidden resize-none block whitespace-pre-wrap">${c.meetSummary||''}</textarea>
                     </div>
 
-                    <!-- 五、檔案上傳 -->
+                    <!-- 五、檔案上傳 (支援拖曳上傳) -->
                     <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropFile(event, '${c.id}', 'meeting', 'client')" class="bg-cosmic-950/40 border-2 border-dashed border-cosmic-700/60 hover:border-purple-400 p-4 rounded-xl space-y-3 transition card-box">
                         <div class="flex justify-between items-center border-b border-purple-500/30 pb-1.5">
                             <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>五、檔案上傳 (可拖曳檔案至此)</span>
@@ -1839,7 +1765,7 @@
                         <textarea oninput="updateMeetField('${c.id}', 'globalConclusion', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-2 text-white text-xs overflow-hidden resize-none block whitespace-pre-wrap">${c.globalConclusion||''}</textarea>
                     </div>
 
-                    <!-- 六、檔案上傳 -->
+                    <!-- 六、檔案上傳 (支援拖曳上傳) -->
                     <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropFile(event, '${c.id}', 'internal-meet', 'client')" class="bg-cosmic-950/40 border-2 border-dashed border-cosmic-700/60 hover:border-indigo-400 p-4 rounded-xl space-y-3 transition card-box">
                         <div class="flex justify-between items-center border-b border-indigo-500/30 pb-1.5">
                             <span class="text-xs font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>六、檔案上傳 (可拖曳檔案至此)</span>
@@ -1922,6 +1848,7 @@
             }
         }
 
+        // --- 多所有權人擴充輔助函數 ---
         function addLandOwnerGroup(id) {
             let target = caseEvalData.find(c => c.id === id);
             if (target) {
@@ -2042,6 +1969,7 @@
             }
         }
 
+        // 自動帶入公式：面積 * 分子 / 分子 (支援解析權利範圍 1/2 格式)
         function autoCalcSqm(id, idx) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && target.lands && target.lands[idx]) {
@@ -2051,6 +1979,7 @@
                 let num = parseFloat(land.numerator || 0);
                 let den = parseFloat(land.denominator || 0);
 
+                // 如果權利範圍有輸入如 1/2 且未設獨立分子分母，自動解析權利範圍
                 if ((!num || !den) && land.currentPrice && land.currentPrice.includes('/')) {
                     const parts = land.currentPrice.split('/');
                     if (parts.length === 2) {
@@ -2490,11 +2419,11 @@
         }
 
         function addDocItem(id, side) {
-            let name = prompt("請輸入新增的文件名稱：");
-            if (name) {
+            let item = prompt("請輸入新增的文件項目：");
+            if (item) {
                 let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-                if (side === 'client') target.customDocsClient.push(name);
-                else target.customDocsRuili.push(name);
+                if (side === 'client') target.customDocsClient.push(item);
+                else target.customDocsRuili.push(item);
                 renderMainForms();
                 triggerAutoSave();
             }
@@ -2509,74 +2438,172 @@
         }
 
         function refreshSums() {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
-            if (!target) return;
-            
-            let totalLegalPing = target.buildingsLegal ? target.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-            let totalIllegalPing = target.buildingsIllegal ? target.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+            let activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
+            if (!activeCase || !activeCase.lands) return;
+            let rawLandSqm = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
+            let totalLandSqm = Math.round(rawLandSqm * 100) / 100;
+            let rawLandPing = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
+            let totalLandPing = Math.round(rawLandPing * 100) / 100;
 
-            const suffix = currentActiveTab === 'solar' ? '-sol' : '';
-            if (document.getElementById(`sum-legal-ping${suffix}`)) document.getElementById(`sum-legal-ping${suffix}`).innerText = Math.round(totalLegalPing * 100) / 100;
-            if (document.getElementById(`sum-illegal-ping${suffix}`)) document.getElementById(`sum-illegal-ping${suffix}`).innerText = Math.round(totalIllegalPing * 100) / 100;
+            const suffix = currentActiveTab === 'case-eval' ? '' : '-sol';
+            if(document.getElementById("sum-land-sqm" + suffix)) document.getElementById("sum-land-sqm" + suffix).innerText = totalLandSqm;
+            if(document.getElementById("sum-land-ping" + suffix)) document.getElementById("sum-land-ping" + suffix).innerText = totalLandPing.toFixed(2);
         }
 
-        // ==================== 雲端資料同步 ====================
-        async function fetchSupabaseData() {
-            setSyncBadgeStatus('saving', '讀取資料中...');
-            const { data, error } = await supabaseClient.from('ruili_cases').select('*');
-            if (error) {
-                console.error("Fetch Error:", error);
-                setSyncBadgeStatus('error', '讀取失敗');
+        function addNewCase() {
+            const nid = "id-" + Date.now();
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: currentUserRole, is_deleted: false, deleted_at: null };
+            
+            if(currentActiveTab === 'internal-meet') {
+                obj.meetSubject = "新睿立會議紀錄 " + (dataArr.length + 1);
+                obj.attendees = [currentUserRole]; obj.financeReport = ""; obj.financeReview = ""; obj.financeConsensus = "";
+                obj.caseReports = []; obj.proposalReports = []; obj.globalConclusion = ""; obj.uploadedFiles = [];
+            } else if(currentActiveTab === 'meeting') {
+                obj.meetSubject = "外部對接會議記錄 " + (dataArr.length + 1);
+                obj.ruiliAttendees = [currentUserRole]; obj.externalRepresentatives = []; obj.contents = []; obj.meetSummary = ""; obj.uploadedFiles = [];
+            } else {
+                obj.companyName = "全新案件項目 " + (dataArr.length + 1); 
+                obj.services = []; obj.solarServices = []; obj.lands = []; obj.buildingsLegal = []; obj.buildingsIllegal = []; 
+                obj.customDocsClient = ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"]; obj.customDocsRuili = ["土地謄本"]; 
+                obj.clientFilesObj = []; obj.ruiliFilesObj = [];
+                obj.electricBill = ""; obj.horsepower = ""; obj.contractCapacity = ""; obj.isHighVoltage = "否"; obj.isTimeRate = "否"; obj.timePeriod = "白天為主";
+                obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = "否"; obj.esgStorage = "否";
+                obj.landOwner = ""; obj.city = ""; obj.region = ""; obj.landSection = "";
+                obj.companyAddress = ""; obj.companyPhone = ""; obj.fax = ""; obj.bankAccount = ""; obj.companyRemark = "";
+                obj.evalDate = new Date().toISOString().slice(0, 16); obj.evalManager = currentUserRole; obj.evalStatus = "初期評估"; obj.evalSource = "";
+                obj.solarDate = new Date().toISOString().slice(0, 16); obj.solarManager = currentUserRole; obj.solarStatus = "初期評估"; obj.solarSource = "";
+                obj.landOwnerGroups = [{
+                    ownerName: "", city: "高雄市", region: "岡山區", landSection: "", lands: []
+                }];
+            }
+            dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
+            renderSidebarSubLists(); renderMainForms();
+            saveToCloudSilent();
+        }
+
+        function deleteCurrentCase() {
+            let dataArr = getTargetDataArray(currentActiveTab);
+            if (currentUserRole !== '中央控台') {
+                dataArr = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
+            }
+            if (dataArr.length === 0) {
+                alert("目前沒有可刪除的項目！");
                 return;
             }
-
-            if (data && data.length > 0) {
-                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
-                data.forEach(row => {
-                    const c = row.data_content;
-                    c.id = row.id;
-                    c.is_deleted = row.is_deleted || false;
-                    c.deleted_at = row.deleted_at || null;
-                    c.deleted_by = row.deleted_by || null;
-
-                    if (row.category === 'case-eval') caseEvalData.push(c);
-                    else if (row.category === 'solar') solarData.push(c);
-                    else if (row.category === 'trading') tradingData.push(c);
-                    else if (row.category === 'meeting') meetingData.push(c);
-                    else if (row.category === 'internal-meet') internalMeetData.push(c);
-                });
-            } else {
-                initDefaultDemoData();
+            const activeId = selectedIds[currentActiveTab];
+            const targetIndex = dataArr.findIndex(c => c.id === activeId);
+            if (targetIndex !== -1) {
+                const targetName = dataArr[targetIndex].companyName || dataArr[targetIndex].meetSubject || '當前項目';
+                document.getElementById('delete-target-text').innerText = `確定要刪除「${targetName}」嗎？`;
+                document.getElementById('delete-modal').classList.remove('hidden');
             }
-            renderSidebarSubLists();
-            renderMainForms();
-            setSyncBadgeStatus('saved', '雲端同步完成');
         }
 
-        function initDefaultDemoData() {
-            const defaultId = "case-" + Date.now();
-            caseEvalData = [{
-                id: defaultId,
-                companyName: "睿立範例企業",
-                taxId: "12345678",
-                evalDate: new Date().toISOString().slice(0, 16),
-                evalManager: currentUserRole,
-                evalStatus: "初期評估",
-                evalSource: "自主開發",
-                services: [],
-                landOwnerGroups: [{ ownerName: "王小明", city: "高雄市", region: "岡山區", landSection: "岡山段", lands: [] }],
-                buildingsLegal: [],
-                buildingsIllegal: [],
-                customDocsClient: ["公司變更登記表", "工廠登記證"],
-                customDocsRuili: ["土地謄本", "建物謄本"],
-                clientFilesObj: [],
-                ruiliFilesObj: []
-            }];
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        async function confirmDeleteCase() {
+            let dataArr = getTargetDataArray(currentActiveTab);
+            const activeId = selectedIds[currentActiveTab];
+            const target = dataArr.find(c => c.id === activeId);
+            
+            if (target) {
+                if (currentUserRole === '中央控台') {
+                    const targetIndex = dataArr.findIndex(c => c.id === activeId);
+                    if (targetIndex !== -1) dataArr.splice(targetIndex, 1);
+                    await supabaseClient.from('cases').delete().eq('id', activeId);
+                } else {
+                    target.is_deleted = true;
+                    target.deleted_at = new Date().toISOString();
+                    await supabaseClient.from('cases').upsert({
+                        id: target.id,
+                        tab_category: currentActiveTab,
+                        data: target,
+                        is_deleted: true,
+                        deleted_at: target.deleted_at
+                    });
+                }
+
+                const visibleCases = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
+                if (visibleCases.length > 0) {
+                    selectedIds[currentActiveTab] = visibleCases[0].id;
+                } else {
+                    selectedIds[currentActiveTab] = null;
+                }
+
+                closeDeleteModal();
+                renderSidebarSubLists();
+                renderMainForms();
+            }
+        }
+
+        async function saveToCloudSilent() {
+            const activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
+            if (!activeCase) return;
+            
+            try {
+                const { error } = await supabaseClient.from('cases').upsert({
+                    id: activeCase.id,
+                    tab_category: currentActiveTab,
+                    data: activeCase,
+                    is_deleted: activeCase.is_deleted || false,
+                    deleted_at: activeCase.deleted_at || null
+                });
+                if (error) console.error("Cloud Auto-Save Error:", error);
+            } catch (err) {
+                console.error("Auto Save Ex:", err);
+            }
+        }
+
+        async function saveToCloud() {
+            setSyncBadgeStatus('saving', '雲端寫入中...');
+            await saveToCloudSilent();
+            setSyncBadgeStatus('saved', '手動儲存成功');
+            setTimeout(() => setSyncBadgeStatus('normal', '已連線'), 2000);
+        }
+
+        async function fetchSupabaseData() {
+            setSyncBadgeStatus('saving', '載入雲端資料...');
+            try {
+                const { data, error } = await supabaseClient.from('cases').select('*');
+                if (error) {
+                    console.error("Fetch Error:", error);
+                    setSyncBadgeStatus('error', '雲端載入失敗');
+                    return;
+                }
+                
+                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
+
+                if (data && data.length > 0) {
+                    data.forEach(row => {
+                        const item = row.data;
+                        item.id = row.id;
+                        item.is_deleted = row.is_deleted;
+                        item.deleted_at = row.deleted_at;
+                        
+                        if (row.tab_category === 'case-eval') caseEvalData.push(item);
+                        else if (row.tab_category === 'solar') solarData.push(item);
+                        else if (row.tab_category === 'trading') tradingData.push(item);
+                        else if (row.tab_category === 'meeting') meetingData.push(item);
+                        else if (row.tab_category === 'internal-meet') internalMeetData.push(item);
+                    });
+                }
+                
+                setSyncBadgeStatus('saved', '雲端連線正常');
+                renderSidebarSubLists();
+                renderMainForms();
+            } catch (err) {
+                console.error("Fetch Ex:", err);
+                setSyncBadgeStatus('error', '連線異常');
+            }
         }
 
         function initSupabaseRealtime() {
-            supabaseClient.channel('public:ruili_cases')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'ruili_cases' }, payload => {
+            supabaseClient
+                .channel('public:cases')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
                     if (!isUserTyping) {
                         fetchSupabaseData();
                     }
@@ -2584,137 +2611,25 @@
                 .subscribe();
         }
 
-        async function saveToCloudSilent() {
-            const dataArr = getTargetDataArray(currentActiveTab);
-            const activeCase = dataArr.find(c => c.id === selectedIds[currentActiveTab]);
-            if (!activeCase) return;
-
-            const { error } = await supabaseClient.from('ruili_cases').upsert({
-                id: activeCase.id,
-                category: currentActiveTab,
-                data_content: activeCase,
-                is_deleted: activeCase.is_deleted || false,
-                deleted_at: activeCase.deleted_at || null,
-                deleted_by: activeCase.deleted_by || null,
-                updated_at: new Date().toISOString()
-            });
-
-            if (error) {
-                console.error("Save Error:", error);
-                setSyncBadgeStatus('error', '儲存失敗');
-            }
-        }
-
-        async function saveToCloud() {
-            setSyncBadgeStatus('saving', '雲端儲存中...');
-            await saveToCloudSilent();
-            setSyncBadgeStatus('saved', '雲端已儲存');
-            alert("資料已成功儲存至雲端！");
-        }
-
-        function addNewCase() {
-            const newId = "case-" + Date.now();
-            let newObj = {
-                id: newId,
-                companyName: "新案件 " + new Date().toLocaleDateString(),
-                evalDate: new Date().toISOString().slice(0, 16),
-                solarDate: new Date().toISOString().slice(0, 16),
-                date: new Date().toISOString().slice(0, 16),
-                evalManager: currentUserRole,
-                solarManager: currentUserRole,
-                manager: currentUserRole,
-                evalStatus: "初期評估",
-                solarStatus: "初期評估",
-                services: [],
-                solarServices: [],
-                landOwnerGroups: [{ ownerName: "", city: "高雄市", region: "岡山區", landSection: "", lands: [] }],
-                lands: [],
-                buildingsLegal: [],
-                buildingsIllegal: [],
-                customDocsClient: ["公司變更登記表", "近三年財務報表"],
-                customDocsRuili: ["土地謄本", "建物謄本", "地籍圖"],
-                clientFilesObj: [],
-                ruiliFilesObj: [],
-                ruiliAttendees: [currentUserRole],
-                externalRepresentatives: [],
-                contents: [],
-                uploadedFiles: [],
-                attendees: [currentUserRole],
-                caseReports: [],
-                proposalReports: []
-            };
-
-            getTargetDataArray(currentActiveTab).push(newObj);
-            selectedIds[currentActiveTab] = newId;
-            renderSidebarSubLists();
-            renderMainForms();
-            triggerAutoSave();
-        }
-
-        function deleteCurrentCase() {
-            const dataArr = getTargetDataArray(currentActiveTab);
-            const activeCase = dataArr.find(c => c.id === selectedIds[currentActiveTab]);
-            if (!activeCase) return;
-
-            document.getElementById('delete-target-text').innerText = `刪除項目：「${activeCase.companyName || activeCase.meetSubject || '未命名項目'}」`;
-            document.getElementById('delete-modal').classList.remove('hidden');
-        }
-
-        async function confirmDeleteCase() {
-            const dataArr = getTargetDataArray(currentActiveTab);
-            const activeCase = dataArr.find(c => c.id === selectedIds[currentActiveTab]);
-            if (!activeCase) return;
-
-            if (currentUserRole === '中央控台') {
-                await supabaseClient.from('ruili_cases').delete().eq('id', activeCase.id);
-                const idx = dataArr.findIndex(c => c.id === activeCase.id);
-                if (idx !== -1) dataArr.splice(idx, 1);
-            } else {
-                activeCase.is_deleted = true;
-                activeCase.deleted_at = new Date().toISOString();
-                activeCase.deleted_by = currentUserRole;
-                await saveToCloudSilent();
-            }
-
-            closeDeleteModal();
-            selectedIds[currentActiveTab] = null;
-            renderSidebarSubLists();
-            renderMainForms();
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('delete-modal').classList.add('hidden');
-        }
-
         function openTrashModal() {
-            const listContainer = document.getElementById('trash-items-list');
-            let deletedItems = [];
+            const listEl = document.getElementById('trash-items-list');
+            if (!listEl) return;
+            
+            const allCases = [...caseEvalData, ...solarData, ...tradingData, ...meetingData, ...internalMeetData];
+            const deletedCases = allCases.filter(c => c.is_deleted);
 
-            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(cat => {
-                const arr = getTargetDataArray(cat);
-                arr.forEach(item => {
-                    if (item.is_deleted) deletedItems.push({ cat, item });
-                });
-            });
-
-            if (deletedItems.length === 0) {
-                listContainer.innerHTML = "<p class='text-xs text-slate-400 p-4 text-center'>目前回收桶暫無刪除案件。</p>";
+            if (deletedCases.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">回收桶內無任何業務刪除的案件。</p>`;
             } else {
-                listContainer.innerHTML = deletedItems.map(obj => {
-                    const c = obj.item;
-                    const delTime = c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '';
-                    return `
-                        <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
-                            <div>
-                                <div class="font-bold text-white">${c.companyName || c.meetSubject || '未命名項目'} <span class="text-slate-500 font-normal">(${obj.cat})</span></div>
-                                <div class="text-[11px] text-slate-400 mt-0.5">刪除者：${c.deleted_by || '未知'} | 時間：${delTime}</div>
-                            </div>
-                            <button onclick="restoreCase('${c.id}', '${obj.cat}')" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
-                                <i class="fa-solid fa-rotate-left mr-1"></i>復原
-                            </button>
+                listEl.innerHTML = deletedCases.map(c => `
+                    <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
+                        <div>
+                            <span class="font-bold text-white block">${c.companyName || c.meetSubject || '未命名項目'}</span>
+                            <span class="text-[10px] text-slate-400">刪除時間：${c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '未知'}</span>
                         </div>
-                    `;
-                }).join('');
+                        <button onclick="restoreCase('${c.id}')" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">一鍵復原</button>
+                    </div>
+                `).join('');
             }
 
             document.getElementById('trash-modal').classList.remove('hidden');
@@ -2724,22 +2639,25 @@
             document.getElementById('trash-modal').classList.add('hidden');
         }
 
-        async function restoreCase(id, cat) {
-            const arr = getTargetDataArray(cat);
-            const target = arr.find(c => c.id === id);
+        async function restoreCase(id) {
+            const allCases = [...caseEvalData, ...solarData, ...tradingData, ...meetingData, ...internalMeetData];
+            const target = allCases.find(c => c.id === id);
             if (target) {
                 target.is_deleted = false;
                 target.deleted_at = null;
-                target.deleted_by = null;
-                
-                await supabaseClient.from('ruili_cases').upsert({
+
+                let tabCat = 'case-eval';
+                if (solarData.some(c => c.id === id)) tabCat = 'solar';
+                if (tradingData.some(c => c.id === id)) tabCat = 'trading';
+                if (meetingData.some(c => c.id === id)) tabCat = 'meeting';
+                if (internalMeetData.some(c => c.id === id)) tabCat = 'internal-meet';
+
+                await supabaseClient.from('cases').upsert({
                     id: target.id,
-                    category: cat,
-                    data_content: target,
+                    tab_category: tabCat,
+                    data: target,
                     is_deleted: false,
-                    deleted_at: null,
-                    deleted_by: null,
-                    updated_at: new Date().toISOString()
+                    deleted_at: null
                 });
 
                 openTrashModal();
@@ -2747,6 +2665,11 @@
                 renderMainForms();
             }
         }
+
+        // 初始化全屏頁面狀態
+        window.addEventListener('DOMContentLoaded', () => {
+            toggleCategory('case-eval');
+        });
     </script>
 </body>
 </html>
