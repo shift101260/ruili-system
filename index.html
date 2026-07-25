@@ -234,10 +234,10 @@
     </aside>
 
     <!-- MAIN VIEWPORT -->
-    <main class="flex-1 flex flex-col min-h-0 overflow-hidden bg-cosmic-950">
-        <!-- TOP BAR (針對平板橫放與各螢幕解析度高度優化，確保全功能按鈕不被掩蓋) -->
-        <header class="min-h-[4rem] border-b border-cosmic-700/40 px-3 lg:px-6 py-2 flex flex-wrap items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print gap-2">
-            <div class="flex flex-wrap items-center space-x-2 lg:space-x-3 shrink-0">
+    <main class="flex-1 flex flex-col overflow-hidden bg-cosmic-950">
+        <!-- TOP BAR (針對平板橫放優化適應度) -->
+        <header class="h-16 border-b border-cosmic-700/40 px-3 lg:px-6 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print overflow-x-auto gap-2">
+            <div class="flex items-center space-x-2 lg:space-x-3 shrink-0">
                 <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-40 lg:w-60 bg-cosmic-950 border border-cosmic-700 rounded-xl px-3 py-1.5 text-xs lg:text-sm text-white focus:outline-none">
                 
                 <!-- 已登入使用者提示資訊 -->
@@ -255,7 +255,7 @@
             </div>
 
             <!-- 右側功能按鈕 (確保平板橫放不折行、完整顯示) -->
-            <div class="flex flex-wrap items-center space-x-1.5 lg:space-x-2 shrink-0">
+            <div class="flex items-center space-x-1.5 lg:space-x-2 shrink-0">
                 <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-2.5 lg:px-3 py-2 rounded-xl flex items-center space-x-1 shadow-md hover:opacity-90 transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-plus"></i><span>新增案件</span>
                 </button>
@@ -494,6 +494,19 @@
             }).join('');
         }
 
+        // 確保土地所有權人資料結構兼具舊版相容性與多所有權人擴充性
+        function ensureLandOwnerGroups(c) {
+            if (!c.landOwnerGroups || !Array.isArray(c.landOwnerGroups) || c.landOwnerGroups.length === 0) {
+                c.landOwnerGroups = [{
+                    ownerName: c.landOwner || "",
+                    city: c.city || "高雄市",
+                    region: c.region || "岡山區",
+                    landSection: c.landSection || "",
+                    lands: Array.isArray(c.lands) ? c.lands : []
+                }];
+            }
+        }
+
         function renderMainForms() {
             let dataArr = getTargetDataArray(currentActiveTab);
             if (currentUserRole !== '中央控台') {
@@ -516,16 +529,7 @@
                 if (!activeCase.clientFilesObj) activeCase.clientFilesObj = [];
                 if (!activeCase.ruiliFilesObj) activeCase.ruiliFilesObj = [];
                 if (!activeCase.services) activeCase.services = [];
-                // 確保擁有所有權人陣列（若舊案件無資料則預設建置一筆）
-                if (!activeCase.landOwnersBlocks || activeCase.landOwnersBlocks.length === 0) {
-                    activeCase.landOwnersBlocks = [{
-                        landOwner: activeCase.landOwner || '',
-                        city: activeCase.city || '高雄市',
-                        region: activeCase.region || '岡山區',
-                        landSection: activeCase.landSection || '',
-                        lands: activeCase.lands || []
-                    }];
-                }
+                ensureLandOwnerGroups(activeCase);
                 container.innerHTML = generateCaseEvalHTML(activeCase);
             } else if (currentActiveTab === 'solar') {
                 if (!activeCase.lands) activeCase.lands = [];
@@ -614,8 +618,10 @@
             }
         }
 
-        // ==================== 一、專案管理 HTML (支援動態新增所有權人卡片版型) ====================
+        // ==================== 一、專案管理 HTML (新增所有權人功能) ====================
         function generateCaseEvalHTML(c) {
+            ensureLandOwnerGroups(c);
+
             let rawLegalPing = c.buildingsLegal ? c.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
             let totalLegalPing = Math.round(rawLegalPing * 100) / 100;
             let rawIllegalPing = c.buildingsIllegal ? c.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
@@ -703,42 +709,38 @@
                         </div>
                     </div>
 
-                    <!-- 四、土地基本資料 (已升級：支援點擊新增多位所有權人格式區塊) -->
-                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
+                    <!-- 四、土地基本資料 (支援新增所有權人與獨立計算區塊) -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-6 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-2">
-                            <h4 class="text-xs font-bold text-emerald-400 flex items-center"><i class="fa-solid fa-map-location-dot mr-1.5"></i>四、土地基本資料</h4>
-                            <button onclick="addLandOwnerBlock('${c.id}')" class="text-[11px] bg-emerald-800 hover:bg-emerald-700 border border-emerald-600 text-white font-semibold px-2.5 py-1 rounded-lg shadow transition no-print flex items-center space-x-1">
-                                <i class="fa-solid fa-user-plus"></i><span>＋ 新增所有權人</span>
+                            <h4 class="text-xs font-bold text-emerald-400">四、土地基本資料</h4>
+                            <button onclick="addLandOwnerGroup('${c.id}')" class="text-xs bg-emerald-700 hover:bg-emerald-600 border border-emerald-500 px-3 py-1 rounded text-white font-semibold transition shadow no-print">
+                                <i class="fa-solid fa-plus mr-1"></i>[＋ 新增所有權人]
                             </button>
                         </div>
 
-                        <div class="space-y-6">
-                            ${(c.landOwnersBlocks || []).map((block, bIdx) => {
-                                let rawSqm = block.lands ? block.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
-                                let blockTotalSqm = Math.round(rawSqm * 100) / 100;
-                                let rawPing = block.lands ? block.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
-                                let blockTotalPing = Math.round(rawPing * 100) / 100;
+                        ${c.landOwnerGroups.map((grp, gIdx) => {
+                            let grpLandSqm = grp.lands ? grp.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
+                            let totalGrpSqm = Math.round(grpLandSqm * 100) / 100;
+                            let grpLandPing = grp.lands ? grp.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
+                            let totalGrpPing = Math.round(grpLandPing * 100) / 100;
 
-                                return `
-                                    <div class="bg-cosmic-900/50 border border-cosmic-700/60 p-4 rounded-xl space-y-3 relative card-box">
-                                        ${c.landOwnersBlocks.length > 1 ? `<i onclick="removeLandOwnerBlock('${c.id}', ${bIdx})" class="fa-solid fa-circle-xmark text-red-400 absolute top-3 right-3 cursor-pointer text-sm hover:text-red-300 no-print" title="刪除此所有權人全組資料"></i>` : ''}
-                                        
-                                        <!-- 第一排：土地所有權人、縣市、區域、地段 -->
-                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs pr-6">
-                                            <div><label class="text-slate-400 block mb-0.5">土地所有權人：</label><input type="text" value="${block.landOwner||''}" oninput="updateLandOwnerBlockField('${c.id}', ${bIdx}, 'landOwner', this.value)" placeholder="所有權人" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
-                                            <div><label class="text-slate-400 block mb-0.5">縣市：</label><input type="text" value="${block.city||''}" oninput="updateLandOwnerBlockField('${c.id}', ${bIdx}, 'city', this.value)" placeholder="例如：高雄市" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
-                                            <div><label class="text-slate-400 block mb-0.5">區域：</label><input type="text" value="${block.region||''}" oninput="updateLandOwnerBlockField('${c.id}', ${bIdx}, 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
-                                            <div><label class="text-slate-400 block mb-0.5">地段：</label><input type="text" value="${block.landSection||''}" oninput="updateLandOwnerBlockField('${c.id}', ${bIdx}, 'landSection', this.value)" placeholder="例如：岡山段" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
-                                        </div>
+                            return `
+                                <div class="bg-cosmic-900/50 border border-emerald-500/30 p-4 rounded-xl space-y-3 relative card-box">
+                                    ${c.landOwnerGroups.length > 1 ? `
+                                        <i onclick="removeLandOwnerGroup('${c.id}', ${gIdx})" class="fa-solid fa-circle-xmark text-red-400 absolute top-3 right-3 cursor-pointer text-base hover:text-red-300 no-print" title="刪除此所有權人區塊"></i>
+                                    ` : ''}
 
-                                        <!-- 下方表格標題與按鈕 -->
-                                        <div class="flex justify-between items-center pt-2 border-t border-cosmic-700/30">
-                                            <span class="text-[11px] font-bold text-slate-300">地號明細列表：</span>
-                                            <button onclick="addLandRowToBlock('${c.id}', ${bIdx})" class="text-[10px] bg-emerald-900 border border-emerald-700 px-2 py-0.5 rounded text-white hover:bg-emerald-800 no-print">[＋ 地段地號]</button>
-                                        </div>
+                                    <!-- 第一排：土地所有權人、縣市、區域、地段 -->
+                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs pt-1 pb-2 border-b border-cosmic-700/20">
+                                        <div><label class="text-slate-400 block mb-0.5">土地所有權人：</label><input type="text" value="${grp.ownerName||''}" oninput="updateLandOwnerGroupField('${c.id}', ${gIdx}, 'ownerName', this.value)" placeholder="所有權人" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
+                                        <div><label class="text-slate-400 block mb-0.5">縣市：</label><input type="text" value="${grp.city||''}" oninput="updateLandOwnerGroupField('${c.id}', ${gIdx}, 'city', this.value)" placeholder="例如：高雄市" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
+                                        <div><label class="text-slate-400 block mb-0.5">區域：</label><input type="text" value="${grp.region||''}" oninput="updateLandOwnerGroupField('${c.id}', ${gIdx}, 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
+                                        <div><label class="text-slate-400 block mb-0.5">地段：</label><input type="text" value="${grp.landSection||''}" oninput="updateLandOwnerGroupField('${c.id}', ${gIdx}, 'landSection', this.value)" placeholder="例如：岡山段" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
+                                    </div>
 
-                                        <!-- 下方表格：地號、登記日期、使用分區/類別、面積、持分、權利範圍、平方公尺、換算坪數 -->
-                                        <div class="grid grid-cols-8 gap-1 text-[11px] text-slate-400 font-bold text-center pt-1 pb-1 pr-7">
+                                    <!-- 📌 土地表格標題與新增按鈕 -->
+                                    <div class="flex justify-between items-center pt-1">
+                                        <div class="grid grid-cols-8 gap-1 text-[11px] text-slate-400 font-bold text-center flex-1 pr-7">
                                             <div class="col-span-1">地號</div>
                                             <div class="col-span-1">登記日期</div>
                                             <div class="col-span-2">使用分區 / 類別</div>
@@ -747,36 +749,38 @@
                                             <div class="col-span-1">平方公尺</div>
                                             <div class="col-span-1">換算坪數</div>
                                         </div>
-
-                                        <div class="space-y-1.5">
-                                            ${(block.lands || []).map((l, lIdx) => `
-                                                <div class="flex items-center space-x-1 text-[11px]">
-                                                    <div class="grid grid-cols-8 gap-1 flex-1">
-                                                        <input type="text" value="${l.section||''}" placeholder="地號" oninput="updateBlockLandField('${c.id}', ${bIdx}, ${lIdx}, 'section', this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
-                                                        <input type="text" value="${l.number||''}" placeholder="112/05/20" oninput="updateBlockLandField('${c.id}', ${bIdx}, ${lIdx}, 'number', this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-center text-white">
-                                                        <select onchange="updateBlockLandField('${c.id}', ${bIdx}, ${lIdx}, 'pattern', this.value)" class="col-span-2 bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium">
-                                                            <option value="都市計畫使用分區" class="text-center" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
-                                                            <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
-                                                        </select>
-                                                        <input type="number" value="${l.landArea||''}" placeholder="面積" oninput="updateBlockLandField('${c.id}', ${bIdx}, ${lIdx}, 'landArea', this.value); autoCalcBlockSqm('${c.id}', ${bIdx}, ${lIdx});" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center font-medium">
-                                                        <input type="text" value="${l.currentPrice||''}" placeholder="例如 1/2" oninput="updateBlockLandField('${c.id}', ${bIdx}, ${lIdx}, 'currentPrice', this.value); autoCalcBlockSqm('${c.id}', ${bIdx}, ${lIdx});" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
-                                                        <input type="number" value="${l.sqm||''}" placeholder="平方公尺" id="calc-block-sqm-${bIdx}-${lIdx}" oninput="calculateBlockLandPingField('${c.id}', ${bIdx}, ${lIdx}, this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
-                                                        <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-block-ping-${bIdx}-${lIdx}" readonly class="col-span-1 bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
-                                                    </div>
-                                                    <i onclick="removeLandRowFromBlock('${c.id}', ${bIdx}, ${lIdx})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1.5 no-print shrink-0" title="刪除此筆地號"></i>
-                                                </div>
-                                            `).join('')}
-                                        </div>
-
-                                        <!-- 下面的土地總面積與換算總坪數 -->
-                                        <div class="p-2.5 bg-cosmic-950 rounded text-xs mt-2 flex justify-between border border-cosmic-700/40">
-                                            <span>土地總面積: <strong class="text-emerald-400" id="sum-block-sqm-${bIdx}">${blockTotalSqm}</strong> ㎡</span>
-                                            <span>換算總坪數: <strong class="text-emerald-400" id="sum-block-ping-${bIdx}">${blockTotalPing.toFixed(2)}</strong> 坪</span>
-                                        </div>
+                                        <button onclick="addGroupLandRow('${c.id}', ${gIdx})" class="text-[10px] bg-emerald-900 hover:bg-emerald-800 border border-emerald-700 px-2 py-0.5 rounded text-white shrink-0 no-print">[＋ 地號]</button>
                                     </div>
-                                `;
-                            }).join('')}
-                        </div>
+
+                                    <!-- 下面表格內容 -->
+                                    <div class="space-y-1.5 pt-1">
+                                        ${grp.lands.map((l, lIdx) => `
+                                            <div class="flex items-center space-x-1 text-[11px]">
+                                                <div class="grid grid-cols-8 gap-1 flex-1">
+                                                    <input type="text" value="${l.section||''}" placeholder="地號" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'section', this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                                    <input type="text" value="${l.number||''}" placeholder="112/05/20" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'number', this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-center text-white">
+                                                    <select onchange="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'pattern', this.value)" class="col-span-2 bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium">
+                                                        <option value="都市計畫使用分區" class="text-center" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
+                                                        <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
+                                                    </select>
+                                                    <input type="number" value="${l.landArea||''}" placeholder="面積" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'landArea', this.value); autoCalcGroupSqm('${c.id}', ${gIdx}, ${lIdx});" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center font-medium">
+                                                    <input type="text" value="${l.currentPrice||''}" placeholder="例如 1/2" oninput="updateGroupLandField('${c.id}', ${gIdx}, ${lIdx}, 'currentPrice', this.value); autoCalcGroupSqm('${c.id}', ${gIdx}, ${lIdx});" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                                    <input type="number" value="${l.sqm||''}" placeholder="平方公尺" id="calc-grp-sqm-${gIdx}-${lIdx}" oninput="calculateGroupLandPingField('${c.id}', ${gIdx}, ${lIdx}, this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
+                                                    <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-grp-ping-${gIdx}-${lIdx}" readonly class="col-span-1 bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
+                                                </div>
+                                                <i onclick="removeGroupLandRow('${c.id}', ${gIdx}, ${lIdx})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1.5 no-print shrink-0" title="刪除此筆地號"></i>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+
+                                    <!-- 下面的土地總面積與換算總坪數 -->
+                                    <div class="p-2.5 bg-cosmic-950 rounded text-xs mt-2 flex justify-between border border-cosmic-700/40">
+                                        <span>土地總面積: <strong class="text-emerald-400" id="sum-grp-land-sqm-${gIdx}">${totalGrpSqm}</strong> ㎡</span>
+                                        <span>換算總坪數: <strong class="text-emerald-400" id="sum-grp-land-ping-${gIdx}">${totalGrpPing.toFixed(2)}</strong> 坪</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
 
                     <!-- 五、建物基本資料 -->
@@ -983,121 +987,6 @@
                     ${generateFooterHTML()}
                 </div>
             `;
-        }
-
-        // ==================== 土地所有權人動態區塊邏輯 ====================
-        function addLandOwnerBlock(caseId) {
-            let target = caseEvalData.find(c => c.id === caseId);
-            if (target) {
-                if (!target.landOwnersBlocks) target.landOwnersBlocks = [];
-                target.landOwnersBlocks.push({
-                    landOwner: "",
-                    city: "高雄市",
-                    region: "岡山區",
-                    landSection: "",
-                    lands: [{ section: "", number: "", pattern: "都市計畫使用分區", landArea: "", currentPrice: "1/1", sqm: 0, ping: 0 }]
-                });
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function removeLandOwnerBlock(caseId, blockIdx) {
-            let target = caseEvalData.find(c => c.id === caseId);
-            if (target && target.landOwnersBlocks) {
-                target.landOwnersBlocks.splice(blockIdx, 1);
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function updateLandOwnerBlockField(caseId, blockIdx, field, value) {
-            let target = caseEvalData.find(c => c.id === caseId);
-            if (target && target.landOwnersBlocks && target.landOwnersBlocks[blockIdx]) {
-                target.landOwnersBlocks[blockIdx][field] = value;
-                triggerAutoSave();
-            }
-        }
-
-        function addLandRowToBlock(caseId, blockIdx) {
-            let target = caseEvalData.find(c => c.id === caseId);
-            if (target && target.landOwnersBlocks && target.landOwnersBlocks[blockIdx]) {
-                target.landOwnersBlocks[blockIdx].lands.push({ section: "", number: "", pattern: "都市計畫使用分區", landArea: "", currentPrice: "1/1", sqm: 0, ping: 0 });
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function removeLandRowFromBlock(caseId, blockIdx, landIdx) {
-            let target = caseEvalData.find(c => c.id === caseId);
-            if (target && target.landOwnersBlocks && target.landOwnersBlocks[blockIdx]) {
-                target.landOwnersBlocks[blockIdx].lands.splice(landIdx, 1);
-                renderMainForms();
-                refreshBlockSums(caseId, blockIdx);
-                triggerAutoSave();
-            }
-        }
-
-        function updateBlockLandField(caseId, blockIdx, landIdx, field, value) {
-            let target = caseEvalData.find(c => c.id === caseId);
-            if (target && target.landOwnersBlocks && target.landOwnersBlocks[blockIdx] && target.landOwnersBlocks[blockIdx].lands[landIdx]) {
-                target.landOwnersBlocks[blockIdx].lands[landIdx][field] = value;
-                triggerAutoSave();
-            }
-        }
-
-        function autoCalcBlockSqm(caseId, blockIdx, landIdx) {
-            let target = caseEvalData.find(c => c.id === caseId);
-            if (target && target.landOwnersBlocks && target.landOwnersBlocks[blockIdx] && target.landOwnersBlocks[blockIdx].lands[landIdx]) {
-                const land = target.landOwnersBlocks[blockIdx].lands[landIdx];
-                const area = parseFloat(land.landArea || 0);
-                let num = 1, den = 1;
-
-                if (land.currentPrice && land.currentPrice.includes('/')) {
-                    const parts = land.currentPrice.split('/');
-                    if (parts.length === 2) {
-                        num = parseFloat(parts[0].trim()) || 1;
-                        den = parseFloat(parts[1].trim()) || 1;
-                    }
-                }
-
-                if (area > 0 && num > 0 && den > 0) {
-                    const calculatedSqm = parseFloat(((area * num) / den).toFixed(2));
-                    land.sqm = calculatedSqm;
-                    const sqmInput = document.getElementById(`calc-block-sqm-${blockIdx}-${landIdx}`);
-                    if (sqmInput) sqmInput.value = calculatedSqm;
-                    calculateBlockLandPingField(caseId, blockIdx, landIdx, calculatedSqm);
-                }
-            }
-        }
-
-        function calculateBlockLandPingField(caseId, blockIdx, landIdx, sqmVal) {
-            let target = caseEvalData.find(c => c.id === caseId);
-            if (target && target.landOwnersBlocks && target.landOwnersBlocks[blockIdx] && target.landOwnersBlocks[blockIdx].lands[landIdx]) {
-                const sqm = parseFloat(sqmVal || 0);
-                const ping = sqm * 0.3025;
-                target.landOwnersBlocks[blockIdx].lands[landIdx].sqm = sqm;
-                target.landOwnersBlocks[blockIdx].lands[landIdx].ping = parseFloat(ping.toFixed(2));
-                const pingInput = document.getElementById(`calc-block-ping-${blockIdx}-${landIdx}`);
-                if (pingInput) pingInput.value = ping.toFixed(2);
-                refreshBlockSums(caseId, blockIdx);
-                triggerAutoSave();
-            }
-        }
-
-        function refreshBlockSums(caseId, blockIdx) {
-            let target = caseEvalData.find(c => c.id === caseId);
-            if (!target || !target.landOwnersBlocks || !target.landOwnersBlocks[blockIdx]) return;
-            const block = target.landOwnersBlocks[blockIdx];
-            let rawSqm = block.lands ? block.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
-            let blockTotalSqm = Math.round(rawSqm * 100) / 100;
-            let rawPing = block.lands ? block.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
-            let blockTotalPing = Math.round(rawPing * 100) / 100;
-
-            const elSqm = document.getElementById(`sum-block-sqm-${blockIdx}`);
-            const elPing = document.getElementById(`sum-block-ping-${blockIdx}`);
-            if (elSqm) elSqm.innerText = blockTotalSqm;
-            if (elPing) elPing.innerText = blockTotalPing.toFixed(2);
         }
 
         // ==================== 二、太陽能自建 HTML ====================
@@ -1959,14 +1848,128 @@
             }
         }
 
+        // --- 多所有權人擴充輔助函數 ---
+        function addLandOwnerGroup(id) {
+            let target = caseEvalData.find(c => c.id === id);
+            if (target) {
+                ensureLandOwnerGroups(target);
+                target.landOwnerGroups.push({
+                    ownerName: "",
+                    city: target.landOwnerGroups[0]?.city || "高雄市",
+                    region: target.landOwnerGroups[0]?.region || "岡山區",
+                    landSection: target.landOwnerGroups[0]?.landSection || "",
+                    lands: [{ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", landArea: "", currentPrice: "1/1", sqm: 0, ping: 0 }]
+                });
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function removeLandOwnerGroup(id, gIdx) {
+            let target = caseEvalData.find(c => c.id === id);
+            if (target && target.landOwnerGroups && target.landOwnerGroups.length > 1) {
+                target.landOwnerGroups.splice(gIdx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function updateLandOwnerGroupField(id, gIdx, field, value) {
+            let target = caseEvalData.find(c => c.id === id);
+            if (target && target.landOwnerGroups && target.landOwnerGroups[gIdx]) {
+                target.landOwnerGroups[gIdx][field] = value;
+                if (gIdx === 0) {
+                    if (field === 'ownerName') target.landOwner = value;
+                    if (field === 'city') target.city = value;
+                    if (field === 'region') target.region = value;
+                    if (field === 'landSection') target.landSection = value;
+                }
+                triggerAutoSave();
+            }
+        }
+
+        function addGroupLandRow(id, gIdx) {
+            let target = caseEvalData.find(c => c.id === id);
+            if (target && target.landOwnerGroups && target.landOwnerGroups[gIdx]) {
+                target.landOwnerGroups[gIdx].lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", landArea: "", currentPrice: "1/1", sqm: 0, ping: 0 });
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function removeGroupLandRow(id, gIdx, lIdx) {
+            let target = caseEvalData.find(c => c.id === id);
+            if (target && target.landOwnerGroups && target.landOwnerGroups[gIdx]) {
+                target.landOwnerGroups[gIdx].lands.splice(lIdx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function updateGroupLandField(id, gIdx, lIdx, field, value) {
+            let target = caseEvalData.find(c => c.id === id);
+            if (target && target.landOwnerGroups && target.landOwnerGroups[gIdx] && target.landOwnerGroups[gIdx].lands[lIdx]) {
+                target.landOwnerGroups[gIdx].lands[lIdx][field] = value;
+                if (gIdx === 0) target.lands = target.landOwnerGroups[0].lands;
+                triggerAutoSave();
+            }
+        }
+
+        function autoCalcGroupSqm(id, gIdx, lIdx) {
+            let target = caseEvalData.find(c => c.id === id);
+            if (target && target.landOwnerGroups && target.landOwnerGroups[gIdx] && target.landOwnerGroups[gIdx].lands[lIdx]) {
+                let land = target.landOwnerGroups[gIdx].lands[lIdx];
+                let area = parseFloat(land.landArea || 0);
+                let num = 0, den = 0;
+
+                if (land.currentPrice && land.currentPrice.includes('/')) {
+                    let parts = land.currentPrice.split('/');
+                    num = parseFloat(parts[0].trim());
+                    den = parseFloat(parts[1].trim());
+                }
+
+                if (area > 0 && num > 0 && den > 0) {
+                    let calculatedSqm = parseFloat(((area * num) / den).toFixed(2));
+                    land.sqm = calculatedSqm;
+                    let sqmInput = document.getElementById(`calc-grp-sqm-${gIdx}-${lIdx}`);
+                    if (sqmInput) sqmInput.value = calculatedSqm;
+                    calculateGroupLandPingField(id, gIdx, lIdx, calculatedSqm);
+                }
+            }
+        }
+
+        function calculateGroupLandPingField(id, gIdx, lIdx, sqmVal) {
+            let target = caseEvalData.find(c => c.id === id);
+            if (target && target.landOwnerGroups && target.landOwnerGroups[gIdx] && target.landOwnerGroups[gIdx].lands[lIdx]) {
+                let sqm = parseFloat(sqmVal || 0);
+                let ping = sqm * 0.3025;
+                target.landOwnerGroups[gIdx].lands[lIdx].sqm = sqm;
+                target.landOwnerGroups[gIdx].lands[lIdx].ping = parseFloat(ping.toFixed(2));
+                let pingInput = document.getElementById(`calc-grp-ping-${gIdx}-${lIdx}`);
+                if (pingInput) pingInput.value = ping.toFixed(2);
+                
+                let grpLandSqm = target.landOwnerGroups[gIdx].lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
+                let totalGrpSqm = Math.round(grpLandSqm * 100) / 100;
+                let grpLandPing = target.landOwnerGroups[gIdx].lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
+                let totalGrpPing = Math.round(grpLandPing * 100) / 100;
+
+                if (document.getElementById(`sum-grp-land-sqm-${gIdx}`)) document.getElementById(`sum-grp-land-sqm-${gIdx}`).innerText = totalGrpSqm;
+                if (document.getElementById(`sum-grp-land-ping-${gIdx}`)) document.getElementById(`sum-grp-land-ping-${gIdx}`).innerText = totalGrpPing.toFixed(2);
+
+                if (gIdx === 0) target.lands = target.landOwnerGroups[0].lands;
+                triggerAutoSave();
+            }
+        }
+
         function updateLandField(id, idx, field, value) { 
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target && target.lands && target.lands[idx]) {
+            if (target && target.lands[idx]) {
                 target.lands[idx][field] = value;
                 triggerAutoSave();
             }
         }
 
+        // 自動帶入公式：面積 * 分子 / 分子 (支援解析權利範圍 1/2 格式)
         function autoCalcSqm(id, idx) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && target.lands && target.lands[idx]) {
@@ -1976,6 +1979,7 @@
                 let num = parseFloat(land.numerator || 0);
                 let den = parseFloat(land.denominator || 0);
 
+                // 如果權利範圍有輸入如 1/2 且未設獨立分子分母，自動解析權利範圍
                 if ((!num || !den) && land.currentPrice && land.currentPrice.includes('/')) {
                     const parts = land.currentPrice.split('/');
                     if (parts.length === 2) {
@@ -2327,7 +2331,7 @@
 
         function calculateLandPingField(id, idx, sqmVal) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target && target.lands && target.lands[idx]) {
+            if (target && target.lands[idx]) {
                 const sqm = parseFloat(sqmVal || 0);
                 const ping = sqm * 0.3025;
                 target.lands[idx].sqm = sqm;
@@ -2461,7 +2465,6 @@
             } else {
                 obj.companyName = "全新案件項目 " + (dataArr.length + 1); 
                 obj.services = []; obj.solarServices = []; obj.lands = []; obj.buildingsLegal = []; obj.buildingsIllegal = []; 
-                obj.landOwnersBlocks = [{ landOwner: "", city: "高雄市", region: "岡山區", landSection: "", lands: [] }];
                 obj.customDocsClient = ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"]; obj.customDocsRuili = ["土地謄本"]; 
                 obj.clientFilesObj = []; obj.ruiliFilesObj = [];
                 obj.electricBill = ""; obj.horsepower = ""; obj.contractCapacity = ""; obj.isHighVoltage = "否"; obj.isTimeRate = "否"; obj.timePeriod = "白天為主";
@@ -2470,6 +2473,9 @@
                 obj.companyAddress = ""; obj.companyPhone = ""; obj.fax = ""; obj.bankAccount = ""; obj.companyRemark = "";
                 obj.evalDate = new Date().toISOString().slice(0, 16); obj.evalManager = currentUserRole; obj.evalStatus = "初期評估"; obj.evalSource = "";
                 obj.solarDate = new Date().toISOString().slice(0, 16); obj.solarManager = currentUserRole; obj.solarStatus = "初期評估"; obj.solarSource = "";
+                obj.landOwnerGroups = [{
+                    ownerName: "", city: "高雄市", region: "岡山區", landSection: "", lands: []
+                }];
             }
             dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
             renderSidebarSubLists(); renderMainForms();
