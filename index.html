@@ -415,7 +415,7 @@
 
         function isCaseBelongsToUser(caseObj, userName) {
             if (currentUserRole === '中央控台') return true;
-            if (caseObj.evalManager === userName || caseObj.solarManager === userName || caseObj.manager === userName) return true;
+            if (caseObj.evalManager === userName || caseObj.solarManager === userName || caseObj.tradingManager === userName || caseObj.manager === userName) return true;
             if (caseObj.ruiliAttendees && caseObj.ruiliAttendees.includes(userName)) return true;
             if (caseObj.attendees && caseObj.attendees.includes(userName)) return true;
             return false;
@@ -508,6 +508,13 @@
                 container.innerHTML = generateSolarHTML(activeCase);
                 calculateSolarLive(activeCase.id);
             } else if (currentActiveTab === 'trading') {
+                if (!activeCase.lands) activeCase.lands = [];
+                if (!activeCase.buildingsLegal) activeCase.buildingsLegal = [];
+                if (!activeCase.buildingsIllegal) activeCase.buildingsIllegal = [];
+                if (!activeCase.customDocsClient) activeCase.customDocsClient = [];
+                if (!activeCase.customDocsRuili) activeCase.customDocsRuili = [];
+                if (!activeCase.clientFilesObj) activeCase.clientFilesObj = [];
+                if (!activeCase.ruiliFilesObj) activeCase.ruiliFilesObj = [];
                 container.innerHTML = generateTradingHTML(activeCase);
             } else if (currentActiveTab === 'meeting') {
                 if (!activeCase.ruiliAttendees) activeCase.ruiliAttendees = [];
@@ -574,7 +581,7 @@
             if (!files || files.length === 0) return;
 
             const dummyInput = { files: files };
-            if (type === 'project') {
+            if (type === 'project' || type === 'trading') {
                 await handleProjectFileUpload(dummyInput, id, side);
             } else if (type === 'solar') {
                 await handleSolarFileUpload(dummyInput, id, side);
@@ -1363,7 +1370,256 @@
 
         // ==================== 三、工廠買賣案件資料表面板 ====================
         function generateTradingHTML(c) {
-            return `<div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>三、工廠買賣案件資料表</h3><div class="flex items-center space-x-2"><label class="text-slate-400 text-xs font-bold shrink-0">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white text-xs w-full"></div>${generateFooterHTML()}</div>`;
+            let totalLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
+            let totalLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
+            let totalLegalPing = c.buildingsLegal ? c.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+            let totalIllegalPing = c.buildingsIllegal ? c.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+
+            return `
+                <div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-6 shadow-xl">
+                    <div class="border-b border-emerald-500/40 pb-2"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>不動產買賣（工廠買賣案件資料表）</h3></div>
+
+                    <!-- 一、專案人員與案件對接狀態 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-emerald-400 border-b border-cosmic-700/30 pb-1.5">一、專案人員</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                            <div><label class="text-slate-400 block mb-0.5">日期 / 時間：</label><input type="datetime-local" value="${c.tradingDate||c.date||''}" onchange="updateField('${c.id}', 'tradingDate', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                            <div><label class="text-slate-400 block mb-0.5">專案經理：</label>
+                                <select onchange="updateField('${c.id}', 'tradingManager', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
+                                    ${managersList.map(m => `<option value="${m}" ${ (c.tradingManager || c.manager) === m ? 'selected':''}>${m}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400 block mb-0.5">案件狀態：</label>
+                                <select onchange="updateField('${c.id}', 'tradingStatus', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white">
+                                    ${Object.keys(statusConfig).map(st => `<option value="${st}" ${(c.tradingStatus || c.status) === st ? 'selected':''}>${st}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400 block mb-0.5">案件來源：</label><input type="text" value="${c.tradingSource||''}" oninput="updateField('${c.id}', 'tradingSource', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                        </div>
+                    </div>
+
+                    <!-- 二、買賣需求與交易條件 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-emerald-400 border-b border-cosmic-700/30 pb-1.5">二、買賣需求與交易條件</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                            <div><label class="text-slate-400 block mb-0.5">交易類型：</label>
+                                <select onchange="updateField('${c.id}', 'tradeType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="出售/出租" ${c.tradeType==='出售/出租'?'selected':''}>出售/出租</option>
+                                    <option value="純出售" ${c.tradeType==='純出售'?'selected':''}>純出售</option>
+                                    <option value="純出租" ${c.tradeType==='純出租'?'selected':''}>純出租</option>
+                                    <option value="帶租約出售" ${c.tradeType==='帶租約出售'?'selected':''}>帶租約出售</option>
+                                    <option value="買方尋找標的" ${c.tradeType==='買方尋找標的'?'selected':''}>買方尋找標的</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400 block mb-0.5">預計買賣總價 (萬元)：</label><input type="number" value="${c.tradeTotalPrice||''}" oninput="updateField('${c.id}', 'tradeTotalPrice', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-semibold"></div>
+                            <div><label class="text-slate-400 block mb-0.5">預計租金 (元/月)：</label><input type="number" value="${c.tradeRentPrice||''}" oninput="updateField('${c.id}', 'tradeRentPrice', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400 block mb-0.5">預計交易時程：</label><input type="text" value="${c.tradeTimeline||''}" oninput="updateField('${c.id}', 'tradeTimeline', this.value)" placeholder="例如: 3個月內" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            
+                            <div><label class="text-slate-400 block mb-0.5">需求土地坪數 (坪)：</label><input type="number" value="${c.reqLandPing||''}" oninput="updateField('${c.id}', 'reqLandPing', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400 block mb-0.5">需求建物坪數 (坪)：</label><input type="number" value="${c.reqBuildPing||''}" oninput="updateField('${c.id}', 'reqBuildPing', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400 block mb-0.5">使用分區/地類需求：</label><input type="text" value="${c.reqZoning||''}" oninput="updateField('${c.id}', 'reqZoning', this.value)" placeholder="例如: 丁種建築用地/特種工業區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400 block mb-0.5">可否接受特定工廠登記：</label>
+                                <select onchange="updateField('${c.id}', 'acceptSpecFactory', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="可" ${c.acceptSpecFactory==='可'?'selected':''}>可</option>
+                                    <option value="否(必須合法工廠)" ${c.acceptSpecFactory==='否(必須合法工廠)'?'selected':''}>否(必須合法工廠)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 三、公司基本資料 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-emerald-400 border-b border-cosmic-700/30 pb-1.5">三、公司基本資料</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                            <div class="md:col-span-2"><label class="text-slate-400">公司名稱：</label><input type="text" value="${c.companyName}" oninput="updateCompanyName('${c.id}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white font-medium"></div>
+                            <div><label class="text-slate-400">統編：</label><input type="text" value="${c.taxId||''}" oninput="updateField('${c.id}', 'taxId', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">工廠登記證字號：</label><input type="text" value="${c.factoryLicense||''}" oninput="updateField('${c.id}', 'factoryLicense', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">產業類型：</label><input type="text" value="${c.industryType||''}" oninput="updateField('${c.id}', 'industryType', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">聯絡人：</label><input type="text" value="${c.contact||''}" oninput="updateField('${c.id}', 'contact', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">聯絡電話：</label><input type="text" value="${c.phone||''}" oninput="updateField('${c.id}', 'phone', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">E-mail：</label><input type="text" value="${c.email||''}" oninput="updateField('${c.id}', 'email', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div class="md:col-span-2"><label class="text-slate-400">工廠地址：</label><input type="text" value="${c.address||''}" oninput="updateField('${c.id}', 'address', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div class="md:col-span-2"><label class="text-slate-400">公司地址：</label><input type="text" value="${c.companyAddress||''}" oninput="updateField('${c.id}', 'companyAddress', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">公司電話：</label><input type="text" value="${c.companyPhone||''}" oninput="updateField('${c.id}', 'companyPhone', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">傳真：</label><input type="text" value="${c.fax||''}" oninput="updateField('${c.id}', 'fax', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div class="md:col-span-2"><label class="text-slate-400">公司匯款帳戶：</label><input type="text" value="${c.bankAccount||''}" oninput="updateField('${c.id}', 'bankAccount', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div class="md:col-span-2"><label class="text-slate-400">公司網站連結：</label><input type="text" value="${c.website||''}" oninput="updateField('${c.id}', 'website', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div class="md:col-span-4"><label class="text-slate-400 block mb-0.5">交易備註與特殊需求：</label><textarea oninput="updateField('${c.id}', 'companyRemark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${c.companyRemark||''}</textarea></div>
+                        </div>
+                    </div>
+
+                    <!-- 四、土地基本資料 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
+                        <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
+                            <h4 class="text-xs font-bold text-emerald-400">四、土地標的資料 (平方公尺自動乘*0.3025帶入坪數)</h4>
+                            <button onclick="addLandRow('${c.id}')" class="text-[10px] bg-emerald-900 border border-emerald-700 px-2 py-0.5 rounded no-print">[＋ 地段地號]</button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 text-xs pt-1 pb-2 border-b border-cosmic-700/20">
+                            <div><label class="text-slate-400 block mb-0.5">縣市：</label><input type="text" value="${c.city||''}" oninput="updateField('${c.id}', 'city', this.value)" placeholder="例如：高雄市" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
+                            <div><label class="text-slate-400 block mb-0.5">區域：</label><input type="text" value="${c.region||''}" oninput="updateField('${c.id}', 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
+                        </div>
+                        <div class="space-y-1.5 pt-1">
+                            ${c.lands.map((l, idx) => `
+                                <div class="flex items-center space-x-1 text-[11px]">
+                                    <div class="grid grid-cols-7 gap-1 flex-1">
+                                        <input type="text" value="${l.section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="text" value="${l.number||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <select onchange="updateLandField('${c.id}', ${idx}, 'pattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium">
+                                            <option value="都市計畫使用分區" class="text-center" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
+                                            <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
+                                        </select>
+                                        <input type="text" value="${l.customPattern||''}" placeholder="自填細部類別" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center">
+                                        <input type="number" value="${l.currentPrice||''}" placeholder="公告現值" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
+                                        <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-ping-${idx}" readonly class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
+                                    </div>
+                                    <i onclick="removeLandRow('${c.id}', ${idx})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1.5 no-print shrink-0" title="刪除此筆地號"></i>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="p-2.5 bg-cosmic-950 rounded text-xs mt-2 flex justify-between border border-cosmic-700/40">
+                            <span>土地總面積: <strong class="text-emerald-400" id="sum-land-sqm-trd">${totalLandSqm}</strong> ㎡</span>
+                            <span>換算總坪數: <strong class="text-emerald-400" id="sum-land-ping-trd">${totalLandPing.toFixed(2)}</strong> 坪</span>
+                        </div>
+                    </div>
+
+                    <!-- 五、建物基本資料 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
+                                <span class="font-bold text-blue-400">五、有保存登記建物</span>
+                                <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
+                            </div>
+                            <div class="space-y-1">${c.buildingsLegal.map((b, i) => `
+                                <div class="flex items-center space-x-1">
+                                    <div class="grid grid-cols-4 gap-1 flex-1">
+                                        <input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.type||''}" placeholder="建物類別" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                    </div>
+                                    <i onclick="removeBuildRow('${c.id}', 'legal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆建號"></i>
+                                </div>
+                            `).join('')}</div>
+                            <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping-trd">${totalLegalPing}</strong> 坪</div>
+                        </div>
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
+                                <span class="font-bold text-red-400">五、違章建物</span>
+                                <button onclick="addBuildRow('${c.id}', 'illegal')" class="text-[10px] bg-red-950 border border-red-900 px-1.5 py-0.5 rounded no-print">[＋ 違章建物]</button>
+                            </div>
+                            <div class="space-y-1">${c.buildingsIllegal.map((b, i) => `
+                                <div class="flex items-center space-x-1">
+                                    <div class="grid grid-cols-3 gap-1 flex-1">
+                                        <input type="text" value="${b.type||''}" placeholder="類別" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'type', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${b.year||''}" placeholder="建造年份" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'year', this.value)" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                        <input type="number" value="${b.ping||''}" placeholder="坪數" oninput="updateBuildField('${c.id}', 'illegal', ${i}, 'ping', this.value); refreshSums();" class="bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center">
+                                    </div>
+                                    <i onclick="removeBuildRow('${c.id}', 'illegal', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300 p-1 no-print shrink-0" title="刪除此筆違章建物"></i>
+                                </div>
+                            `).join('')}</div>
+                            <div class="pt-1 text-[11px]">違章建物總坪數: <strong class="text-red-400" id="sum-illegal-ping-trd">${totalIllegalPing}</strong> 坪</div>
+                        </div>
+                    </div>
+
+                    <!-- 六、廠房設施與電力規格 -->
+                    <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
+                        <h4 class="text-xs font-bold text-teal-400 border-b border-cosmic-700/30 pb-1.5"><i class="fa-solid fa-gears mr-1.5"></i>六、廠房設施與設施規格</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                            <div><label class="text-slate-400">目前馬力數 (HP)：</label><input type="number" value="${c.horsepower||''}" oninput="updateField('${c.id}', 'horsepower', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">契約容量 (kW)：</label><input type="number" value="${c.contractCapacity||''}" oninput="updateField('${c.id}', 'contractCapacity', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">是否高壓用電：</label>
+                                <select onchange="updateField('${c.id}', 'isHighVoltage', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white">
+                                    <option value="否" ${c.isHighVoltage==='否'?'selected':''}>否</option>
+                                    <option value="是" ${c.isHighVoltage==='是'?'selected':''}>是</option>
+                                </select>
+                            </div>
+                            <div><label class="text-slate-400">天車/吊車規格：</label><input type="text" value="${c.craneSpec||''}" oninput="updateField('${c.id}', 'craneSpec', this.value)" placeholder="例如: 5噸天車2台" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">進出道路路寬 (米)：</label><input type="number" value="${c.roadWidth||''}" oninput="updateField('${c.id}', 'roadWidth', this.value)" placeholder="例如: 8" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div><label class="text-slate-400">排水與污水處理：</label><input type="text" value="${c.drainageSpec||''}" oninput="updateField('${c.id}', 'drainageSpec', this.value)" placeholder="例如: 已納入工業區污水管線" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                            <div class="md:col-span-2"><label class="text-slate-400">環評/污染排放登記限制：</label><input type="text" value="${c.envLimit||''}" oninput="updateField('${c.id}', 'envLimit', this.value)" placeholder="有無污染排放列管事項" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1.5 text-white"></div>
+                        </div>
+                    </div>
+
+                    <!-- 七、買賣應備文件清單 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
+                                <span class="font-bold text-violet-400">七、賣方/買方應備文件清單</span>
+                                <button onclick="addDocItem('${c.id}', 'client')" class="text-[10px] bg-violet-900 px-2 rounded no-print">[＋ 新增]</button>
+                            </div>
+                            <div class="space-y-1">${c.customDocsClient.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-violet-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'client', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
+                        </div>
+                        <div class="bg-cosmic-950/40 border border-cosmic-700/40 p-4 rounded-xl space-y-2 card-box">
+                            <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
+                                <span class="font-bold text-cyan-400">七、睿立調閱文件清單</span>
+                                <button onclick="addDocItem('${c.id}', 'ruili')" class="text-[10px] bg-cyan-900 px-2 rounded no-print">[＋ 新增]</button>
+                            </div>
+                            <div class="space-y-1">${c.customDocsRuili.map((d, i) => `<div class="flex justify-between bg-cosmic-950 p-1.5 rounded border border-cosmic-700/40"><label class="flex items-center space-x-2"><input type="checkbox" checked class="text-cyan-500"><span>${d}</span></label><i onclick="removeDocItem('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer no-print"></i></div>`).join('')}</div>
+                        </div>
+                    </div>
+
+                    <!-- 八、檔案上傳 (支援拖曳上傳) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropFile(event, '${c.id}', 'trading', 'client')" class="bg-cosmic-950/40 border-2 border-dashed border-cosmic-700/60 hover:border-violet-400 p-4 rounded-xl space-y-3 transition card-box">
+                            <div class="flex justify-between items-center border-b border-violet-500/30 pb-1">
+                                <span class="font-bold text-violet-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>八、買賣雙方檔案上傳 (可拖曳檔案至此)</span>
+                                <label class="text-[10px] bg-violet-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-violet-800 transition no-print">
+                                    [＋ 上傳各類型檔案]
+                                    <input type="file" multiple class="hidden" onchange="handleProjectFileUpload(this, '${c.id}', 'client')">
+                                </label>
+                            </div>
+                            <div class="space-y-2" id="file-list-client-trd">
+                                ${c.clientFilesObj.map((f, i) => `
+                                    <div class="bg-cosmic-900/80 p-2.5 rounded border border-cosmic-700/40 text-xs space-y-1.5 card-box">
+                                        <div class="text-slate-400 truncate"><i class="fa-solid fa-file-shield mr-2 text-violet-400"></i>原始名稱: ${f.actualName}</div>
+                                        <div class="flex items-center space-x-1.5">
+                                            <span class="text-[11px] text-slate-500 shrink-0">顯示名稱:</span>
+                                            <input type="text" value="${f.clientName}" oninput="updateProjectFileName('${c.id}', 'client', ${i}, this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-1.5 py-0.5 text-white">
+                                        </div>
+                                        <div class="flex justify-between items-center pt-1 border-t border-cosmic-700/20 no-print">
+                                            <button onclick="previewFileUrl('${f.url}', '${f.clientName || f.actualName}')" class="text-cyan-400 hover:text-cyan-300 text-[11px] font-medium"><i class="fa-solid fa-eye mr-1"></i>預覽/開啟檔案</button>
+                                            <div class="flex items-center">
+                                                ${renderDownloadBtnHTML(f.url, f.clientName || f.actualName)}
+                                                <i onclick="removeProjectFile('${c.id}', 'client', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropFile(event, '${c.id}', 'trading', 'ruili')" class="bg-cosmic-950/40 border-2 border-dashed border-cosmic-700/60 hover:border-cyan-400 p-4 rounded-xl space-y-3 transition card-box">
+                            <div class="flex justify-between items-center border-b border-cyan-500/30 pb-1">
+                                <span class="font-bold text-cyan-400"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>八、睿立調閱檔案上傳 (可拖曳檔案至此)</span>
+                                <label class="text-[10px] bg-cyan-900 text-white px-2.5 py-1 rounded cursor-pointer font-medium hover:bg-cyan-800 transition no-print">
+                                    [＋ 上傳各類型檔案]
+                                    <input type="file" multiple class="hidden" onchange="handleProjectFileUpload(this, '${c.id}', 'ruili')">
+                                </label>
+                            </div>
+                            <div class="space-y-2" id="file-list-ruili-trd">
+                                ${c.ruiliFilesObj.map((f, i) => `
+                                    <div class="bg-cosmic-900/80 p-2.5 rounded border border-cosmic-700/40 text-xs space-y-1.5 card-box">
+                                        <div class="text-slate-400 truncate"><i class="fa-solid fa-file-signature mr-2 text-cyan-400"></i>原始名稱: ${f.actualName}</div>
+                                        <div class="flex items-center space-x-1.5">
+                                            <span class="text-[11px] text-slate-500 shrink-0">顯示名稱:</span>
+                                            <input type="text" value="${f.clientName}" oninput="updateProjectFileName('${c.id}', 'ruili', ${i}, this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-1.5 py-0.5 text-white">
+                                        </div>
+                                        <div class="flex justify-between items-center pt-1 border-t border-cosmic-700/20 no-print">
+                                            <button onclick="previewFileUrl('${f.url}', '${f.clientName || f.actualName}')" class="text-cyan-400 hover:text-cyan-300 text-[11px] font-medium"><i class="fa-solid fa-eye mr-1"></i>預覽/開啟檔案</button>
+                                            <div class="flex items-center">
+                                                ${renderDownloadBtnHTML(f.url, f.clientName || f.actualName)}
+                                                <i onclick="removeProjectFile('${c.id}', 'ruili', ${i})" class="fa-solid fa-trash text-red-400 cursor-pointer hover:text-red-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${generateFooterHTML()}
+                </div>
+            `;
         }
 
         // ==================== 四、會議記錄 ====================
@@ -1765,7 +2021,7 @@
         }
 
         async function handleProjectFileUpload(inputEl, id, side) {
-            let target = caseEvalData.find(c => c.id === id);
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && inputEl.files) {
                 setSyncBadgeStatus('saving', '檔案上傳中...');
                 for (let i = 0; i < inputEl.files.length; i++) {
@@ -1782,7 +2038,7 @@
         }
 
         function updateProjectFileName(id, side, idx, value) {
-            let target = caseEvalData.find(c => c.id === id);
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target) {
                 if(side === 'client') target.clientFilesObj[idx].clientName = value;
                 else target.ruiliFilesObj[idx].clientName = value;
@@ -1791,7 +2047,7 @@
         }
 
         function removeProjectFile(id, side, idx) {
-            let target = caseEvalData.find(c => c.id === id);
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target) {
                 if(side === 'client') target.clientFilesObj.splice(idx, 1);
                 else target.ruiliFilesObj.splice(idx, 1);
@@ -2177,7 +2433,11 @@
             if (!activeCase || !activeCase.lands) return;
             let totalLandSqm = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
             let totalLandPing = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
-            const suffix = currentActiveTab === 'case-eval' ? '' : '-sol';
+            
+            let suffix = '';
+            if (currentActiveTab === 'solar') suffix = '-sol';
+            else if (currentActiveTab === 'trading') suffix = '-trd';
+
             if(document.getElementById("sum-land-sqm" + suffix)) document.getElementById("sum-land-sqm" + suffix).innerText = totalLandSqm;
             if(document.getElementById("sum-land-ping" + suffix)) document.getElementById("sum-land-ping" + suffix).innerText = totalLandPing.toFixed(2);
         }
@@ -2205,6 +2465,7 @@
                 obj.companyAddress = ""; obj.companyPhone = ""; obj.fax = ""; obj.bankAccount = ""; obj.companyRemark = "";
                 obj.evalDate = new Date().toISOString().slice(0, 16); obj.evalManager = currentUserRole; obj.evalStatus = "初期評估"; obj.evalSource = "";
                 obj.solarDate = new Date().toISOString().slice(0, 16); obj.solarManager = currentUserRole; obj.solarStatus = "初期評估"; obj.solarSource = "";
+                obj.tradingDate = new Date().toISOString().slice(0, 16); obj.tradingManager = currentUserRole; obj.tradingStatus = "初期評估"; obj.tradingSource = "";
             }
             dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
             renderSidebarSubLists(); renderMainForms();
