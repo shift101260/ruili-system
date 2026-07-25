@@ -238,7 +238,7 @@
                 <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md hover:opacity-90 transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-plus"></i><span>新增案件</span>
                 </button>
-                <button onclick="deleteCurrentCase()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md transition shrink-0 whitespace-nowrap">
+                <button onclick="openDeleteModal()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-trash-can"></i><span>刪除案件</span>
                 </button>
                 <button onclick="window.print()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center shadow-lg transition shrink-0 whitespace-nowrap">
@@ -270,7 +270,7 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <h3 class="text-base font-bold text-white">確定要刪除嗎？</h3>
-            <p class="text-xs text-slate-400" id="delete-target-text">刪除後資料將無法復原。</p>
+            <p class="text-xs text-slate-400" id="delete-target-text">刪除後資料將移至資源回收桶。</p>
             <div class="flex justify-center space-x-3 pt-2">
                 <button onclick="confirmDeleteCase()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-5 py-2 rounded-xl transition">確認</button>
                 <button onclick="closeDeleteModal()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold px-5 py-2 rounded-xl transition">取消</button>
@@ -2247,37 +2247,49 @@
         }
 
         function addRuiliCaseReportRow(id) { 
-            internalMeetData.find(c => c.id === id).caseReports.push({ reporter: currentUserRole, caseName: "", desc: "", conclusion: "" }); 
-            renderMainForms(); 
-            triggerAutoSave();
-        }
-
-        function removeRuiliCaseReportRow(id, idx) { 
-            internalMeetData.find(c => c.id === id).caseReports.splice(idx, 1); 
-            renderMainForms(); 
-            triggerAutoSave();
-        }
-
-        function updateProposalField(id, idx, field, value) { 
-            let t = internalMeetData.find(c => c.id === id);
-            if (t && t.proposalReports[idx]) {
-                t.proposalReports[idx][field] = value; 
+            let target = internalMeetData.find(c => c.id === id);
+            if (target) {
+                target.caseReports.push({ reporter: currentUserRole, caseName: "", desc: "", conclusion: "" }); 
+                renderMainForms(); 
                 triggerAutoSave();
             }
         }
 
-        function addRuiliProposalRow(id) { 
-            internalMeetData.find(c => c.id === id).proposalReports.push({ reporter: currentUserRole, item: "", content: "", feasibility: "", conclusion: "" }); 
-            renderMainForms(); 
-            triggerAutoSave();
+        function removeRuiliCaseReportRow(id, idx) { 
+            let target = internalMeetData.find(c => c.id === id);
+            if (target) {
+                target.caseReports.splice(idx, 1); 
+                renderMainForms(); 
+                triggerAutoSave();
+            }
         }
 
-        function removeRuiliProposalRow(id, idx) { 
-            internalMeetData.find(c => c.id === id).proposalReports.splice(idx, 1); 
-            renderMainForms(); 
-            triggerAutoSave();
+        function updateProposalField(id, idx, field, value) {
+            let t = internalMeetData.find(c => c.id === id);
+            if (t && t.proposalReports[idx]) {
+                t.proposalReports[idx][field] = value;
+                triggerAutoSave();
+            }
         }
-        
+
+        function addRuiliProposalRow(id) {
+            let target = internalMeetData.find(c => c.id === id);
+            if (target) {
+                target.proposalReports.push({ reporter: currentUserRole, item: "", content: "", feasibility: "", conclusion: "" });
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function removeRuiliProposalRow(id, idx) {
+            let target = internalMeetData.find(c => c.id === id);
+            if (target) {
+                target.proposalReports.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
         async function handleRuiliMeetUpload(inputEl, id) {
             let target = internalMeetData.find(c => c.id === id);
             if (target && inputEl.files) {
@@ -2294,168 +2306,144 @@
         }
 
         function updateRuiliFileName(id, idx, value) {
-            let t = internalMeetData.find(c => c.id === id);
-            if (t && t.uploadedFiles[idx]) {
-                t.uploadedFiles[idx].clientName = value;
+            let target = internalMeetData.find(c => c.id === id);
+            if (target && target.uploadedFiles[idx]) {
+                target.uploadedFiles[idx].clientName = value;
                 triggerAutoSave();
             }
         }
 
         function removeRuiliMeetFile(id, idx) {
-            let t = internalMeetData.find(c => c.id === id);
-            if (t) {
-                t.uploadedFiles.splice(idx, 1);
+            let target = internalMeetData.find(c => c.id === id);
+            if (target) {
+                target.uploadedFiles.splice(idx, 1);
                 renderMainForms();
                 triggerAutoSave();
             }
         }
 
+        // ==================== 擴充動態計算與項目操作 ====================
         function addServiceRow(id) {
-            caseEvalData.find(c => c.id === id).services.push({ name: "", quote: 0, contract: 0, desc: "", remark: "", p1: "", d1: "", p2: "", d2: "", p3: "", d3: "", p4: "", d4: "" });
-            renderMainForms(); triggerAutoSave();
+            let target = caseEvalData.find(c => c.id === id);
+            if (target) {
+                target.services.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1: "", d1: "", p2: "", d2: "", p3: "", d3: "", p4: "", d4: "" });
+                renderMainForms();
+                triggerAutoSave();
+            }
         }
-        function removeServiceRow(id, idx) { caseEvalData.find(c => c.id === id).services.splice(idx, 1); renderMainForms(); triggerAutoSave(); }
+
+        function removeServiceRow(id, idx) {
+            let target = caseEvalData.find(c => c.id === id);
+            if (target) {
+                target.services.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
 
         function addSolarServiceRow(id) {
-            solarData.find(c => c.id === id).solarServices.push({ name: "", quote: 0, contract: 0, desc: "", remark: "", p1: "", d1: "", p2: "", d2: "", p3: "", d3: "", p4: "", d4: "" });
-            renderMainForms(); triggerAutoSave();
+            let target = solarData.find(c => c.id === id);
+            if (target) {
+                target.solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1: "", d1: "", p2: "", d2: "", p3: "", d3: "", p4: "", d4: "" });
+                renderMainForms();
+                triggerAutoSave();
+            }
         }
-        function removeSolarServiceRow(id, idx) { solarData.find(c => c.id === id).solarServices.splice(idx, 1); renderMainForms(); triggerAutoSave(); }
+
+        function removeSolarServiceRow(id, idx) {
+            let target = solarData.find(c => c.id === id);
+            if (target) {
+                target.solarServices.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
 
         function addLandRow(id) {
-            let arr = getTargetDataArray(currentActiveTab);
-            let item = arr.find(c => c.id === id);
-            if (item) { item.lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", currentPrice: 0, sqm: 0, ping: 0 }); renderMainForms(); triggerAutoSave(); }
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                target.lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", currentPrice: "", sqm: "", ping: "" });
+                renderMainForms();
+                triggerAutoSave();
+            }
         }
+
         function removeLandRow(id, idx) {
-            let arr = getTargetDataArray(currentActiveTab);
-            let item = arr.find(c => c.id === id);
-            if (item) { item.lands.splice(idx, 1); renderMainForms(); triggerAutoSave(); }
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                target.lands.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
         }
 
         function calculateLandPingField(id, idx, sqmVal) {
-            let arr = getTargetDataArray(currentActiveTab);
-            let item = arr.find(c => c.id === id);
-            if (item && item.lands[idx]) {
-                let sqm = parseFloat(sqmVal || 0);
-                let ping = (sqm * 0.3025).toFixed(2);
-                item.lands[idx].sqm = sqmVal;
-                item.lands[idx].ping = ping;
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target && target.lands[idx]) {
+                const sqm = parseFloat(sqmVal) || 0;
+                const ping = sqm * 0.3025;
+                target.lands[idx].sqm = sqmVal;
+                target.lands[idx].ping = ping ? ping.toFixed(2) : "";
+                
                 const pingEl = document.getElementById(`calc-ping-${idx}`);
-                if (pingEl) pingEl.value = ping;
+                if (pingEl) pingEl.value = target.lands[idx].ping;
+                
                 refreshSums();
                 triggerAutoSave();
             }
         }
 
         function addBuildRow(id, type) {
-            let arr = getTargetDataArray(currentActiveTab);
-            let item = arr.find(c => c.id === id);
-            if (item) {
-                if (type === 'legal') item.buildingsLegal.push({ number: "", type: "", year: "", ping: 0 });
-                else item.buildingsIllegal.push({ type: "", year: "", ping: 0 });
-                renderMainForms(); triggerAutoSave();
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                if (type === 'legal') target.buildingsLegal.push({ number: "", type: "", year: "", ping: "" });
+                else target.buildingsIllegal.push({ type: "", year: "", ping: "" });
+                renderMainForms();
+                triggerAutoSave();
             }
         }
+
         function removeBuildRow(id, type, idx) {
-            let arr = getTargetDataArray(currentActiveTab);
-            let item = arr.find(c => c.id === id);
-            if (item) {
-                if (type === 'legal') item.buildingsLegal.splice(idx, 1);
-                else item.buildingsIllegal.splice(idx, 1);
-                renderMainForms(); triggerAutoSave();
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                if (type === 'legal') target.buildingsLegal.splice(idx, 1);
+                else target.buildingsIllegal.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
             }
         }
 
-        function updateBuildField(id, type, idx, field, val) {
-            let arr = getTargetDataArray(currentActiveTab);
-            let item = arr.find(c => c.id === id);
-            if (item) {
-                let targetArr = type === 'legal' ? item.buildingsLegal : item.buildingsIllegal;
-                if (targetArr[idx]) { targetArr[idx][field] = val; triggerAutoSave(); }
+        function updateBuildField(id, type, idx, field, value) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                const list = type === 'legal' ? target.buildingsLegal : target.buildingsIllegal;
+                if (list[idx]) {
+                    list[idx][field] = value;
+                    triggerAutoSave();
+                }
             }
-        }
-
-        function refreshSums() {
-            let arr = getTargetDataArray(currentActiveTab);
-            let activeCase = arr.find(c => c.id === selectedIds[currentActiveTab]);
-            if (!activeCase) return;
-
-            let totalLandSqm = activeCase.lands ? activeCase.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
-            let totalLandPing = activeCase.lands ? activeCase.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
-            let totalLegalPing = activeCase.buildingsLegal ? activeCase.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-            let totalIllegalPing = activeCase.buildingsIllegal ? activeCase.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-
-            const updateText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
-
-            if (currentActiveTab === 'case-eval' || currentActiveTab === 'eval-item') {
-                updateText('sum-land-sqm', totalLandSqm);
-                updateText('sum-land-ping', totalLandPing.toFixed(2));
-                updateText('sum-legal-ping', totalLegalPing);
-                updateText('sum-illegal-ping', totalIllegalPing);
-            } else if (currentActiveTab === 'solar') {
-                updateText('sum-land-sqm-sol', totalLandSqm);
-                updateText('sum-land-ping-sol', totalLandPing.toFixed(2));
-                updateText('sum-legal-ping-sol', totalLegalPing);
-                updateText('sum-illegal-ping-sol', totalIllegalPing);
-            } else if (currentActiveTab === 'trading') {
-                updateText('sum-land-sqm-trd', totalLandSqm);
-                updateText('sum-land-ping-trd', totalLandPing.toFixed(2));
-                updateText('sum-legal-ping-trd', totalLegalPing);
-                updateText('sum-illegal-ping-trd', totalIllegalPing);
-            }
-        }
-
-        function calculateSolarLive(id) {
-            let c = solarData.find(x => x.id === id);
-            if (!c) return;
-
-            let p = parseFloat(document.getElementById(`est-ping-${id}`)?.value || c.estPing || 0);
-            let pr = parseFloat(document.getElementById(`est-price-${id}`)?.value || c.estPrice || 3.5);
-            let est1 = Math.round((p / 1.5) * (590 / 1000) * 4 * 365 * pr);
-            let est2 = Math.round((p / 1.5) * 500);
-            let ru = parseFloat(document.getElementById(`est-rentunit-${id}`)?.value || c.estRentUnit || 0);
-            let est3 = Math.round(p * ru);
-
-            const setVal = (eId, v) => { const el = document.getElementById(eId); if (el) el.innerText = v.toLocaleString(); };
-            setVal(`res-est-1-${id}`, est1);
-            setVal(`res-est-2-${id}`, est2);
-            setVal(`res-est-3-${id}`, est3);
-
-            let panels = parseFloat(document.getElementById(`sur-panels-${id}`)?.value || c.surveyPanels || 0);
-            let watts = parseFloat(document.getElementById(`sur-watts-${id}`)?.value || c.surveyWatts || 0);
-            let spr = parseFloat(document.getElementById(`sur-price-${id}`)?.value || c.surveyPrice || 4.8);
-            let bill = parseFloat(document.getElementById(`sur-bill-cost-${id}`)?.value || c.surveyBill || 0);
-
-            let kwh = Math.round((panels * watts / 1000) * 4 * 365);
-            let sur1 = Math.round(kwh * spr);
-            let sur2 = Math.round((panels * watts / 1000) * 500);
-            let sur3 = Math.round(sur1 - bill - sur2);
-
-            setVal(`res-sur-1-${id}`, sur1);
-            setVal(`res-sur-kwh-${id}`, kwh);
-            setVal(`res-sur-2-${id}`, sur2);
-            setVal(`res-sur-3-${id}`, sur3);
         }
 
         function updateSolarCheckbox(id, equip, isChecked) {
-            let c = solarData.find(x => x.id === id);
-            if (c) {
-                if (!c.condRoofEquip) c.condRoofEquip = [];
-                if (isChecked) { if (!c.condRoofEquip.includes(equip)) c.condRoofEquip.push(equip); }
-                else { c.condRoofEquip = c.condRoofEquip.filter(x => x !== equip); }
+            let target = solarData.find(c => c.id === id);
+            if (target) {
+                if (!target.condRoofEquip) target.condRoofEquip = [];
+                if (isChecked) { if (!target.condRoofEquip.includes(equip)) target.condRoofEquip.push(equip); }
+                else { target.condRoofEquip = target.condRoofEquip.filter(e => e !== equip); }
                 triggerAutoSave();
             }
         }
 
         function addDocItem(id, type) {
-            let docName = prompt("請輸入新增的文件名稱：");
-            if (!docName) return;
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target) {
-                if (type === 'client') target.customDocsClient.push(docName);
-                else target.customDocsRuili.push(docName);
-                renderMainForms(); triggerAutoSave();
+                const docName = prompt("請輸入新增的文件名稱：");
+                if (docName) {
+                    if (type === 'client') target.customDocsClient.push(docName);
+                    else target.customDocsRuili.push(docName);
+                    renderMainForms();
+                    triggerAutoSave();
+                }
             }
         }
 
@@ -2464,152 +2452,265 @@
             if (target) {
                 if (type === 'client') target.customDocsClient.splice(idx, 1);
                 else target.customDocsRuili.splice(idx, 1);
-                renderMainForms(); triggerAutoSave();
+                renderMainForms();
+                triggerAutoSave();
             }
         }
 
-        function addNewCase() {
-            let newId = 'case_' + Date.now();
-            let newObj = {
-                id: newId, companyName: "新案件項目", meetSubject: "新會議主題", date: new Date().toISOString().slice(0, 16),
-                evalDate: new Date().toISOString().slice(0, 16), solarDate: new Date().toISOString().slice(0, 16), tradingDate: new Date().toISOString().slice(0, 16),
-                evalManager: currentUserRole, solarManager: currentUserRole, tradingManager: currentUserRole, manager: currentUserRole,
-                evalStatus: "初期評估", solarStatus: "初期評估", tradingStatus: "初期評估", status: "初期評估",
-                services: [], solarServices: [], lands: [], buildingsLegal: [], buildingsIllegal: [], customDocsClient: [], customDocsRuili: [], clientFilesObj: [], ruiliFilesObj: [], ruiliAttendees: [currentUserRole], externalRepresentatives: [], contents: [], uploadedFiles: [], attendees: [currentUserRole], caseReports: [], proposalReports: []
-            };
+        function refreshSums() {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
+            if (!target) return;
 
-            let arr = getTargetDataArray(currentActiveTab);
-            arr.unshift(newObj);
+            const totalLandSqm = target.lands ? target.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
+            const totalLandPing = target.lands ? target.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
+            const totalLegalPing = target.buildingsLegal ? target.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+            const totalIllegalPing = target.buildingsIllegal ? target.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+
+            const updateText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+
+            updateText('sum-land-sqm', totalLandSqm);
+            updateText('sum-land-ping', totalLandPing.toFixed(2));
+            updateText('sum-legal-ping', totalLegalPing);
+            updateText('sum-illegal-ping', totalIllegalPing);
+
+            updateText('sum-land-sqm-sol', totalLandSqm);
+            updateText('sum-land-ping-sol', totalLandPing.toFixed(2));
+            updateText('sum-legal-ping-sol', totalLegalPing);
+            updateText('sum-illegal-ping-sol', totalIllegalPing);
+
+            updateText('sum-land-sqm-trd', totalLandSqm);
+            updateText('sum-land-ping-trd', totalLandPing.toFixed(2));
+            updateText('sum-legal-ping-trd', totalLegalPing);
+            updateText('sum-illegal-ping-trd', totalIllegalPing);
+        }
+
+        function calculateSolarLive(id) {
+            let c = solarData.find(item => item.id === id);
+            if (!c) return;
+
+            const ping = parseFloat(c.estPing) || 0;
+            const price = parseFloat(c.estPrice) || 0;
+            const rentUnit = parseFloat(c.estRentUnit) || 0;
+
+            const resEst1 = Math.round((ping / 1.5) * 590 / 1000 * 4 * 365 * price);
+            const resEst2 = Math.round((ping / 1.5) * 590 / 1000 * 365 * 0.35);
+            const resEst3 = Math.round(ping * rentUnit);
+
+            const panels = parseFloat(c.surveyPanels) || 0;
+            const watts = parseFloat(c.surveyWatts) || 0;
+            const surPrice = parseFloat(c.surveyPrice) || 0;
+            const surBill = parseFloat(c.surveyBill) || 0;
+
+            const resSurKwh = Math.round((panels * watts / 1000) * 4 * 365);
+            const resSur1 = Math.round(resSurKwh * surPrice);
+            const resSur2 = Math.round((panels * watts / 1000) * 365 * 0.35);
+            const resSur3 = resSur1 - surBill - resSur2;
+
+            const setText = (elemId, val) => { const el = document.getElementById(elemId); if (el) el.innerText = val.toLocaleString(); };
+
+            setText(`res-est-1-${id}`, resEst1);
+            setText(`res-est-2-${id}`, resEst2);
+            setText(`res-est-3-${id}`, resEst3);
+            setText(`res-sur-1-${id}`, resSur1);
+            setText(`res-sur-kwh-${id}`, resSurKwh);
+            setText(`res-sur-2-${id}`, resSur2);
+            setText(`res-sur-3-${id}`, resSur3);
+        }
+
+        // ==================== 案件新增、刪除與資源回收桶機制 ====================
+        function addNewCase() {
+            const newId = "case_" + Date.now();
+            let newObj = { id: newId, companyName: "新專案標的", evalManager: currentUserRole, evalStatus: "初期評估", is_deleted: false };
+
+            if (currentActiveTab === 'case-eval' || currentActiveTab === 'eval-item') {
+                newObj.services = []; newObj.lands = []; newObj.buildingsLegal = []; newObj.buildingsIllegal = [];
+                newObj.customDocsClient = []; newObj.customDocsRuili = []; newObj.clientFilesObj = []; newObj.ruiliFilesObj = [];
+                if (currentActiveTab === 'case-eval') caseEvalData.unshift(newObj);
+                else evalItemData.unshift(newObj);
+            } else if (currentActiveTab === 'solar') {
+                newObj.solarManager = currentUserRole; newObj.solarStatus = "初期評估";
+                newObj.solarServices = []; newObj.lands = []; newObj.buildingsLegal = []; newObj.buildingsIllegal = [];
+                newObj.customDocsClient = []; newObj.customDocsRuili = []; newObj.clientFilesObj = []; newObj.ruiliFilesObj = [];
+                solarData.unshift(newObj);
+            } else if (currentActiveTab === 'trading') {
+                newObj.tradingManager = currentUserRole; newObj.tradingStatus = "初期評估";
+                newObj.lands = []; newObj.buildingsLegal = []; newObj.buildingsIllegal = [];
+                newObj.customDocsClient = []; newObj.customDocsRuili = []; newObj.clientFilesObj = []; newObj.ruiliFilesObj = [];
+                tradingData.unshift(newObj);
+            } else if (currentActiveTab === 'meeting') {
+                newObj = { id: newId, meetSubject: "新會議記錄", ruiliAttendees: [currentUserRole], externalRepresentatives: [], contents: [], uploadedFiles: [], is_deleted: false };
+                meetingData.unshift(newObj);
+            } else if (currentActiveTab === 'internal-meet') {
+                newObj = { id: newId, meetSubject: "新睿立內部會議", attendees: [currentUserRole], caseReports: [], proposalReports: [], uploadedFiles: [], is_deleted: false };
+                internalMeetData.unshift(newObj);
+            }
+
             selectedIds[currentActiveTab] = newId;
             renderSidebarSubLists();
             renderMainForms();
             saveToCloud();
         }
 
-        let pendingDeleteId = null;
-        function deleteCurrentCase() {
-            let arr = getTargetDataArray(currentActiveTab);
-            let target = arr.find(c => c.id === selectedIds[currentActiveTab]);
-            if (!target) return;
-            pendingDeleteId = target.id;
-            document.getElementById('delete-target-text').innerText = `您即將刪除：「${target.companyName || target.meetSubject || '此案件'}」`;
+        function openDeleteModal() {
+            let dataArr = getTargetDataArray(currentActiveTab);
+            const activeCase = dataArr.find(c => c.id === selectedIds[currentActiveTab]);
+            if (!activeCase) { alert("請先選擇要刪除的案件！"); return; }
+            
+            const name = activeCase.companyName || activeCase.meetSubject || "未命名項目";
+            document.getElementById('delete-target-text').innerText = `確定要刪除「${name}」嗎？`;
             document.getElementById('delete-modal').classList.remove('hidden');
         }
 
-        function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); pendingDeleteId = null; }
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
 
         async function confirmDeleteCase() {
-            if (!pendingDeleteId) return;
-            let arr = getTargetDataArray(currentActiveTab);
-            let idx = arr.findIndex(c => c.id === pendingDeleteId);
-            if (idx !== -1) {
+            closeDeleteModal();
+            let dataArr = getTargetDataArray(currentActiveTab);
+            const activeCase = dataArr.find(c => c.id === selectedIds[currentActiveTab]);
+            
+            if (activeCase) {
                 if (currentUserRole === '中央控台') {
-                    arr.splice(idx, 1);
+                    const idx = dataArr.findIndex(c => c.id === activeCase.id);
+                    if (idx !== -1) dataArr.splice(idx, 1);
                 } else {
-                    arr[idx].is_deleted = true;
-                    arr[idx].deleted_at = new Date().toISOString();
+                    activeCase.is_deleted = true;
+                    activeCase.deleted_at = new Date().toISOString();
                 }
-                selectedIds[currentActiveTab] = arr.length > 0 ? arr[0].id : null;
+
+                selectedIds[currentActiveTab] = null;
                 renderSidebarSubLists();
                 renderMainForms();
-                await saveToCloudSilent();
+                await saveToCloud();
             }
-            closeDeleteModal();
         }
 
         function openTrashModal() {
-            const listContainer = document.getElementById('trash-items-list');
-            let deletedItems = [];
-            [caseEvalData, evalItemData, solarData, tradingData, meetingData, internalMeetData].forEach(arr => {
-                deletedItems = deletedItems.concat(arr.filter(c => c.is_deleted));
-            });
-
-            if (deletedItems.length === 0) {
-                listContainer.innerHTML = '<p class="text-slate-500 text-xs text-center py-4">回收桶內無任何已刪除案件。</p>';
-            } else {
-                listContainer.innerHTML = deletedItems.map(c => `
-                    <div class="flex justify-between items-center bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
-                        <div>
-                            <span class="font-bold text-white">${c.companyName || c.meetSubject || '未命名項目'}</span>
-                            <span class="text-[10px] text-slate-500 ml-2">刪除時間: ${c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '未知'}</span>
-                        </div>
-                        <button onclick="restoreDeletedCase('${c.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold px-3 py-1 rounded-lg transition">復原案件</button>
-                    </div>
-                `).join('');
-            }
+            renderTrashModalItems();
             document.getElementById('trash-modal').classList.remove('hidden');
         }
 
-        function closeTrashModal() { document.getElementById('trash-modal').classList.add('hidden'); }
+        function closeTrashModal() {
+            document.getElementById('trash-modal').classList.add('hidden');
+        }
 
-        async function restoreDeletedCase(id) {
-            [caseEvalData, evalItemData, solarData, tradingData, meetingData, internalMeetData].forEach(arr => {
-                let item = arr.find(c => c.id === id);
-                if (item) {
-                    item.is_deleted = false;
-                    delete item.deleted_at;
-                }
+        function renderTrashModalItems() {
+            const listContainer = document.getElementById('trash-items-list');
+            if (!listContainer) return;
+
+            let deletedList = [];
+            const tabs = [
+                { id: 'case-eval', name: '專案管理', data: caseEvalData },
+                { id: 'eval-item', name: '案件評估', data: evalItemData },
+                { id: 'solar', name: '太陽能自建', data: solarData },
+                { id: 'trading', name: '買賣案件', data: tradingData },
+                { id: 'meeting', name: '會議記錄', data: meetingData },
+                { id: 'internal-meet', name: '睿立會議', data: internalMeetData }
+            ];
+
+            tabs.forEach(t => {
+                t.data.filter(c => c.is_deleted).forEach(c => {
+                    deletedList.push({ ...c, tabId: t.id, tabName: t.name });
+                });
             });
-            openTrashModal();
-            renderSidebarSubLists();
-            renderMainForms();
-            await saveToCloudSilent();
+
+            if (deletedList.length === 0) {
+                listContainer.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">資源回收桶內無刪除案件。</p>';
+                return;
+            }
+
+            listContainer.innerHTML = deletedList.map(item => `
+                <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
+                    <div>
+                        <span class="text-amber-400 font-bold mr-2">[${item.tabName}]</span>
+                        <span class="text-white font-medium">${item.companyName || item.meetSubject || '未命名項目'}</span>
+                        <span class="text-slate-500 text-[10px] ml-2">刪除時間: ${item.deleted_at ? new Date(item.deleted_at).toLocaleString() : '未知'}</span>
+                    </div>
+                    <button onclick="restoreDeletedCase('${item.id}', '${item.tabId}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i>一鍵復原
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function restoreDeletedCase(id, tabId) {
+            let dataArr = getTargetDataArray(tabId);
+            let target = dataArr.find(c => c.id === id);
+            if (target) {
+                target.is_deleted = false;
+                delete target.deleted_at;
+                renderTrashModalItems();
+                renderSidebarSubLists();
+                renderMainForms();
+                await saveToCloud();
+            }
+        }
+
+        // ==================== Supabase Realtime 與資料同步驅動 ====================
+        async function fetchSupabaseData() {
+            setSyncBadgeStatus('saving', '讀取資料庫中...');
+            try {
+                const { data, error } = await supabaseClient.from('ruili_cases').select('*').eq('id', 'main_data_store').single();
+                if (error && error.code !== 'PGRST116') throw error;
+
+                if (data && data.payload) {
+                    const p = data.payload;
+                    caseEvalData = p.caseEvalData || [];
+                    evalItemData = p.evalItemData || [];
+                    solarData = p.solarData || [];
+                    tradingData = p.tradingData || [];
+                    meetingData = p.meetingData || [];
+                    internalMeetData = p.internalMeetData || [];
+                }
+                setSyncBadgeStatus('saved', '資料已同步');
+                renderSidebarSubLists();
+                renderMainForms();
+            } catch (err) {
+                console.error("Fetch Data Error:", err);
+                setSyncBadgeStatus('error', '雲端連線異常');
+            }
         }
 
         async function saveToCloudSilent() {
             try {
                 const payload = {
-                    id: 'ruili_global_data',
                     caseEvalData, evalItemData, solarData, tradingData, meetingData, internalMeetData,
                     updated_at: new Date().toISOString()
                 };
-                await supabaseClient.from('ruili_system_records').upsert(payload);
+                const { error } = await supabaseClient.from('ruili_cases').upsert({ id: 'main_data_store', payload });
+                if (error) throw error;
             } catch (err) {
-                console.error("Save Error:", err);
+                console.error("Silent Save Error:", err);
+                setSyncBadgeStatus('error', '自動同步失敗');
             }
         }
 
         async function saveToCloud() {
-            setSyncBadgeStatus('saving', '雲端儲存中...');
-            await saveToCloudSilent();
-            setSyncBadgeStatus('saved', '手動儲存成功');
-            alert("資料已成功手動儲存至雲端 Supabase 資料庫！");
-        }
-
-        async function fetchSupabaseData() {
-            setSyncBadgeStatus('saving', '載入資料中...');
+            setSyncBadgeStatus('saving', '正在儲存至雲端...');
             try {
-                const { data, error } = await supabaseClient.from('ruili_system_records').select('*').eq('id', 'ruili_global_data').single();
-                if (data) {
-                    if (data.caseEvalData) caseEvalData = data.caseEvalData;
-                    if (data.evalItemData) evalItemData = data.evalItemData;
-                    if (data.solarData) solarData = data.solarData;
-                    if (data.tradingData) tradingData = data.tradingData;
-                    if (data.meetingData) meetingData = data.meetingData;
-                    if (data.internalMeetData) internalMeetData = data.internalMeetData;
-                }
-                setSyncBadgeStatus('saved', '雲端資料已連線');
-                renderSidebarSubLists();
-                renderMainForms();
+                await saveToCloudSilent();
+                setSyncBadgeStatus('saved', '已成功儲存');
+                alert("資料已成功儲存至 Supabase 雲端資料庫！");
             } catch (err) {
-                console.error("Fetch Error:", err);
-                setSyncBadgeStatus('error', '資料載入失敗');
+                alert("儲存至雲端失敗，請檢查網路或 Supabase 連線。");
             }
         }
 
         function initSupabaseRealtime() {
-            supabaseClient.channel('schema-db-changes')
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'ruili_system_records', filter: 'id=eq.ruili_global_data' }, payload => {
-                    if (!isUserTyping && payload.new) {
-                        if (payload.new.caseEvalData) caseEvalData = payload.new.caseEvalData;
-                        if (payload.new.evalItemData) evalItemData = payload.new.evalItemData;
-                        if (payload.new.solarData) solarData = payload.new.solarData;
-                        if (payload.new.tradingData) tradingData = payload.new.tradingData;
-                        if (payload.new.meetingData) meetingData = payload.new.meetingData;
-                        if (payload.new.internalMeetData) internalMeetData = payload.new.internalMeetData;
+            supabaseClient
+                .channel('schema-db-changes')
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'ruili_cases' }, payload => {
+                    if (!isUserTyping && payload.new && payload.new.payload) {
+                        const p = payload.new.payload;
+                        caseEvalData = p.caseEvalData || [];
+                        evalItemData = p.evalItemData || [];
+                        solarData = p.solarData || [];
+                        tradingData = p.tradingData || [];
+                        meetingData = p.meetingData || [];
+                        internalMeetData = p.internalMeetData || [];
                         renderSidebarSubLists();
                         renderMainForms();
-                        setSyncBadgeStatus('saved', '即時同步更新完成');
                     }
                 })
                 .subscribe();
