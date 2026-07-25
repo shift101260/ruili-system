@@ -153,73 +153,73 @@
     </div>
 
     <!-- LEFT SIDEBAR -->
-    <aside class="w-72 bg-cosmic-900 border-r border-cosmic-700/50 flex flex-col justify-between shrink-0 select-none">
+    <aside class="w-64 lg:w-72 bg-cosmic-900 border-r border-cosmic-700/50 flex flex-col justify-between shrink-0 select-none">
         <div>
-            <div class="p-6 border-b border-cosmic-700/30 flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gradient-to-tr from-cosmic-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg">
+            <div class="p-4 lg:p-6 border-b border-cosmic-700/30 flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-tr from-cosmic-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shrink-0">
                     <i class="fa-solid fa-folder-tree text-white text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-wider text-white">睿立集團</h1>
+                    <h1 class="text-lg lg:text-xl font-bold tracking-wider text-white">睿立集團</h1>
                     <p class="text-xs text-slate-400">RUILI SYSTEM N</p>
                 </div>
             </div>
 
             <!-- 五大軌道 -->
-            <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-240px)]">
+            <nav class="p-3 lg:p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-240px)]">
                 <div>
-                    <button onclick="toggleCategory('case-eval')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
+                    <button onclick="toggleCategory('case-eval')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
                             <i class="fa-solid fa-folder-open w-5 text-center text-cyan-400"></i>
                             <span class="font-medium text-sm tracking-wide">專案管理</span>
                         </div>
                         <i id="arrow-case-eval" class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
                     </button>
-                    <div id="sub-list-case-eval" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
+                    <div id="sub-list-case-eval" class="hidden pl-7 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-5"></div>
                 </div>
 
                 <div>
-                    <button onclick="toggleCategory('solar')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
+                    <button onclick="toggleCategory('solar')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
                             <i class="fa-solid fa-solar-panel w-5 text-center text-amber-400"></i>
                             <span class="font-medium text-sm tracking-wide">太陽能自建</span>
                         </div>
                         <i id="arrow-solar" class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
                     </button>
-                    <div id="sub-list-solar" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
+                    <div id="sub-list-solar" class="hidden pl-7 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-5"></div>
                 </div>
 
                 <div>
-                    <button onclick="toggleCategory('trading')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
+                    <button onclick="toggleCategory('trading')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
                             <i class="fa-solid fa-building-circle-arrow-right w-5 text-center text-emerald-400"></i>
                             <span class="font-medium text-sm tracking-wide">工廠買賣案件資料表</span>
                         </div>
                         <i id="arrow-trading" class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
                     </button>
-                    <div id="sub-list-trading" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
+                    <div id="sub-list-trading" class="hidden pl-7 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-5"></div>
                 </div>
 
                 <div>
-                    <button onclick="toggleCategory('meeting')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
+                    <button onclick="toggleCategory('meeting')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
                             <i class="fa-solid fa-handshake w-5 text-center text-purple-400"></i>
                             <span class="font-medium text-sm tracking-wide">會議記錄</span>
                         </div>
                         <i id="arrow-meeting" class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
                     </button>
-                    <div id="sub-list-meeting" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
+                    <div id="sub-list-meeting" class="hidden pl-7 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-5"></div>
                 </div>
 
                 <div>
-                    <button onclick="toggleCategory('internal-meet')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
+                    <button onclick="toggleCategory('internal-meet')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
                             <i class="fa-solid fa-comments w-5 text-center text-indigo-400"></i>
                             <span class="font-medium text-sm tracking-wide">睿立會議紀錄</span>
                         </div>
                         <i id="arrow-internal-meet" class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
                     </button>
-                    <div id="sub-list-internal-meet" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
+                    <div id="sub-list-internal-meet" class="hidden pl-7 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-5"></div>
                 </div>
             </nav>
         </div>
@@ -235,44 +235,44 @@
 
     <!-- MAIN VIEWPORT -->
     <main class="flex-1 flex flex-col overflow-hidden bg-cosmic-950">
-        <!-- TOP BAR -->
-        <header class="h-16 border-b border-cosmic-700/40 px-4 md:px-8 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print overflow-x-auto gap-2">
-            <div class="flex items-center space-x-3 shrink-0">
-                <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-48 md:w-64 bg-cosmic-950 border border-cosmic-700 rounded-xl px-4 py-1.5 text-sm text-white focus:outline-none">
+        <!-- TOP BAR (針對平板橫放優化適應度) -->
+        <header class="h-16 border-b border-cosmic-700/40 px-3 lg:px-6 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print overflow-x-auto gap-2">
+            <div class="flex items-center space-x-2 lg:space-x-3 shrink-0">
+                <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-40 lg:w-60 bg-cosmic-950 border border-cosmic-700 rounded-xl px-3 py-1.5 text-xs lg:text-sm text-white focus:outline-none">
                 
                 <!-- 已登入使用者提示資訊 -->
-                <div id="current-user-badge" class="hidden flex items-center space-x-2 bg-cosmic-950/80 border border-cyan-500/50 px-3 py-1 rounded-xl text-xs text-cyan-400 shrink-0">
+                <div id="current-user-badge" class="hidden flex items-center space-x-1.5 bg-cosmic-950/80 border border-cyan-500/50 px-2.5 py-1 rounded-xl text-xs text-cyan-400 shrink-0">
                     <i class="fa-solid fa-user-shield"></i>
                     <span>已登入：<strong id="user-display-name" class="text-white"></strong></span>
-                    <button onclick="handleLogout()" class="ml-2 text-red-400 hover:text-red-300 text-[11px] underline">登出</button>
+                    <button onclick="handleLogout()" class="ml-1 text-red-400 hover:text-red-300 text-[11px] underline">登出</button>
                 </div>
 
                 <!-- 🔄 自動同步狀態提示徽章 -->
-                <div id="sync-status-badge" class="hidden flex items-center space-x-1.5 text-xs px-2.5 py-1 rounded-lg bg-cosmic-900 border border-cosmic-700 text-slate-400">
+                <div id="sync-status-badge" class="hidden flex items-center space-x-1.5 text-xs px-2 py-1 rounded-lg bg-cosmic-900 border border-cosmic-700 text-slate-400 shrink-0">
                     <i id="sync-icon" class="fa-solid fa-cloud"></i>
                     <span id="sync-text">已連線</span>
                 </div>
             </div>
 
-            <!-- 右側功能按鈕 -->
-            <div class="flex items-center space-x-2 md:space-x-3 shrink-0">
-                <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md hover:opacity-90 transition shrink-0 whitespace-nowrap">
+            <!-- 右側功能按鈕 (確保平板橫放不折行、完整顯示) -->
+            <div class="flex items-center space-x-1.5 lg:space-x-2 shrink-0">
+                <button onclick="addNewCase()" class="bg-gradient-to-r from-cosmic-500 to-blue-600 text-white text-xs font-semibold px-2.5 lg:px-3 py-2 rounded-xl flex items-center space-x-1 shadow-md hover:opacity-90 transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-plus"></i><span>新增案件</span>
                 </button>
-                <button onclick="deleteCurrentCase()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md transition shrink-0 whitespace-nowrap">
+                <button onclick="deleteCurrentCase()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-2.5 lg:px-3 py-2 rounded-xl flex items-center space-x-1 shadow-md transition shrink-0 whitespace-nowrap">
                     <i class="fa-solid fa-trash-can"></i><span>刪除案件</span>
                 </button>
-                <button onclick="window.print()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl flex items-center shadow-lg transition shrink-0 whitespace-nowrap">
-                    <i class="fa-solid fa-print mr-1.5"></i> 一鍵匯出/列印
+                <button onclick="window.print()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold px-2.5 lg:px-3 py-2 rounded-xl flex items-center shadow-lg transition shrink-0 whitespace-nowrap">
+                    <i class="fa-solid fa-print mr-1"></i> 一鍵匯出
                 </button>
-                <button onclick="saveToCloud()" class="bg-emerald-600 text-white text-xs font-semibold px-3 md:px-4 py-2 rounded-xl hover:bg-emerald-500 transition shrink-0 whitespace-nowrap">
+                <button onclick="saveToCloud()" class="bg-emerald-600 text-white text-xs font-semibold px-3 lg:px-4 py-2 rounded-xl hover:bg-emerald-500 transition shrink-0 whitespace-nowrap">
                     儲存
                 </button>
             </div>
         </header>
 
         <!-- ROUTING CONTENT -->
-        <div class="flex-1 overflow-y-auto p-8 flex justify-center">
+        <div class="flex-1 overflow-y-auto p-4 lg:p-8 flex justify-center">
             <div class="w-full max-w-5xl print-container">
                 <section id="tab-case-eval" class="tab-content active"><div id="case-eval-container" class="space-y-6"></div></section>
                 <section id="tab-solar" class="tab-content"><div id="solar-container" class="space-y-6"></div></section>
@@ -372,7 +372,6 @@
             }
         }
 
-        // 🛡️ 第二步優化：具備 Debounce 防抖與自動儲存防護
         function triggerAutoSave() {
             isUserTyping = true;
             setSyncBadgeStatus('saving', '編輯中...');
@@ -382,7 +381,7 @@
                 await saveToCloudSilent();
                 isUserTyping = false;
                 setSyncBadgeStatus('saved', '雲端已同步');
-            }, 800); // 停止輸入 0.8 秒後自動寫入資料庫
+            }, 800);
         }
 
         function handleRoleLogin() {
@@ -545,7 +544,6 @@
                 container.innerHTML = generateInternalMeetHTML(activeCase);
             }
 
-            // 自動適應全部 Textarea 高度
             setTimeout(() => {
                 container.querySelectorAll('textarea').forEach(el => autoResizeTextarea(el));
             }, 0);
@@ -574,7 +572,6 @@
             return `<button onclick="previewFileUrl('${fileUrl||''}', '${fileName||''}')" class="text-cyan-400 hover:text-cyan-300 text-xs mr-2 border border-cyan-500/40 px-2 py-0.5 rounded bg-cosmic-950 no-print" title="點擊下載/開啟檔案"><i class="fa-solid fa-download mr-1"></i>下載</button>`;
         }
 
-        // 📂 拖曳檔案通用處理解析器
         function handleDragOver(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -607,7 +604,7 @@
             }
         }
 
-        // ==================== 一、專案管理 HTML ====================
+        // ==================== 一、專案管理 HTML (已更新土地基本資料版型) ====================
         function generateCaseEvalHTML(c) {
             let rawLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
             let totalLandSqm = Math.round(rawLandSqm * 100) / 100;
@@ -680,7 +677,6 @@
                                         <div><label class="text-slate-400 block mb-0.5">簽約金額：</label><input type="text" value="${srv.contract||''}" oninput="updateServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
                                     </div>
 
-                                    <!-- 收款期程 (移至案件說明與業務即時狀態備註上方) -->
                                     <div class="pt-2 border-t border-b border-cosmic-700/20 pb-3">
                                         <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
                                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
@@ -702,7 +698,7 @@
                         </div>
                     </div>
 
-                    <!-- 四、土地基本資料 -->
+                    <!-- 四、土地基本資料 (已依需求修正：登記日期、民國年格式、移除分子/分母欄位並自動帶入計算) -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                         <div class="flex justify-between items-center border-b border-cosmic-700/30 pb-1">
                             <h4 class="text-xs font-bold text-emerald-400">四、土地基本資料</h4>
@@ -716,15 +712,12 @@
                         </div>
 
                         <!-- 📌 土地欄位名稱標題區塊 -->
-                        <div class="grid grid-cols-11 gap-1 text-[11px] text-slate-400 font-bold text-center pt-2 pb-1 pr-7">
+                        <div class="grid grid-cols-8 gap-1 text-[11px] text-slate-400 font-bold text-center pt-2 pb-1 pr-7">
                             <div class="col-span-1">地號</div>
-                            <div class="col-span-1">登記發生日期</div>
+                            <div class="col-span-1">登記日期</div>
                             <div class="col-span-2">使用分區 / 類別</div>
-                            <div class="col-span-1">用地</div>
                             <div class="col-span-1">面積</div>
                             <div class="col-span-1">權利範圍</div>
-                            <div class="col-span-1">分子</div>
-                            <div class="col-span-1">分母</div>
                             <div class="col-span-1">平方公尺</div>
                             <div class="col-span-1">換算坪數</div>
                         </div>
@@ -732,18 +725,15 @@
                         <div class="space-y-1.5 pt-1">
                             ${c.lands.map((l, idx) => `
                                 <div class="flex items-center space-x-1 text-[11px]">
-                                    <div class="grid grid-cols-11 gap-1 flex-1">
+                                    <div class="grid grid-cols-8 gap-1 flex-1">
                                         <input type="text" value="${l.section||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
-                                        <input type="date" value="${l.number||''}" placeholder="登記發生日期" onchange="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-center text-white">
+                                        <input type="text" value="${l.number||''}" placeholder="112/05/20" oninput="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-center text-white">
                                         <select onchange="updateLandField('${c.id}', ${idx}, 'pattern', this.value)" class="col-span-2 bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium">
                                             <option value="都市計畫使用分區" class="text-center" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
                                             <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
                                         </select>
-                                        <input type="text" value="${l.customPattern||''}" placeholder="用地" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="col-span-1 bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center">
                                         <input type="number" value="${l.landArea||''}" placeholder="面積" oninput="updateLandField('${c.id}', ${idx}, 'landArea', this.value); autoCalcSqm('${c.id}', ${idx});" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center font-medium">
-                                        <input type="text" value="${l.currentPrice||''}" placeholder="權利範圍" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
-                                        <input type="number" value="${l.numerator||''}" placeholder="分子" oninput="updateLandField('${c.id}', ${idx}, 'numerator', this.value); autoCalcSqm('${c.id}', ${idx});" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
-                                        <input type="number" value="${l.denominator||''}" placeholder="分母" oninput="updateLandField('${c.id}', ${idx}, 'denominator', this.value); autoCalcSqm('${c.id}', ${idx});" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="text" value="${l.currentPrice||''}" placeholder="例如 1/2" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value); autoCalcSqm('${c.id}', ${idx});" class="col-span-1 bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
                                         <input type="number" value="${l.sqm||''}" placeholder="平方公尺" id="calc-sqm-${idx}" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="col-span-1 bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
                                         <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-ping-${idx}" readonly class="col-span-1 bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
                                     </div>
@@ -757,9 +747,8 @@
                         </div>
                     </div>
 
-                    <!-- 五、建物基本資料 (已調整：有保存登記在上，違章建物在下) -->
+                    <!-- 五、建物基本資料 -->
                     <div class="grid grid-cols-1 gap-4 text-xs">
-                        <!-- 有保存登記建物 (上方) -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-blue-400">五、有保存登記建物</span>
@@ -789,7 +778,6 @@
                             <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping">${totalLegalPing}</strong> 坪</div>
                         </div>
 
-                        <!-- 違章建物 (下方) -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-red-400">五、違章建物</span>
@@ -1060,7 +1048,6 @@
                     <div class="bg-cosmic-950/40 border border-amber-500/30 p-5 rounded-xl space-y-5 card-box">
                         <h4 class="text-xs font-bold text-amber-300 border-b border-cosmic-700/20 pb-1.5"><i class="fa-solid fa-calculator mr-1.5"></i>四、案件試算</h4>
                         
-                        <!-- 【預估軌道】 -->
                         <div class="space-y-3 bg-cosmic-900/30 p-4 border border-cyan-500/20 rounded-xl">
                             <span class="text-xs font-bold text-cyan-400 tracking-wider flex items-center"><i class="fa-solid fa-chart-pie mr-1.5"></i>【預估】</span>
                             <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
@@ -1091,7 +1078,6 @@
                             </div>
                         </div>
 
-                        <!-- 【現勘軌道】 -->
                         <div class="space-y-3 bg-cosmic-900/30 p-4 border border-purple-500/20 rounded-xl">
                             <span class="text-xs font-bold text-purple-400 tracking-wider flex items-center"><i class="fa-solid fa-compass-drafting mr-1.5"></i>【現勘】</span>
                             <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-purple-500/40 space-y-1.5">
@@ -1142,7 +1128,6 @@
                             <div><label class="text-slate-400 block mb-0.5">區域：</label><input type="text" value="${c.region||''}" oninput="updateField('${c.id}', 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                         </div>
 
-                        <!-- 📌 土地欄位名稱標題區塊 -->
                         <div class="grid grid-cols-7 gap-1 text-[11px] text-slate-400 font-bold text-center pt-2 pb-1 pr-7">
                             <div>地段</div>
                             <div>地號</div>
@@ -1164,7 +1149,7 @@
                                             <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
                                         </select>
                                         <input type="text" value="${l.customPattern||''}" placeholder="自填細部類別" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center">
-                                        <input type="text" value="${l.currentPrice||''}" placeholder="權利範圍" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="text" value="${l.currentPrice||''}" placeholder="例如 1/2" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value); autoCalcSqm('${c.id}', ${idx});" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
                                         <input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
                                         <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-ping-${idx}" readonly class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
                                     </div>
@@ -1178,9 +1163,8 @@
                         </div>
                     </div>
 
-                    <!-- 六、建物基本資料 (已調整：有保存登記在上，違章建物在下) -->
+                    <!-- 六、建物基本資料 -->
                     <div class="grid grid-cols-1 gap-4 text-xs">
-                        <!-- 有保存登記建物 (上方) -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-blue-400">六、有保存登記建物</span>
@@ -1210,7 +1194,6 @@
                             <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping-sol">${totalLegalPing}</strong> 坪</div>
                         </div>
 
-                        <!-- 違章建物 (下方) -->
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-red-400">六、違章建物</span>
@@ -1795,7 +1778,7 @@
             `;
         }
 
-        // ==================== 核心驅動腳本 (加入自動防護與節流防抖機制) ====================
+        // ==================== 核心驅動腳本 ====================
         function updateField(id, field, value) { 
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target) {
@@ -1837,13 +1820,25 @@
             }
         }
 
+        // 自動帶入公式：面積 * 分子 / 分子 (支援解析權利範圍 1/2 格式)
         function autoCalcSqm(id, idx) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && target.lands && target.lands[idx]) {
                 const land = target.lands[idx];
                 const area = parseFloat(land.landArea || 0);
-                const num = parseFloat(land.numerator || 0);
-                const den = parseFloat(land.denominator || 0);
+                
+                let num = parseFloat(land.numerator || 0);
+                let den = parseFloat(land.denominator || 0);
+
+                // 如果權利範圍有輸入如 1/2 且未設獨立分子分母，自動解析權利範圍
+                if ((!num || !den) && land.currentPrice && land.currentPrice.includes('/')) {
+                    const parts = land.currentPrice.split('/');
+                    if (parts.length === 2) {
+                        num = parseFloat(parts[0].trim());
+                        den = parseFloat(parts[1].trim());
+                    }
+                }
+
                 if (area > 0 && num > 0 && den > 0) {
                     const calculatedSqm = parseFloat(((area * num) / den).toFixed(2));
                     land.sqm = calculatedSqm;
@@ -1856,32 +1851,27 @@
 
         async function uploadFileToSupabaseStorage(file) {
             try {
-                // 1. 安全檔名清洗（Clean Filename）：過濾 Emoji、中文標點與特殊字元
                 const rawExtension = file.name.includes('.') ? file.name.split('.').pop() : '';
                 const baseName = file.name.includes('.') ? file.name.substring(0, file.name.lastIndexOf('.')) : file.name;
                 
-                // 僅保留字母、數字、點、底線、減號，其他一律轉為底線
                 let cleanBase = baseName.replace(/[^a-zA-Z0-9.\-_]/g, '_').replace(/_+/g, '_');
                 if (!cleanBase || cleanBase === '_') cleanBase = 'file';
                 
                 const cleanExt = rawExtension.replace(/[^a-zA-Z0-9]/g, '');
                 const safeFileName = cleanExt ? `${cleanBase}.${cleanExt}` : cleanBase;
 
-                // 2. 建立唯一路徑
                 const uniqueId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
                     ? crypto.randomUUID() 
                     : Math.random().toString(36).substring(2, 10);
                 
                 const filePath = `uploads/${Date.now()}_${uniqueId}_${safeFileName}`;
                 
-                // 3. 上傳至 Supabase Storage
                 const { data, error } = await supabaseClient.storage.from('ruili-files').upload(filePath, file);
                 if (error) {
                     console.error("Storage Error:", error);
                     return URL.createObjectURL(file);
                 }
                 
-                // 4. 取得公開存取網址
                 const { data: publicData } = supabaseClient.storage.from('ruili-files').getPublicUrl(filePath);
                 return publicData.publicUrl;
             } catch (err) {
@@ -2239,7 +2229,7 @@
         }
 
         function addLandRow(id) { 
-            getTargetDataArray(currentActiveTab).find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", landArea: "", numerator: "", denominator: "", currentPrice: "", sqm: 0, ping: 0 }); 
+            getTargetDataArray(currentActiveTab).find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", landArea: "", currentPrice: "1/1", sqm: 0, ping: 0 }); 
             renderMainForms(); 
             triggerAutoSave();
         }
@@ -2398,117 +2388,69 @@
         }
 
         async function saveToCloudSilent() {
-            const currentObj = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
-            if (currentObj) {
+            const activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
+            if (!activeCase) return;
+            
+            try {
                 const { error } = await supabaseClient.from('cases').upsert({
-                    id: currentObj.id,
+                    id: activeCase.id,
                     tab_category: currentActiveTab,
-                    data: currentObj,
-                    is_deleted: currentObj.is_deleted || false,
-                    deleted_at: currentObj.deleted_at || null
+                    data: activeCase,
+                    is_deleted: activeCase.is_deleted || false,
+                    deleted_at: activeCase.deleted_at || null
                 });
-                if (error) {
-                    console.error("Save error:", error);
-                    setSyncBadgeStatus('error', '儲存失敗');
-                }
+                if (error) console.error("Cloud Auto-Save Error:", error);
+            } catch (err) {
+                console.error("Auto Save Ex:", err);
             }
         }
 
         async function saveToCloud() {
-            setSyncBadgeStatus('saving', '手動儲存中...');
+            setSyncBadgeStatus('saving', '雲端寫入中...');
             await saveToCloudSilent();
-            setSyncBadgeStatus('saved', '雲端已儲存');
-            alert("資料已手動儲存！");
-        }
-
-        // ==================== 回收桶與一鍵復原機制 ====================
-        function openTrashModal() {
-            const trashContainer = document.getElementById('trash-items-list');
-            let allDeletedCases = [];
-
-            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
-                const arr = getTargetDataArray(tabId);
-                arr.filter(c => c.is_deleted).forEach(c => {
-                    allDeletedCases.push({ ...c, tabId });
-                });
-            });
-
-            if (allDeletedCases.length === 0) {
-                trashContainer.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center">回收桶目前是空的。</p>`;
-            } else {
-                trashContainer.innerHTML = allDeletedCases.map(item => `
-                    <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
-                        <div>
-                            <span class="font-bold text-white mr-2">${item.companyName || item.meetSubject || '未命名案件'}</span>
-                            <span class="text-[10px] text-slate-400 bg-cosmic-800 px-2 py-0.5 rounded border border-cosmic-700">類別: ${item.tabId}</span>
-                        </div>
-                        <button onclick="restoreCase('${item.id}', '${item.tabId}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-xs transition">
-                            <i class="fa-solid fa-rotate-left mr-1"></i>復原
-                        </button>
-                    </div>
-                `).join('');
-            }
-            document.getElementById('trash-modal').classList.remove('hidden');
-        }
-
-        function closeTrashModal() {
-            document.getElementById('trash-modal').classList.add('hidden');
-        }
-
-        async function restoreCase(id, tabId) {
-            const target = getTargetDataArray(tabId).find(c => c.id === id);
-            if (target) {
-                target.is_deleted = false;
-                target.deleted_at = null;
-                await supabaseClient.from('cases').upsert({
-                    id: target.id,
-                    tab_category: tabId,
-                    data: target,
-                    is_deleted: false,
-                    deleted_at: null
-                });
-                openTrashModal();
-                renderSidebarSubLists();
-                renderMainForms();
-            }
+            setSyncBadgeStatus('saved', '手動儲存成功');
+            setTimeout(() => setSyncBadgeStatus('normal', '已連線'), 2000);
         }
 
         async function fetchSupabaseData() {
-            setSyncBadgeStatus('saving', '載入雲端資料中...');
-            const { data, error } = await supabaseClient.from('cases').select('*');
-            if (error) {
-                console.error("Fetch error:", error);
-                setSyncBadgeStatus('error', '載入失敗');
-                return;
+            setSyncBadgeStatus('saving', '載入雲端資料...');
+            try {
+                const { data, error } = await supabaseClient.from('cases').select('*');
+                if (error) {
+                    console.error("Fetch Error:", error);
+                    setSyncBadgeStatus('error', '雲端載入失敗');
+                    return;
+                }
+                
+                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
+
+                if (data && data.length > 0) {
+                    data.forEach(row => {
+                        const item = row.data;
+                        item.id = row.id;
+                        item.is_deleted = row.is_deleted;
+                        item.deleted_at = row.deleted_at;
+                        
+                        if (row.tab_category === 'case-eval') caseEvalData.push(item);
+                        else if (row.tab_category === 'solar') solarData.push(item);
+                        else if (row.tab_category === 'trading') tradingData.push(item);
+                        else if (row.tab_category === 'meeting') meetingData.push(item);
+                        else if (row.tab_category === 'internal-meet') internalMeetData.push(item);
+                    });
+                }
+                
+                setSyncBadgeStatus('saved', '雲端連線正常');
+                renderSidebarSubLists();
+                renderMainForms();
+            } catch (err) {
+                console.error("Fetch Ex:", err);
+                setSyncBadgeStatus('error', '連線異常');
             }
-
-            caseEvalData = [];
-            solarData = [];
-            tradingData = [];
-            meetingData = [];
-            internalMeetData = [];
-
-            if (data && data.length > 0) {
-                data.forEach(row => {
-                    const cData = row.data || {};
-                    cData.is_deleted = row.is_deleted || false;
-                    cData.deleted_at = row.deleted_at || null;
-
-                    if (row.tab_category === 'case-eval') caseEvalData.push(cData);
-                    else if (row.tab_category === 'solar') solarData.push(cData);
-                    else if (row.tab_category === 'trading') tradingData.push(cData);
-                    else if (row.tab_category === 'meeting') meetingData.push(cData);
-                    else if (row.tab_category === 'internal-meet') internalMeetData.push(cData);
-                });
-            }
-
-            renderSidebarSubLists();
-            renderMainForms();
-            setSyncBadgeStatus('saved', '已連線');
         }
 
         function initSupabaseRealtime() {
-            supabaseClient.channel('public:cases')
+            supabaseClient
+                .channel('public:cases')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
                     if (!isUserTyping) {
                         fetchSupabaseData();
@@ -2516,6 +2458,66 @@
                 })
                 .subscribe();
         }
+
+        function openTrashModal() {
+            const listEl = document.getElementById('trash-items-list');
+            if (!listEl) return;
+            
+            const allCases = [...caseEvalData, ...solarData, ...tradingData, ...meetingData, ...internalMeetData];
+            const deletedCases = allCases.filter(c => c.is_deleted);
+
+            if (deletedCases.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">回收桶內無任何業務刪除的案件。</p>`;
+            } else {
+                listEl.innerHTML = deletedCases.map(c => `
+                    <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
+                        <div>
+                            <span class="font-bold text-white block">${c.companyName || c.meetSubject || '未命名項目'}</span>
+                            <span class="text-[10px] text-slate-400">刪除時間：${c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '未知'}</span>
+                        </div>
+                        <button onclick="restoreCase('${c.id}')" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">一鍵復原</button>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('trash-modal').classList.remove('hidden');
+        }
+
+        function closeTrashModal() {
+            document.getElementById('trash-modal').classList.add('hidden');
+        }
+
+        async function restoreCase(id) {
+            const allCases = [...caseEvalData, ...solarData, ...tradingData, ...meetingData, ...internalMeetData];
+            const target = allCases.find(c => c.id === id);
+            if (target) {
+                target.is_deleted = false;
+                target.deleted_at = null;
+
+                let tabCat = 'case-eval';
+                if (solarData.some(c => c.id === id)) tabCat = 'solar';
+                if (tradingData.some(c => c.id === id)) tabCat = 'trading';
+                if (meetingData.some(c => c.id === id)) tabCat = 'meeting';
+                if (internalMeetData.some(c => c.id === id)) tabCat = 'internal-meet';
+
+                await supabaseClient.from('cases').upsert({
+                    id: target.id,
+                    tab_category: tabCat,
+                    data: target,
+                    is_deleted: false,
+                    deleted_at: null
+                });
+
+                openTrashModal();
+                renderSidebarSubLists();
+                renderMainForms();
+            }
+        }
+
+        // 初始化全屏頁面狀態
+        window.addEventListener('DOMContentLoaded', () => {
+            toggleCategory('case-eval');
+        });
     </script>
 </body>
 </html>
