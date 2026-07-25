@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>睿立業務系統</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,16 +24,15 @@
         }
     </script>
     <style>
-        body { background-color: #060b19; color: #e2e8f0; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; overflow-x: hidden; }
+        body { background-color: #060b19; color: #e2e8f0; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        /* 手機直式自動等比例縮放防護：防止畫面被切掉右半邊 */
-        @media screen and (max-width: 768px) {
-            body {
-                zoom: 85%; /* 自動縮小以容納完整版面 */
-            }
-        }
+        /* 自訂滾動條 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #060b19; }
+        ::-webkit-scrollbar-thumb { background: #1a3160; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #315cb5; }
 
         /* 📜 N版極致：專屬直式 A4 滿頁匯出與物理屏蔽排版優化 */
         @media print {
@@ -117,6 +116,53 @@
                 padding-bottom: 4px !important;
             }
         }
+
+        /* ==========================================
+           手機直屏 (Portrait) 專用響應式樣式
+           ========================================== */
+        @media screen and (max-width: 768px) {
+            
+            /* 1. 將主要的 Flex / Grid 容器由橫排改為直排 */
+            .main-layout, .dashboard-container {
+                flex-direction: column !important;
+                padding: 10px;
+            }
+
+            /* 2. 側邊欄/選單改為頂部選單或漢堡選單 (Hamburger Menu) */
+            .sidebar {
+                width: 100% !important;
+                margin-bottom: 15px;
+            }
+
+            /* 3. 將寬表格 (Table) 轉換為手機直式易讀的卡片 (Cards) */
+            .responsive-table thead {
+                display: none; /* 手機直屏隱藏原本的表頭 */
+            }
+
+            .responsive-table tr {
+                display: block;
+                margin-bottom: 12px;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 10px;
+                background: #fff;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+
+            .responsive-table td {
+                display: flex;
+                justify-between: space-between;
+                padding: 6px 0;
+                border-bottom: 1px dashed #eee;
+            }
+
+            /* 在左側自動補上欄位標題，右側顯示內容 */
+            .responsive-table td::before {
+                content: attr(data-label); /* 讀取 HTML 的 data-label 屬性 */
+                font-weight: bold;
+                color: #555;
+            }
+        }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
@@ -154,7 +200,7 @@
     </div>
 
     <!-- LEFT SIDEBAR -->
-    <aside class="w-64 lg:w-72 bg-cosmic-900 border-r border-cosmic-700/50 flex flex-col justify-between shrink-0 select-none">
+    <aside class="w-64 lg:w-72 bg-cosmic-900 border-r border-cosmic-700/50 flex flex-col justify-between shrink-0 select-none sidebar">
         <div>
             <div class="p-4 lg:p-6 border-b border-cosmic-700/30 flex items-center space-x-3">
                 <div class="w-10 h-10 bg-gradient-to-tr from-cosmic-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shrink-0">
@@ -393,7 +439,7 @@
                 currentUserRole = role;
                 document.getElementById('login-overlay').classList.add('hidden');
                 document.getElementById('login-pass').value = '';
-               
+                
                 document.getElementById('user-display-name').innerText = role;
                 document.getElementById('current-user-badge').classList.remove('hidden');
 
@@ -1976,7 +2022,7 @@
             if (target && target.lands && target.lands[idx]) {
                 const land = target.lands[idx];
                 const area = parseFloat(land.landArea || 0);
-               
+                
                 let num = parseFloat(land.numerator || 0);
                 let den = parseFloat(land.denominator || 0);
 
@@ -2003,25 +2049,25 @@
             try {
                 const rawExtension = file.name.includes('.') ? file.name.split('.').pop() : '';
                 const baseName = file.name.includes('.') ? file.name.substring(0, file.name.lastIndexOf('.')) : file.name;
-               
+                
                 let cleanBase = baseName.replace(/[^a-zA-Z0-9.\-_]/g, '_').replace(/_+/g, '_');
                 if (!cleanBase || cleanBase === '_') cleanBase = 'file';
-               
+                
                 const cleanExt = rawExtension.replace(/[^a-zA-Z0-9]/g, '');
                 const safeFileName = cleanExt ? `${cleanBase}.${cleanExt}` : cleanBase;
 
                 const uniqueId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
                     ? crypto.randomUUID() 
                     : Math.random().toString(36).substring(2, 10);
-               
+                
                 const filePath = `uploads/${Date.now()}_${uniqueId}_${safeFileName}`;
-               
+                
                 const { data, error } = await supabaseClient.storage.from('ruili-files').upload(filePath, file);
                 if (error) {
                     console.error("Storage Error:", error);
                     return URL.createObjectURL(file);
                 }
-               
+                
                 const { data: publicData } = supabaseClient.storage.from('ruili-files').getPublicUrl(filePath);
                 return publicData.publicUrl;
             } catch (err) {
@@ -2432,204 +2478,200 @@
 
         function removeDocItem(id, side, idx) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                if (side === 'client') target.customDocsClient.splice(idx, 1);
-                else target.customDocsRuili.splice(idx, 1);
-                renderMainForms();
-                triggerAutoSave();
-            }
+            if (side === 'client') target.customDocsClient.splice(idx, 1);
+            else target.customDocsRuili.splice(idx, 1);
+            renderMainForms();
+            triggerAutoSave();
         }
 
         function refreshSums() {
+            let activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
+            if (!activeCase || !activeCase.lands) return;
+            let rawLandSqm = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
+            let totalLandSqm = Math.round(rawLandSqm * 100) / 100;
+            let rawLandPing = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
+            let totalLandPing = Math.round(rawLandPing * 100) / 100;
+
+            const suffix = currentActiveTab === 'case-eval' ? '' : '-sol';
+            if(document.getElementById("sum-land-sqm" + suffix)) document.getElementById("sum-land-sqm" + suffix).innerText = totalLandSqm;
+            if(document.getElementById("sum-land-ping" + suffix)) document.getElementById("sum-land-ping" + suffix).innerText = totalLandPing.toFixed(2);
+        }
+
+        function addNewCase() {
+            const nid = "id-" + Date.now();
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: currentUserRole, is_deleted: false, deleted_at: null };
+            
+            if(currentActiveTab === 'internal-meet') {
+                obj.meetSubject = "新睿立會議紀錄 " + (dataArr.length + 1);
+                obj.attendees = [currentUserRole]; obj.financeReport = ""; obj.financeReview = ""; obj.financeConsensus = "";
+                obj.caseReports = []; obj.proposalReports = []; obj.globalConclusion = ""; obj.uploadedFiles = [];
+            } else if(currentActiveTab === 'meeting') {
+                obj.meetSubject = "外部對接會議記錄 " + (dataArr.length + 1);
+                obj.ruiliAttendees = [currentUserRole]; obj.externalRepresentatives = []; obj.contents = []; obj.meetSummary = ""; obj.uploadedFiles = [];
+            } else {
+                obj.companyName = "全新案件項目 " + (dataArr.length + 1); 
+                obj.services = []; obj.solarServices = []; obj.lands = []; obj.buildingsLegal = []; obj.buildingsIllegal = []; 
+                obj.customDocsClient = ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"]; obj.customDocsRuili = ["土地謄本"]; 
+                obj.clientFilesObj = []; obj.ruiliFilesObj = [];
+                obj.electricBill = ""; obj.horsepower = ""; obj.contractCapacity = ""; obj.isHighVoltage = "否"; obj.isTimeRate = "否"; obj.timePeriod = "白天為主";
+                obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = "否"; obj.esgStorage = "否";
+                obj.landOwner = ""; obj.city = ""; obj.region = ""; obj.landSection = "";
+                obj.companyAddress = ""; obj.companyPhone = ""; obj.fax = ""; obj.bankAccount = ""; obj.companyRemark = "";
+                obj.evalDate = new Date().toISOString().slice(0, 16); obj.evalManager = currentUserRole; obj.evalStatus = "初期評估"; obj.evalSource = "";
+                obj.solarDate = new Date().toISOString().slice(0, 16); obj.solarManager = currentUserRole; obj.solarStatus = "初期評估"; obj.solarSource = "";
+                obj.landOwnerGroups = [{
+                    ownerName: "", city: "高雄市", region: "岡山區", landSection: "", lands: []
+                }];
+            }
+            dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
+            renderSidebarSubLists(); renderMainForms();
+            saveToCloudSilent();
+        }
+
+        function deleteCurrentCase() {
+            let dataArr = getTargetDataArray(currentActiveTab);
+            if (currentUserRole !== '中央控台') {
+                dataArr = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
+            }
+            if (dataArr.length === 0) {
+                alert("目前沒有可刪除的項目！");
+                return;
+            }
+            const activeId = selectedIds[currentActiveTab];
+            const targetIndex = dataArr.findIndex(c => c.id === activeId);
+            if (targetIndex !== -1) {
+                const targetName = dataArr[targetIndex].companyName || dataArr[targetIndex].meetSubject || '當前項目';
+                document.getElementById('delete-target-text').innerText = `確定要刪除「${targetName}」嗎？`;
+                document.getElementById('delete-modal').classList.remove('hidden');
+            }
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        async function confirmDeleteCase() {
+            let dataArr = getTargetDataArray(currentActiveTab);
+            const activeId = selectedIds[currentActiveTab];
+            const target = dataArr.find(c => c.id === activeId);
+            
+            if (target) {
+                if (currentUserRole === '中央控台') {
+                    const targetIndex = dataArr.findIndex(c => c.id === activeId);
+                    if (targetIndex !== -1) dataArr.splice(targetIndex, 1);
+                    await supabaseClient.from('cases').delete().eq('id', activeId);
+                } else {
+                    target.is_deleted = true;
+                    target.deleted_at = new Date().toISOString();
+                    await supabaseClient.from('cases').upsert({
+                        id: target.id,
+                        tab_category: currentActiveTab,
+                        data: target,
+                        is_deleted: true,
+                        deleted_at: target.deleted_at
+                    });
+                }
+
+                const visibleCases = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
+                if (visibleCases.length > 0) {
+                    selectedIds[currentActiveTab] = visibleCases[0].id;
+                } else {
+                    selectedIds[currentActiveTab] = null;
+                }
+            }
+            closeDeleteModal();
+            renderSidebarSubLists();
             renderMainForms();
         }
 
-        async function saveToCloud() {
-            setSyncBadgeStatus('saving', '手動儲存中...');
-            const success = await saveToCloudSilent();
-            if (success) {
-                setSyncBadgeStatus('saved', '雲端同步成功');
-                setTimeout(() => setSyncBadgeStatus('normal', '已連線'), 2000);
-            } else {
-                setSyncBadgeStatus('error', '儲存失敗');
+        // ==================== Supabase 雲端資料同步 ====================
+        async function saveToCloudSilent() {
+            try {
+                const activeId = selectedIds[currentActiveTab];
+                const activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === activeId);
+                if (activeCase) {
+                    await supabaseClient.from('cases').upsert({
+                        id: activeCase.id,
+                        tab_category: currentActiveTab,
+                        data: activeCase,
+                        is_deleted: activeCase.is_deleted || false,
+                        deleted_at: activeCase.deleted_at || null
+                    });
+                }
+            } catch (err) {
+                console.error("Auto save error:", err);
             }
         }
 
-        async function saveToCloudSilent() {
-            try {
-                const payload = {
-                    caseEvalData,
-                    solarData,
-                    tradingData,
-                    meetingData,
-                    internalMeetData,
-                    updated_at: new Date().toISOString()
-                };
-                const { error } = await supabaseClient
-                    .from('system_states')
-                    .upsert({ id: 1, state_json: payload });
-                if (error) {
-                    console.error("Supabase Save Error:", error);
-                    return false;
-                }
-                return true;
-            } catch (err) {
-                console.error("Save Exception:", err);
-                return false;
-            }
+        async function saveToCloud() {
+            setSyncBadgeStatus('saving', '雲端儲存中...');
+            await saveToCloudSilent();
+            setSyncBadgeStatus('saved', '手動儲存成功');
+            setTimeout(() => setSyncBadgeStatus('normal'), 2000);
         }
 
         async function fetchSupabaseData() {
+            setSyncBadgeStatus('saving', '載入資料中...');
             try {
-                setSyncBadgeStatus('saving', '資料載入中...');
-                const { data, error } = await supabaseClient
-                    .from('system_states')
-                    .select('state_json')
-                    .eq('id', 1)
-                    .single();
+                const { data, error } = await supabaseClient.from('cases').select('*');
+                if (error) throw error;
                 
-                if (data && data.state_json) {
-                    const st = data.state_json;
-                    if (st.caseEvalData) caseEvalData = st.caseEvalData;
-                    if (st.solarData) solarData = st.solarData;
-                    if (st.tradingData) tradingData = st.tradingData;
-                    if (st.meetingData) meetingData = st.meetingData;
-                    if (st.internalMeetData) internalMeetData = st.internalMeetData;
+                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
+
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        const cData = item.data || {};
+                        cData.id = item.id;
+                        cData.is_deleted = item.is_deleted;
+                        cData.deleted_at = item.deleted_at;
+
+                        if (item.tab_category === 'case-eval') caseEvalData.push(cData);
+                        else if (item.tab_category === 'solar') solarData.push(cData);
+                        else if (item.tab_category === 'trading') tradingData.push(cData);
+                        else if (item.tab_category === 'meeting') meetingData.push(cData);
+                        else if (item.tab_category === 'internal-meet') internalMeetData.push(cData);
+                    });
                 }
-                setSyncBadgeStatus('saved', '已連線');
-                renderSidebarSubLists();
-                renderMainForms();
+                setSyncBadgeStatus('saved', '資料讀取完畢');
             } catch (err) {
-                console.error("Fetch Error:", err);
-                setSyncBadgeStatus('error', '連線異常');
+                console.error("Fetch error:", err);
+                setSyncBadgeStatus('error', '讀取失敗');
             }
+            renderSidebarSubLists();
+            renderMainForms();
         }
 
         function initSupabaseRealtime() {
-            supabaseClient
-                .channel('public:system_states')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'system_states' }, payload => {
-                    if (!isUserTyping && payload.new && payload.new.state_json) {
-                        const st = payload.new.state_json;
-                        if (st.caseEvalData) caseEvalData = st.caseEvalData;
-                        if (st.solarData) solarData = st.solarData;
-                        if (st.tradingData) tradingData = st.tradingData;
-                        if (st.meetingData) meetingData = st.meetingData;
-                        if (st.internalMeetData) internalMeetData = st.internalMeetData;
-                        renderSidebarSubLists();
-                        renderMainForms();
-                        setSyncBadgeStatus('saved', '已同步最新雲端');
+            supabaseClient.channel('public:cases')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
+                    if (!isUserTyping) {
+                        fetchSupabaseData();
                     }
                 })
                 .subscribe();
         }
 
-        function addNewCase() {
-            const newId = 'case_' + Date.now();
-            const defaultCompany = "新客戶公司 " + Math.floor(Math.random() * 1000);
-            const newObj = {
-                id: newId,
-                companyName: defaultCompany,
-                evalDate: new Date().toISOString().slice(0, 16),
-                evalManager: currentUserRole,
-                evalStatus: "初期評估",
-                evalSource: "",
-                taxId: "",
-                factoryLicense: "",
-                industryType: "",
-                contact: "",
-                phone: "",
-                email: "",
-                address: "",
-                companyAddress: "",
-                companyPhone: "",
-                fax: "",
-                bankAccount: "",
-                website: "",
-                companyRemark: "",
-                services: [],
-                lands: [],
-                landOwnerGroups: [{ ownerName: "", city: "高雄市", region: "岡山區", landSection: "", lands: [] }],
-                buildingsLegal: [],
-                buildingsIllegal: [],
-                clientFilesObj: [],
-                ruiliFilesObj: [],
-                customDocsClient: ["工廠登記證", "土地所有權狀", "最近一期電費單"],
-                customDocsRuili: ["土地謄本", "建物謄本", "地籍圖謄本"],
-                meetSubject: defaultCompany + " 協商會議",
-                date: new Date().toISOString().slice(0, 16),
-                ruiliAttendees: [currentUserRole],
-                externalRepresentatives: [],
-                contents: [],
-                uploadedFiles: [],
-                caseReports: [],
-                proposalReports: []
-            };
-
-            const targetArr = getTargetDataArray(currentActiveTab);
-            targetArr.unshift(newObj);
-            selectedIds[currentActiveTab] = newId;
-            renderSidebarSubLists();
-            renderMainForms();
-            saveToCloud();
-        }
-
-        let caseIdToDelete = null;
-        function deleteCurrentCase() {
-            const activeId = selectedIds[currentActiveTab];
-            if (!activeId) { alert("目前沒有選取任何項目可刪除！"); return; }
-            const targetArr = getTargetDataArray(currentActiveTab);
-            const target = targetArr.find(c => c.id === activeId);
-            if (!target) return;
-
-            document.getElementById('delete-target-text').innerText = `確定要將「${target.companyName || target.meetSubject || '此項目'}」放入回收桶嗎？`;
-            document.getElementById('delete-modal').classList.remove('hidden');
-            caseIdToDelete = activeId;
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('delete-modal').classList.add('hidden');
-            caseIdToDelete = null;
-        }
-
-        function confirmDeleteCase() {
-            if (!caseIdToDelete) return;
-            const targetArr = getTargetDataArray(currentActiveTab);
-            const target = targetArr.find(c => c.id === caseIdToDelete);
-            if (target) {
-                target.is_deleted = true;
-                target.deleted_at = new Date().toISOString();
-                target.deleted_by = currentUserRole;
-            }
-            closeDeleteModal();
-            renderSidebarSubLists();
-            renderMainForms();
-            saveToCloud();
-        }
-
+        // 股東回收桶彈窗控制
         function openTrashModal() {
             const listEl = document.getElementById('trash-items-list');
+            if (!listEl) return;
+            
             let allDeleted = [];
-            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
-                let arr = getTargetDataArray(tabId);
-                arr.filter(c => c.is_deleted).forEach(c => {
-                    allDeleted.push({ ...c, tabId });
-                });
+            [caseEvalData, solarData, tradingData, meetingData, internalMeetData].forEach(arr => {
+                arr.filter(c => c.is_deleted).forEach(c => allDeleted.push(c));
             });
 
             if (allDeleted.length === 0) {
-                listEl.innerHTML = "<p class='text-xs text-slate-500 text-center py-4'>資源回收桶目前是空的。</p>";
+                listEl.innerHTML = '<p class="text-slate-400 text-xs p-4 text-center">目前回收桶內沒有已刪除的項目。</p>';
             } else {
-                listEl.innerHTML = allDeleted.map(item => `
-                    <div class="flex justify-between items-center bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
+                listEl.innerHTML = allDeleted.map(c => `
+                    <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
                         <div>
-                            <strong class="text-white">${item.companyName || item.meetSubject || '未命名項目'}</strong>
-                            <span class="text-[10px] text-slate-400 ml-2">(${item.tabId})</span>
-                            <div class="text-[10px] text-slate-500">刪除時間: ${new Date(item.deleted_at).toLocaleString()}</div>
+                            <div class="font-bold text-white">${c.companyName || c.meetSubject || '未命名項目'}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">刪除時間: ${c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '未知'}</div>
                         </div>
-                        <button onclick="restoreCase('${item.id}', '${item.tabId}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-semibold transition">
-                            一鍵復原
-                        </button>
+                        <button onclick="restoreCase('${c.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg transition shadow">一鍵復原</button>
                     </div>
                 `).join('');
             }
@@ -2640,17 +2682,36 @@
             document.getElementById('trash-modal').classList.add('hidden');
         }
 
-        function restoreCase(id, tabId) {
-            let arr = getTargetDataArray(tabId);
-            let target = arr.find(c => c.id === id);
-            if (target) {
-                delete target.is_deleted;
-                delete target.deleted_at;
-                delete target.deleted_by;
+        async function restoreCase(id) {
+            let found = null;
+            let foundCategory = '';
+            [
+                { arr: caseEvalData, cat: 'case-eval' },
+                { arr: solarData, cat: 'solar' },
+                { arr: tradingData, cat: 'trading' },
+                { arr: meetingData, cat: 'meeting' },
+                { arr: internalMeetData, cat: 'internal-meet' }
+            ].forEach(item => {
+                let target = item.arr.find(c => c.id === id);
+                if (target) {
+                    found = target;
+                    foundCategory = item.cat;
+                }
+            });
+
+            if (found) {
+                found.is_deleted = false;
+                found.deleted_at = null;
+                await supabaseClient.from('cases').upsert({
+                    id: found.id,
+                    tab_category: foundCategory,
+                    data: found,
+                    is_deleted: false,
+                    deleted_at: null
+                });
+                openTrashModal();
                 renderSidebarSubLists();
                 renderMainForms();
-                saveToCloud();
-                openTrashModal();
             }
         }
     </script>
