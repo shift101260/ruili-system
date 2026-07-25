@@ -35,7 +35,7 @@
                 margin: 10mm !important;
             }
             body { background: white !important; color: black !important; overflow: visible !important; }
-            aside, header, .no-print, input[type="file"], button, #login-overlay, #trash-modal, #rotate-hint { display: none !important; }
+            aside, header, .no-print, input[type="file"], button, #login-overlay, #trash-modal { display: none !important; }
             main { padding: 0 !important; margin: 0 !important; overflow: visible !important; display: block !important; }
             .print-container { 
                 width: 210mm !important; 
@@ -80,23 +80,13 @@
             h3, h4 { color: black !important; border-bottom: 1px solid black !important; padding-bottom: 4px !important; }
         }
 
-        /* 📱 手機直立時顯示旋轉提示 */
-        #rotate-hint { display: none; }
-        @media screen and (max-width: 932px) and (orientation: portrait) {
-            #rotate-hint { display: flex; }
+        /* 拖曳排序樣式 */
+        .drag-over {
+            border-top: 2px solid #38bdf8 !important;
         }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
-
-    <!-- 🔄 手機直拿時的旋轉提示 UX 設計 -->
-    <div id="rotate-hint" class="fixed inset-0 bg-cosmic-950/95 z-50 flex-col items-center justify-center p-6 text-center no-print">
-        <div class="w-16 h-16 bg-cyan-500/20 text-cyan-400 rounded-full flex items-center justify-center text-3xl mb-4 animate-bounce">
-            🔄
-        </div>
-        <h3 class="text-lg font-bold text-white mb-2">請將手機轉為橫向以獲得最佳體驗</h3>
-        <p class="text-xs text-slate-400">工廠法規政策顧問，培您轉型與體面退場</p>
-    </div>
 
     <!-- 🔒 全螢幕獨立登入門檻遮罩 -->
     <div id="login-overlay" class="fixed inset-0 bg-cosmic-950 z-50 flex items-center justify-center p-4">
@@ -143,7 +133,7 @@
                 </div>
             </div>
 
-            <!-- 五大軌道 -->
+            <!-- 六大軌道 -->
             <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-240px)]">
                 <div>
                     <button onclick="toggleCategory('case-eval')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
@@ -154,6 +144,17 @@
                         <i id="arrow-case-eval" class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
                     </button>
                     <div id="sub-list-case-eval" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
+                </div>
+
+                <div>
+                    <button onclick="toggleCategory('case-assessment')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-clipboard-check w-5 text-center text-blue-400"></i>
+                            <span class="font-medium text-sm tracking-wide">案件評估</span>
+                        </div>
+                        <i id="arrow-case-assessment" class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
+                    </button>
+                    <div id="sub-list-case-assessment" class="hidden pl-9 pr-2 mt-1 space-y-1 border-l border-cosmic-700/40 ml-6"></div>
                 </div>
 
                 <div>
@@ -171,7 +172,7 @@
                     <button onclick="toggleCategory('trading')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
                             <i class="fa-solid fa-building-circle-arrow-right w-5 text-center text-emerald-400"></i>
-                            <span class="font-medium text-sm tracking-wide">工廠買賣案件資料表</span>
+                            <span class="font-medium text-sm tracking-wide">買賣案件資料表</span>
                         </div>
                         <i id="arrow-trading" class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
                     </button>
@@ -253,6 +254,7 @@
         <div class="flex-1 overflow-y-auto p-8 flex justify-center">
             <div class="w-full max-w-5xl print-container">
                 <section id="tab-case-eval" class="tab-content active"><div id="case-eval-container" class="space-y-6"></div></section>
+                <section id="tab-case-assessment" class="tab-content"><div id="case-assessment-container" class="space-y-6"></div></section>
                 <section id="tab-solar" class="tab-content"><div id="solar-container" class="space-y-6"></div></section>
                 <section id="tab-trading" class="tab-content"><div id="trading-container" class="space-y-6"></div></section>
                 <section id="tab-meeting" class="tab-content"><div id="meeting-container" class="space-y-6"></div></section>
@@ -302,12 +304,13 @@
         let currentUserRole = "黃逸豪";
 
         let caseEvalData = [];
+        let caseAssessmentData = [];
         let solarData = [];
         let tradingData = [];
         let meetingData = [];
         let internalMeetData = [];
 
-        let selectedIds = { "case-eval": null, "solar": null, "trading": null, "meeting": null, "internal-meet": null };
+        let selectedIds = { "case-eval": null, "case-assessment": null, "solar": null, "trading": null, "meeting": null, "internal-meet": null };
         let currentActiveTab = "case-eval";
 
         const managersList = ["樊靖畇", "鄭家承", "陳宥騰", "楊裕憲", "楊淯淳", "黃逸豪"];
@@ -316,6 +319,10 @@
         // ⏱️ 防抖與打斷自動防護計時器
         let autoSaveTimer = null;
         let isUserTyping = false;
+
+        // 拖曳排序暫存變數
+        let draggedIndex = null;
+        let draggedTabId = null;
 
         // 📐 自動延伸 Textarea 高度函數
         function autoResizeTextarea(el) {
@@ -350,7 +357,7 @@
             }
         }
 
-        // 🛡️ 第二步優化：具備 Debounce 防抖與自動儲存防護
+        // 🛡️ 防抖與自動儲存防護
         function triggerAutoSave() {
             isUserTyping = true;
             setSyncBadgeStatus('saving', '編輯中...');
@@ -360,7 +367,7 @@
                 await saveToCloudSilent();
                 isUserTyping = false;
                 setSyncBadgeStatus('saved', '雲端已同步');
-            }, 800); // 停止輸入 0.8 秒後自動寫入資料庫
+            }, 800);
         }
 
         function handleRoleLogin() {
@@ -395,7 +402,7 @@
 
         function toggleCategory(catId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(id => {
+            ["case-eval", "case-assessment", "solar", "trading", "meeting", "internal-meet"].forEach(id => {
                 document.getElementById(`sub-list-${id}`)?.classList.add('hidden');
             });
             document.getElementById(`sub-list-${catId}`)?.classList.remove('hidden');
@@ -406,6 +413,7 @@
 
         function getTargetDataArray(tabId) {
             if (tabId === 'case-eval') return caseEvalData;
+            if (tabId === 'case-assessment') return caseAssessmentData;
             if (tabId === 'solar') return solarData;
             if (tabId === 'trading') return tradingData;
             if (tabId === 'meeting') return meetingData;
@@ -421,8 +429,9 @@
             return false;
         }
 
+        // 渲染左側子選單 (包含拖曳排序事件綁定)
         function renderSidebarSubLists() {
-            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
+            ["case-eval", "case-assessment", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
                 const container = document.getElementById(`sub-list-${tabId}`);
                 if (!container) return;
                 let dataArr = getTargetDataArray(tabId);
@@ -431,19 +440,61 @@
                     dataArr = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
                 }
 
-                container.innerHTML = dataArr.map(c => {
+                container.innerHTML = dataArr.map((c, idx) => {
                     let deletedBadge = '';
                     if (c.is_deleted) {
                         const delTime = c.deleted_at ? new Date(c.deleted_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
                         deletedBadge = `<span class="ml-1 text-[10px] bg-slate-700 text-slate-300 px-1 py-0.5 rounded border border-slate-600">[業務已刪除 ${delTime}]</span>`;
                     }
                     return `
-                        <button onclick="selectSpecificCase('${c.id}', '${tabId}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition ${selectedIds[tabId] === c.id && currentActiveTab === tabId ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'} ${c.is_deleted ? 'opacity-70' : ''}">
-                            <i class="fa-solid fa-folder mr-2"></i>${c.companyName || c.meetSubject || '未命名項目'} ${deletedBadge}
-                        </button>
+                        <div draggable="true" 
+                             ondragstart="handleItemDragStart(event, '${tabId}', ${idx})" 
+                             ondragover="handleItemDragOver(event)" 
+                             ondragleave="handleItemDragLeave(event)" 
+                             ondrop="handleItemDrop(event, '${tabId}', ${idx})" 
+                             class="flex items-center space-x-1 cursor-grab active:cursor-grabbing">
+                            <button onclick="selectSpecificCase('${c.id}', '${tabId}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition flex items-center justify-between ${selectedIds[tabId] === c.id && currentActiveTab === tabId ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'} ${c.is_deleted ? 'opacity-70' : ''}">
+                                <span class="truncate"><i class="fa-solid fa-folder mr-2"></i>${c.companyName || c.meetSubject || '未命名項目'} ${deletedBadge}</span>
+                                <i class="fa-solid fa-grip-vertical text-[10px] opacity-40 ml-1"></i>
+                            </button>
+                        </div>
                     `;
                 }).join('');
             });
+        }
+
+        // ==================== 拖曳排序邏輯 ====================
+        function handleItemDragStart(e, tabId, idx) {
+            draggedIndex = idx;
+            draggedTabId = tabId;
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleItemDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleItemDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleItemDrop(e, tabId, idx) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (draggedTabId !== tabId || draggedIndex === null || draggedIndex === idx) return;
+
+            let dataArr = getTargetDataArray(tabId);
+            const movedItem = dataArr.splice(draggedIndex, 1)[0];
+            dataArr.splice(idx, 0, movedItem);
+
+            draggedIndex = null;
+            draggedTabId = null;
+
+            renderSidebarSubLists();
+            triggerAutoSave();
         }
 
         function selectSpecificCase(id, tabId) { selectedIds[tabId] = id; renderMainForms(); renderSidebarSubLists(); }
@@ -459,16 +510,24 @@
             container.innerHTML = dataArr.filter(c => {
                 const name = c.companyName || c.meetSubject || '';
                 return name.toLowerCase().includes(query);
-            }).map(c => {
+            }).map((c, idx) => {
                 let deletedBadge = '';
                 if (c.is_deleted) {
                     const delTime = c.deleted_at ? new Date(c.deleted_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
                     deletedBadge = `<span class="ml-1 text-[10px] bg-slate-700 text-slate-300 px-1 py-0.5 rounded border border-slate-600">[業務已刪除 ${delTime}]</span>`;
                 }
                 return `
-                    <button onclick="selectSpecificCase('${c.id}', '${currentActiveTab}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition ${selectedIds[currentActiveTab] === c.id ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}">
-                        <i class="fa-solid fa-folder mr-2"></i>${c.companyName || c.meetSubject || '未命名項目'} ${deletedBadge}
-                    </button>
+                    <div draggable="true" 
+                         ondragstart="handleItemDragStart(event, '${currentActiveTab}', ${idx})" 
+                         ondragover="handleItemDragOver(event)" 
+                         ondragleave="handleItemDragLeave(event)" 
+                         ondrop="handleItemDrop(event, '${currentActiveTab}', ${idx})" 
+                         class="flex items-center space-x-1 cursor-grab active:cursor-grabbing">
+                        <button onclick="selectSpecificCase('${c.id}', '${currentActiveTab}')" class="w-full text-left py-1.5 px-3 rounded-lg text-xs truncate transition flex items-center justify-between ${selectedIds[currentActiveTab] === c.id ? 'bg-cosmic-500 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'}">
+                            <span class="truncate"><i class="fa-solid fa-folder mr-2"></i>${c.companyName || c.meetSubject || '未命名項目'} ${deletedBadge}</span>
+                            <i class="fa-solid fa-grip-vertical text-[10px] opacity-40 ml-1"></i>
+                        </button>
+                    </div>
                 `;
             }).join('');
         }
@@ -496,6 +555,13 @@
                 if (!activeCase.ruiliFilesObj) activeCase.ruiliFilesObj = [];
                 if (!activeCase.services) activeCase.services = [];
                 container.innerHTML = generateCaseEvalHTML(activeCase);
+            } else if (currentActiveTab === 'case-assessment') {
+                if (activeCase.city === undefined) activeCase.city = "高雄市";
+                if (activeCase.region === undefined) activeCase.region = "岡山區";
+                if (!activeCase.clientFilesObj) activeCase.clientFilesObj = [];
+                if (!activeCase.ruiliFilesObj) activeCase.ruiliFilesObj = [];
+                if (!activeCase.services) activeCase.services = [];
+                container.innerHTML = generateCaseEvalHTML(activeCase); // 沿用範本版型
             } else if (currentActiveTab === 'solar') {
                 if (!activeCase.lands) activeCase.lands = [];
                 if (!activeCase.buildingsLegal) activeCase.buildingsLegal = [];
@@ -1368,7 +1434,7 @@
             `;
         }
 
-        // ==================== 三、工廠買賣案件資料表面板 ====================
+        // ==================== 三、買賣案件資料表面板 ====================
         function generateTradingHTML(c) {
             let totalLandSqm = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
             let totalLandPing = c.lands ? c.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
@@ -1377,7 +1443,7 @@
 
             return `
                 <div class="card-box bg-cosmic-800/70 border border-emerald-500/40 rounded-2xl p-6 space-y-6 shadow-xl">
-                    <div class="border-b border-emerald-500/40 pb-2"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>不動產買賣（工廠買賣案件資料表）</h3></div>
+                    <div class="border-b border-emerald-500/40 pb-2"><h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-building-circle-arrow-right mr-2"></i>買賣案件資料表</h3></div>
 
                     <!-- 一、專案人員與案件對接狀態 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
@@ -1942,7 +2008,7 @@
             `;
         }
 
-        // ==================== 核心驅動腳本 (加入自動防護與節流防抖機制) ====================
+        // ==================== 核心驅動腳本 ====================
         function updateField(id, field, value) { 
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target) {
@@ -1986,32 +2052,27 @@
         
         async function uploadFileToSupabaseStorage(file) {
             try {
-                // 1. 安全檔名清洗（Clean Filename）：過濾 Emoji、中文標點與特殊字元
                 const rawExtension = file.name.includes('.') ? file.name.split('.').pop() : '';
                 const baseName = file.name.includes('.') ? file.name.substring(0, file.name.lastIndexOf('.')) : file.name;
                 
-                // 僅保留字母、數字、點、底線、減號，其他一律轉為底線
                 let cleanBase = baseName.replace(/[^a-zA-Z0-9.\-_]/g, '_').replace(/_+/g, '_');
                 if (!cleanBase || cleanBase === '_') cleanBase = 'file';
                 
                 const cleanExt = rawExtension.replace(/[^a-zA-Z0-9]/g, '');
                 const safeFileName = cleanExt ? `${cleanBase}.${cleanExt}` : cleanBase;
 
-                // 2. 建立唯一路徑
                 const uniqueId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
                     ? crypto.randomUUID() 
                     : Math.random().toString(36).substring(2, 10);
                 
                 const filePath = `uploads/${Date.now()}_${uniqueId}_${safeFileName}`;
                 
-                // 3. 上傳至 Supabase Storage
                 const { data, error } = await supabaseClient.storage.from('ruili-files').upload(filePath, file);
                 if (error) {
                     console.error("Storage Error:", error);
                     return URL.createObjectURL(file);
                 }
                 
-                // 4. 取得公開存取網址
                 const { data: publicData } = supabaseClient.storage.from('ruili-files').getPublicUrl(filePath);
                 return publicData.publicUrl;
             } catch (err) {
@@ -2264,319 +2325,167 @@
             }
         }
 
-        function updateRuiliFileName(id, idx, value) { 
-            let t = internalMeetData.find(c => c.id === id);
-            if (t && t.uploadedFiles[idx]) {
-                t.uploadedFiles[idx].clientName = value; 
+        function updateRuiliFileName(id, idx, value) {
+            let target = internalMeetData.find(c => c.id === id);
+            if (target && target.uploadedFiles[idx]) {
+                target.uploadedFiles[idx].clientName = value;
                 triggerAutoSave();
             }
         }
 
-        function removeRuiliMeetFile(id, idx) { 
-            let t = internalMeetData.find(c => c.id === id);
-            if (t) {
-                t.uploadedFiles.splice(idx, 1); 
-                renderMainForms(); 
-                triggerAutoSave();
-            }
-        }
-
-        function updateSolarCheckbox(id, value, isChecked) {
-            let target = solarData.find(c => c.id === id);
+        function removeRuiliMeetFile(id, idx) {
+            let target = internalMeetData.find(c => c.id === id);
             if (target) {
-                if (!target.condRoofEquip) target.condRoofEquip = [];
-                if (isChecked) { if (!target.condRoofEquip.includes(value)) target.condRoofEquip.push(value); }
-                else { target.condRoofEquip = target.condRoofEquip.filter(item => item !== value); }
-                triggerAutoSave();
-            }
-        }
-
-        function calculateSolarLive(id) {
-            const activeCase = solarData.find(c => c.id === id);
-            if (!activeCase) return;
-            const estPing = parseFloat(activeCase.estPing || 0);
-            const estPrice = parseFloat(activeCase.estPrice || 3.5);
-            const resEst1 = Math.round((estPing / 1.5) * 590 / 1000 * 4 * 365 * estPrice);
-            const resEst2 = Math.round(resEst1 * 0.1);
-            const estRentUnit = parseFloat(activeCase.estRentUnit || 0);
-            const resEst3 = Math.round(estPing * estRentUnit);
-
-            if(document.getElementById(`res-est-1-${id}`)) document.getElementById(`res-est-1-${id}`).innerText = resEst1.toLocaleString();
-            if(document.getElementById(`res-est-2-${id}`)) document.getElementById(`res-est-2-${id}`).innerText = resEst2.toLocaleString();
-            if(document.getElementById(`res-est-3-${id}`)) document.getElementById(`res-est-3-${id}`).innerText = resEst3.toLocaleString();
-
-            const surPanels = parseFloat(activeCase.surveyPanels || 0);
-            const surWatts = parseFloat(activeCase.surveyWatts || 0);
-            const surPrice = parseFloat(activeCase.surveyPrice || 0);
-            const resSurKwh = Math.round(surPanels * surWatts / 1000 * 4 * 365);
-            const resSur1 = Math.round(resSurKwh * surPrice);
-            const resSur2 = Math.round(resSur1 * 0.1);
-            const surBill = parseFloat(activeCase.surveyBill || 0);
-            const resSur3 = Math.round(resSur1 - surBill - resSur2);
-
-            if(document.getElementById(`res-sur-kwh-${id}`)) document.getElementById(`res-sur-kwh-${id}`).innerText = resSurKwh.toLocaleString();
-            if(document.getElementById(`res-sur-1-${id}`)) document.getElementById(`res-sur-1-${id}`).innerText = resSur1.toLocaleString();
-            if(document.getElementById(`res-sur-2-${id}`)) document.getElementById(`res-sur-2-${id}`).innerText = resSur2.toLocaleString();
-            if(document.getElementById(`res-sur-3-${id}`)) document.getElementById(`res-sur-3-${id}`).innerText = resSur3.toLocaleString();
-        }
-
-        function calculateLandPingField(id, idx, sqmVal) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target && target.lands[idx]) {
-                const sqm = parseFloat(sqmVal || 0);
-                const ping = sqm * 0.3025;
-                target.lands[idx].sqm = sqm;
-                target.lands[idx].ping = parseFloat(ping.toFixed(2));
-                const pingInput = document.getElementById(`calc-ping-${idx}`);
-                if(pingInput) pingInput.value = ping.toFixed(2);
-                refreshSums();
-                if(currentActiveTab === 'solar') calculateSolarLive(id);
-                triggerAutoSave();
-            }
-        }
-
-        function updateBuildField(id, side, idx, field, value) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                if(side === 'legal') target.buildingsLegal[idx][field] = value;
-                else target.buildingsIllegal[idx][field] = value;
-                triggerAutoSave();
-            }
-        }
-
-        function addServiceRow(id) { 
-            caseEvalData.find(c => c.id === id).services.push({ name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); 
-            renderMainForms(); 
-            triggerAutoSave();
-        }
-
-        function removeServiceRow(id, idx) { 
-            caseEvalData.find(c => c.id === id).services.splice(idx, 1); 
-            renderMainForms(); 
-            triggerAutoSave();
-        }
-
-        function addSolarServiceRow(id) { 
-            solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); 
-            renderMainForms(); 
-            triggerAutoSave();
-        }
-
-        function removeSolarServiceRow(id, idx) { 
-            solarData.find(c => c.id === id).solarServices.splice(idx, 1); 
-            renderMainForms(); 
-            triggerAutoSave();
-        }
-
-        function addLandRow(id) { 
-            getTargetDataArray(currentActiveTab).find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", currentPrice: "", sqm: 0, ping: 0 }); 
-            renderMainForms(); 
-            triggerAutoSave();
-        }
-
-        function removeLandRow(id, idx) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target && target.lands) {
-                target.lands.splice(idx, 1);
-                renderMainForms();
-                refreshSums();
-                if (currentActiveTab === 'solar') calculateSolarLive(id);
-                triggerAutoSave();
-            }
-        }
-
-        function addBuildRow(id, side) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (side === 'legal') target.buildingsLegal.push({ number: "", type: "", year: "", sqm: "", ping: "" });
-            else target.buildingsIllegal.push({ type: "", year: "", sqm: "", ping: "" });
-            renderMainForms();
-            if(currentActiveTab === 'solar') calculateSolarLive(id);
-            triggerAutoSave();
-        }
-
-        function removeBuildRow(id, side, idx) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                if (side === 'legal' && target.buildingsLegal) {
-                    target.buildingsLegal.splice(idx, 1);
-                } else if (side === 'illegal' && target.buildingsIllegal) {
-                    target.buildingsIllegal.splice(idx, 1);
-                }
-                renderMainForms();
-                refreshSums();
-                if (currentActiveTab === 'solar') calculateSolarLive(id);
-                triggerAutoSave();
-            }
-        }
-
-        function addDocItem(id, side) {
-            let item = prompt("請輸入新增的文件項目：");
-            if (item) {
-                let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-                if (side === 'client') target.customDocsClient.push(item);
-                else target.customDocsRuili.push(item);
+                target.uploadedFiles.splice(idx, 1);
                 renderMainForms();
                 triggerAutoSave();
             }
         }
 
-        function removeDocItem(id, side, idx) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (side === 'client') target.customDocsClient.splice(idx, 1);
-            else target.customDocsRuili.splice(idx, 1);
-            renderMainForms();
-            triggerAutoSave();
-        }
-
-        function refreshSums() {
-            let activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
-            if (!activeCase || !activeCase.lands) return;
-            let totalLandSqm = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
-            let totalLandPing = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
-            
-            let suffix = '';
-            if (currentActiveTab === 'solar') suffix = '-sol';
-            else if (currentActiveTab === 'trading') suffix = '-trd';
-
-            if(document.getElementById("sum-land-sqm" + suffix)) document.getElementById("sum-land-sqm" + suffix).innerText = totalLandSqm;
-            if(document.getElementById("sum-land-ping" + suffix)) document.getElementById("sum-land-ping" + suffix).innerText = totalLandPing.toFixed(2);
-        }
-
-        function addNewCase() {
-            const nid = "id-" + Date.now();
-            let dataArr = getTargetDataArray(currentActiveTab);
-            let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: currentUserRole, is_deleted: false, deleted_at: null };
-            
-            if(currentActiveTab === 'internal-meet') {
-                obj.meetSubject = "新睿立會議紀錄 " + (dataArr.length + 1);
-                obj.attendees = [currentUserRole]; obj.financeReport = ""; obj.financeReview = ""; obj.financeConsensus = "";
-                obj.caseReports = []; obj.proposalReports = []; obj.globalConclusion = ""; obj.uploadedFiles = [];
-            } else if(currentActiveTab === 'meeting') {
-                obj.meetSubject = "外部對接會議記錄 " + (dataArr.length + 1);
-                obj.ruiliAttendees = [currentUserRole]; obj.externalRepresentatives = []; obj.contents = []; obj.meetSummary = ""; obj.uploadedFiles = [];
-            } else {
-                obj.companyName = "全新案件項目 " + (dataArr.length + 1); 
-                obj.services = []; obj.solarServices = []; obj.lands = []; obj.buildingsLegal = []; obj.buildingsIllegal = []; 
-                obj.customDocsClient = ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"]; obj.customDocsRuili = ["土地謄本"]; 
-                obj.clientFilesObj = []; obj.ruiliFilesObj = [];
-                obj.electricBill = ""; obj.horsepower = ""; obj.contractCapacity = ""; obj.isHighVoltage = "否"; obj.isTimeRate = "否"; obj.timePeriod = "白天為主";
-                obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = "否"; obj.esgStorage = "否";
-                obj.city = ""; obj.region = "";
-                obj.companyAddress = ""; obj.companyPhone = ""; obj.fax = ""; obj.bankAccount = ""; obj.companyRemark = "";
-                obj.evalDate = new Date().toISOString().slice(0, 16); obj.evalManager = currentUserRole; obj.evalStatus = "初期評估"; obj.evalSource = "";
-                obj.solarDate = new Date().toISOString().slice(0, 16); obj.solarManager = currentUserRole; obj.solarStatus = "初期評估"; obj.solarSource = "";
-                obj.tradingDate = new Date().toISOString().slice(0, 16); obj.tradingManager = currentUserRole; obj.tradingStatus = "初期評估"; obj.tradingSource = "";
-            }
-            dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
-            renderSidebarSubLists(); renderMainForms();
-            saveToCloudSilent();
-        }
-
-        function deleteCurrentCase() {
-            let dataArr = getTargetDataArray(currentActiveTab);
-            if (currentUserRole !== '中央控台') {
-                dataArr = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
-            }
-            if (dataArr.length === 0) {
-                alert("目前沒有可刪除的項目！");
-                return;
-            }
-            const activeId = selectedIds[currentActiveTab];
-            const targetIndex = dataArr.findIndex(c => c.id === activeId);
-            if (targetIndex !== -1) {
-                const targetName = dataArr[targetIndex].companyName || dataArr[targetIndex].meetSubject || '當前項目';
-                document.getElementById('delete-target-text').innerText = `確定要刪除「${targetName}」嗎？`;
-                document.getElementById('delete-modal').classList.remove('hidden');
-            }
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('delete-modal').classList.add('hidden');
-        }
-
-        async function confirmDeleteCase() {
-            let dataArr = getTargetDataArray(currentActiveTab);
-            const activeId = selectedIds[currentActiveTab];
-            const target = dataArr.find(c => c.id === activeId);
-            
-            if (target) {
-                if (currentUserRole === '中央控台') {
-                    const targetIndex = dataArr.findIndex(c => c.id === activeId);
-                    if (targetIndex !== -1) dataArr.splice(targetIndex, 1);
-                    await supabaseClient.from('cases').delete().eq('id', activeId);
-                } else {
-                    target.is_deleted = true;
-                    target.deleted_at = new Date().toISOString();
-                    await supabaseClient.from('cases').upsert({
-                        id: target.id,
-                        tab_category: currentActiveTab,
-                        data: target,
-                        is_deleted: true,
-                        deleted_at: target.deleted_at
-                    });
-                }
-
-                const visibleCases = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
-                if (visibleCases.length > 0) {
-                    selectedIds[currentActiveTab] = visibleCases[0].id;
-                } else {
-                    selectedIds[currentActiveTab] = null;
-                }
-
-                closeDeleteModal();
-                renderSidebarSubLists();
-                renderMainForms();
-            }
-        }
-
+        // ==================== 雲端同步與 Realtime 初始化 ====================
         async function saveToCloudSilent() {
-            const currentObj = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
-            if (currentObj) {
-                const { error } = await supabaseClient.from('cases').upsert({
-                    id: currentObj.id,
-                    tab_category: currentActiveTab,
-                    data: currentObj,
-                    is_deleted: currentObj.is_deleted || false,
-                    deleted_at: currentObj.deleted_at || null
-                });
-                if (error) {
-                    console.error("Save error:", error);
-                    setSyncBadgeStatus('error', '儲存失敗');
-                }
+            try {
+                const payload = {
+                    caseEvalData,
+                    caseAssessmentData,
+                    solarData,
+                    tradingData,
+                    meetingData,
+                    internalMeetData,
+                    updated_at: new Date().toISOString()
+                };
+                await supabaseClient.from('ruili_records').upsert({ id: 'global_state', data: payload });
+            } catch (err) {
+                console.error("Auto save silent failed:", err);
             }
         }
 
         async function saveToCloud() {
-            setSyncBadgeStatus('saving', '手動儲存中...');
+            setSyncBadgeStatus('saving', '手動同步中...');
             await saveToCloudSilent();
-            setSyncBadgeStatus('saved', '雲端已儲存');
-            alert("資料已手動儲存！");
+            setSyncBadgeStatus('saved', '手動儲存成功');
+            alert("資料已成功寫入雲端資料庫！");
         }
 
-        // ==================== 回收桶與一鍵復原機制 ====================
-        function openTrashModal() {
-            const trashContainer = document.getElementById('trash-items-list');
-            let allDeletedCases = [];
+        async function fetchSupabaseData() {
+            try {
+                setSyncBadgeStatus('saving', '資料載入中...');
+                const { data, error } = await supabaseClient.from('ruili_records').select('*').eq('id', 'global_state').single();
+                if (data && data.data) {
+                    caseEvalData = data.data.caseEvalData || [];
+                    caseAssessmentData = data.data.caseAssessmentData || [];
+                    solarData = data.data.solarData || [];
+                    tradingData = data.data.tradingData || [];
+                    meetingData = data.data.meetingData || [];
+                    internalMeetData = data.data.internalMeetData || [];
+                }
+                renderSidebarSubLists();
+                renderMainForms();
+                setSyncBadgeStatus('saved', '資料已同步');
+            } catch (err) {
+                console.error("Fetch data error:", err);
+                setSyncBadgeStatus('error', '載入失敗');
+            }
+        }
 
-            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
-                const arr = getTargetDataArray(tabId);
+        function initSupabaseRealtime() {
+            supabaseClient
+                .channel('schema-db-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'ruili_records' }, payload => {
+                    if (!isUserTyping && payload.new && payload.new.data) {
+                        caseEvalData = payload.new.data.caseEvalData || [];
+                        caseAssessmentData = payload.new.data.caseAssessmentData || [];
+                        solarData = payload.new.data.solarData || [];
+                        tradingData = payload.new.data.tradingData || [];
+                        meetingData = payload.new.data.meetingData || [];
+                        internalMeetData = payload.new.data.internalMeetData || [];
+                        renderSidebarSubLists();
+                        renderMainForms();
+                        setSyncBadgeStatus('saved', '已接收最新異動');
+                    }
+                })
+                .subscribe();
+        }
+
+        // ==================== 刪除與新增項目邏輯 ====================
+        let deleteTargetId = null;
+
+        function addNewCase() {
+            const newId = "id_" + Date.now();
+            if (currentActiveTab === 'case-eval') {
+                caseEvalData.push({ id: newId, companyName: "新案件號 " + caseEvalData.length, evalManager: currentUserRole, evalStatus: "初期評估", evalDate: new Date().toISOString().slice(0,16), services: [], lands: [], buildingsLegal: [], buildingsIllegal: [], clientFilesObj: [], ruiliFilesObj: [], customDocsClient: [], customDocsRuili: [] });
+            } else if (currentActiveTab === 'case-assessment') {
+                caseAssessmentData.push({ id: newId, companyName: "新評估案 " + caseAssessmentData.length, evalManager: currentUserRole, evalStatus: "初期評估", evalDate: new Date().toISOString().slice(0,16), services: [], lands: [], buildingsLegal: [], buildingsIllegal: [], clientFilesObj: [], ruiliFilesObj: [], customDocsClient: [], customDocsRuili: [] });
+            } else if (currentActiveTab === 'solar') {
+                solarData.push({ id: newId, companyName: "新太陽能案 " + solarData.length, solarManager: currentUserRole, solarStatus: "初期評估", solarDate: new Date().toISOString().slice(0,16), solarServices: [], lands: [], buildingsLegal: [], buildingsIllegal: [], clientFilesObj: [], ruiliFilesObj: [], customDocsClient: [], customDocsRuili: [] });
+            } else if (currentActiveTab === 'trading') {
+                tradingData.push({ id: newId, companyName: "新買賣案 " + tradingData.length, tradingManager: currentUserRole, tradingStatus: "初期評估", tradingDate: new Date().toISOString().slice(0,16), lands: [], buildingsLegal: [], buildingsIllegal: [], clientFilesObj: [], ruiliFilesObj: [], customDocsClient: [], customDocsRuili: [] });
+            } else if (currentActiveTab === 'meeting') {
+                meetingData.push({ id: newId, meetSubject: "新外部會議 " + meetingData.length, date: new Date().toISOString().slice(0,16), ruiliAttendees: [currentUserRole], externalRepresentatives: [], contents: [], uploadedFiles: [] });
+            } else if (currentActiveTab === 'internal-meet') {
+                internalMeetData.push({ id: newId, meetSubject: "新睿立內部會議 " + internalMeetData.length, date: new Date().toISOString().slice(0,16), attendees: [currentUserRole], caseReports: [], proposalReports: [], uploadedFiles: [] });
+            }
+            selectedIds[currentActiveTab] = newId;
+            renderSidebarSubLists();
+            renderMainForms();
+            triggerAutoSave();
+        }
+
+        function deleteCurrentCase() {
+            const currentId = selectedIds[currentActiveTab];
+            if (!currentId) return;
+            deleteTargetId = currentId;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+            deleteTargetId = null;
+        }
+
+        function confirmDeleteCase() {
+            if (!deleteTargetId) return;
+            let arr = getTargetDataArray(currentActiveTab);
+            const targetIndex = arr.findIndex(c => c.id === deleteTargetId);
+            if (targetIndex !== -1) {
+                if (currentUserRole === '中央控台') {
+                    arr.splice(targetIndex, 1);
+                } else {
+                    arr[targetIndex].is_deleted = true;
+                    arr[targetIndex].deleted_at = new Date().toISOString();
+                }
+            }
+            closeDeleteModal();
+            selectedIds[currentActiveTab] = null;
+            renderSidebarSubLists();
+            renderMainForms();
+            triggerAutoSave();
+        }
+
+        function openTrashModal() {
+            const trashList = document.getElementById('trash-items-list');
+            trashList.innerHTML = '';
+            let deletedItems = [];
+
+            ["case-eval", "case-assessment", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
+                let arr = getTargetDataArray(tabId);
                 arr.filter(c => c.is_deleted).forEach(c => {
-                    allDeletedCases.push({ ...c, tabId });
+                    deletedItems.push({ item: c, tabId: tabId });
                 });
             });
 
-            if (allDeletedCases.length === 0) {
-                trashContainer.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center">回收桶目前是空的。</p>`;
+            if (deletedItems.length === 0) {
+                trashList.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center">回收桶目前沒有已刪除的案件。</p>`;
             } else {
-                trashContainer.innerHTML = allDeletedCases.map(item => `
+                trashList.innerHTML = deletedItems.map(d => `
                     <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
                         <div>
-                            <span class="font-bold text-white mr-2">${item.companyName || item.meetSubject || '未命名案件'}</span>
-                            <span class="text-[10px] text-slate-400 bg-cosmic-800 px-2 py-0.5 rounded border border-cosmic-700">類別: ${item.tabId}</span>
-                            <span class="text-[10px] text-slate-500 block mt-1">刪除時間: ${item.deleted_at ? new Date(item.deleted_at).toLocaleString() : '未知'}</span>
+                            <span class="text-cyan-400 font-bold">[${getTabName(d.tabId)}]</span>
+                            <span class="text-white font-medium ml-2">${d.item.companyName || d.item.meetSubject || '未命名項目'}</span>
+                            <span class="text-slate-500 text-[10px] block mt-0.5">刪除時間: ${d.item.deleted_at ? new Date(d.item.deleted_at).toLocaleString() : '未知'}</span>
                         </div>
-                        <button onclick="restoreCase('${item.id}', '${item.tabId}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
-                            <i class="fa-solid fa-rotate-left mr-1"></i>一鍵復原
+                        <button onclick="restoreDeletedCase('${d.tabId}', '${d.item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[11px] px-3 py-1.5 rounded-lg transition flex items-center space-x-1">
+                            <i class="fa-solid fa-rotate-left"></i><span>復原案件</span>
                         </button>
                     </div>
                 `).join('');
@@ -2585,78 +2494,226 @@
             document.getElementById('trash-modal').classList.remove('hidden');
         }
 
+        function getTabName(tabId) {
+            if (tabId === 'case-eval') return '專案管理';
+            if (tabId === 'case-assessment') return '案件評估';
+            if (tabId === 'solar') return '太陽能自建';
+            if (tabId === 'trading') return '買賣案件資料表';
+            if (tabId === 'meeting') return '會議記錄';
+            if (tabId === 'internal-meet') return '睿立會議紀錄';
+            return '';
+        }
+
         function closeTrashModal() {
             document.getElementById('trash-modal').classList.add('hidden');
         }
 
-        async function restoreCase(id, tabId) {
-            const dataArr = getTargetDataArray(tabId);
-            const target = dataArr.find(c => c.id === id);
+        function restoreDeletedCase(tabId, id) {
+            let arr = getTargetDataArray(tabId);
+            let target = arr.find(c => c.id === id);
             if (target) {
-                target.is_deleted = false;
-                target.deleted_at = null;
-                await supabaseClient.from('cases').upsert({
-                    id: target.id,
-                    tab_category: tabId,
-                    data: target,
-                    is_deleted: false,
-                    deleted_at: null
-                });
+                delete target.is_deleted;
+                delete target.deleted_at;
                 renderSidebarSubLists();
                 renderMainForms();
                 openTrashModal();
+                triggerAutoSave();
             }
         }
 
-        // ==================== Supabase 資料載入與 第一步：優化 Realtime 靜默更新 ====================
-        async function fetchSupabaseData(silent = false) {
-            const { data, error } = await supabaseClient.from('cases').select('*');
-            if (error) {
-                console.error("Fetch Supabase Error:", error);
-                return;
+        // ==================== 輔助計算函數 ====================
+        function calculateLandPingField(id, idx, sqmVal) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target && target.lands[idx]) {
+                target.lands[idx].sqm = sqmVal;
+                let ping = (parseFloat(sqmVal || 0) * 0.3025).toFixed(2);
+                target.lands[idx].ping = ping;
+                const calcEl = document.getElementById(`calc-ping-${idx}`);
+                if (calcEl) calcEl.value = ping;
+                refreshSums();
+                triggerAutoSave();
             }
-            if (data) {
-                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
-                data.forEach(row => {
-                    const caseObj = { ...row.data, is_deleted: row.is_deleted, deleted_at: row.deleted_at };
-                    if (row.tab_category === 'case-eval') caseEvalData.push(caseObj);
-                    else if (row.tab_category === 'solar') solarData.push(caseObj);
-                    else if (row.tab_category === 'trading') tradingData.push(caseObj);
-                    else if (row.tab_category === 'meeting') meetingData.push(caseObj);
-                    else if (row.tab_category === 'internal-meet') internalMeetData.push(caseObj);
-                });
-                
-                // 🛡️ 防護 1：始終更新左側目錄選單（確保最新案件清單同步）
-                renderSidebarSubLists();
+        }
 
-                // 🛡️ 防護 2：如果使用者正在輸入打字、或表單中有輸入框處於 active 焦點狀態，避開表單強行重繪
-                const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
-                const isFormFocused = ['input', 'textarea', 'select'].includes(activeTag);
+        function refreshSums() {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
+            if (!target) return;
 
-                if (!silent && !isUserTyping && !isFormFocused) {
+            let totalSqm = target.lands ? target.lands.reduce((s, l) => s + parseFloat(l.sqm || 0), 0) : 0;
+            let totalLandPing = target.lands ? target.lands.reduce((s, l) => s + parseFloat(l.ping || 0), 0) : 0;
+            let totalLegal = target.buildingsLegal ? target.buildingsLegal.reduce((s, b) => s + parseFloat(b.ping || 0), 0) : 0;
+            let totalIllegal = target.buildingsIllegal ? target.buildingsIllegal.reduce((s, b) => s + parseFloat(b.ping || 0), 0) : 0;
+
+            const elSqm = document.getElementById('sum-land-sqm') || document.getElementById('sum-land-sqm-sol') || document.getElementById('sum-land-sqm-trd');
+            const elPing = document.getElementById('sum-land-ping') || document.getElementById('sum-land-ping-sol') || document.getElementById('sum-land-ping-trd');
+            const elLegal = document.getElementById('sum-legal-ping') || document.getElementById('sum-legal-ping-sol') || document.getElementById('sum-legal-ping-trd');
+            const elIllegal = document.getElementById('sum-illegal-ping') || document.getElementById('sum-illegal-ping-sol') || document.getElementById('sum-illegal-ping-trd');
+
+            if (elSqm) elSqm.innerText = totalSqm;
+            if (elPing) elPing.innerText = totalLandPing.toFixed(2);
+            if (elLegal) elLegal.innerText = totalLegal;
+            if (elIllegal) elIllegal.innerText = totalIllegal;
+        }
+
+        function calculateSolarLive(id) {
+            let c = solarData.find(s => s.id === id);
+            if (!c) return;
+
+            let ping = parseFloat(c.estPing || 0);
+            let estPrice = parseFloat(c.estPrice || 3.5);
+            let rentUnit = parseFloat(c.estRentUnit || 0);
+
+            let resEst1 = Math.round((ping / 1.5) * 590 / 1000 * 4 * 365 * estPrice);
+            let resEst2 = Math.round(resEst1 * 0.05);
+            let resEst3 = Math.round(ping * rentUnit);
+
+            let panels = parseFloat(c.surveyPanels || 0);
+            let watts = parseFloat(c.surveyWatts || 0);
+            let surPrice = parseFloat(c.surveyPrice || 4.8);
+            let bill = parseFloat(c.surveyBill || 0);
+
+            let kwh = Math.round((panels * watts / 1000) * 4 * 365);
+            let resSur1 = Math.round(kwh * surPrice);
+            let resSur2 = Math.round(resSur1 * 0.05);
+            let resSur3 = Math.round(resSur1 - bill - resSur2);
+
+            const rE1 = document.getElementById(`res-est-1-${id}`);
+            const rE2 = document.getElementById(`res-est-2-${id}`);
+            const rE3 = document.getElementById(`res-est-3-${id}`);
+
+            const rS1 = document.getElementById(`res-sur-1-${id}`);
+            const rSK = document.getElementById(`res-sur-kwh-${id}`);
+            const rS2 = document.getElementById(`res-sur-2-${id}`);
+            const rS3 = document.getElementById(`res-sur-3-${id}`);
+
+            if (rE1) rE1.innerText = resEst1.toLocaleString();
+            if (rE2) rE2.innerText = resEst2.toLocaleString();
+            if (rE3) rE3.innerText = resEst3.toLocaleString();
+
+            if (rS1) rS1.innerText = resSur1.toLocaleString();
+            if (rSK) rSK.innerText = kwh.toLocaleString();
+            if (rS2) rS2.innerText = resSur2.toLocaleString();
+            if (rS3) rS3.innerText = resSur3.toLocaleString();
+        }
+
+        function addLandRow(id) {
+            let t = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (t) {
+                t.lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", currentPrice: "", sqm: "", ping: "" });
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function removeLandRow(id, idx) {
+            let t = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (t) {
+                t.lands.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function addBuildRow(id, type) {
+            let t = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (t) {
+                if (type === 'legal') t.buildingsLegal.push({ number: "", type: "", year: "", ping: "" });
+                else t.buildingsIllegal.push({ type: "", year: "", ping: "" });
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function removeBuildRow(id, type, idx) {
+            let t = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (t) {
+                if (type === 'legal') t.buildingsLegal.splice(idx, 1);
+                else t.buildingsIllegal.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function updateBuildField(id, type, idx, field, value) {
+            let t = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (t) {
+                if (type === 'legal' && t.buildingsLegal[idx]) t.buildingsLegal[idx][field] = value;
+                if (type === 'illegal' && t.buildingsIllegal[idx]) t.buildingsIllegal[idx][field] = value;
+                triggerAutoSave();
+            }
+        }
+
+        function addServiceRow(id) {
+            let t = caseEvalData.find(c => c.id === id);
+            if (t) {
+                t.services.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1: "", d1: "", p2: "", d2: "", p3: "", d3: "", p4: "", d4: "" });
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function removeServiceRow(id, idx) {
+            let t = caseEvalData.find(c => c.id === id);
+            if (t) {
+                t.services.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function addSolarServiceRow(id) {
+            let t = solarData.find(c => c.id === id);
+            if (t) {
+                t.solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1: "", d1: "", p2: "", d2: "", p3: "", d3: "", p4: "", d4: "" });
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function removeSolarServiceRow(id, idx) {
+            let t = solarData.find(c => c.id === id);
+            if (t) {
+                t.solarServices.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function updateSolarCheckbox(id, value, isChecked) {
+            let target = solarData.find(c => c.id === id);
+            if (target) {
+                if (!target.condRoofEquip) target.condRoofEquip = [];
+                if (isChecked) {
+                    if (!target.condRoofEquip.includes(value)) target.condRoofEquip.push(value);
+                } else {
+                    target.condRoofEquip = target.condRoofEquip.filter(v => v !== value);
+                }
+                triggerAutoSave();
+            }
+        }
+
+        function addDocItem(id, side) {
+            let docName = prompt("請輸入新增的文件名稱：");
+            if (docName) {
+                let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+                if (target) {
+                    if (side === 'client') target.customDocsClient.push(docName);
+                    else target.customDocsRuili.push(docName);
                     renderMainForms();
+                    triggerAutoSave();
                 }
             }
         }
 
-        function initSupabaseRealtime() {
-            supabaseClient
-                .channel('schema-db-changes')
-                .on(
-                    'postgres_changes',
-                    { event: '*', schema: 'public', table: 'cases' },
-                    (payload) => {
-                        // 靜默拉取最新資料，不干擾使用者當前游標與輸入動作
-                        fetchSupabaseData(true);
-                    }
-                )
-                .subscribe();
+        function removeDocItem(id, side, idx) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                if (side === 'client') target.customDocsClient.splice(idx, 1);
+                else target.customDocsRuili.splice(idx, 1);
+                renderMainForms();
+                triggerAutoSave();
+            }
         }
-
-        window.onload = function() {
-            renderSidebarSubLists();
-            renderMainForms();
-        };
     </script>
 </body>
 </html>
