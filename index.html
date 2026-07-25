@@ -676,25 +676,26 @@
                                     
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                                         <div><label class="text-slate-400 block mb-0.5">服務項目：</label><input type="text" value="${srv.name||''}" oninput="updateServiceField('${c.id}', ${idx}, 'name', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                                        <div><label class="text-slate-400 block mb-0.5">報價金額：</label><input type="number" value="${srv.quote||''}" oninput="updateServiceField('${c.id}', ${idx}, 'quote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
-                                        <div><label class="text-slate-400 block mb-0.5">簽約金額：</label><input type="number" value="${srv.contract||''}" oninput="updateServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                        <div><label class="text-slate-400 block mb-0.5">報價金額：</label><input type="text" value="${srv.quote||''}" oninput="updateServiceField('${c.id}', ${idx}, 'quote', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                        <div><label class="text-slate-400 block mb-0.5">簽約金額：</label><input type="text" value="${srv.contract||''}" oninput="updateServiceField('${c.id}', ${idx}, 'contract', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white"></div>
+                                    </div>
+
+                                    <!-- 收款期程 (移至案件說明與業務即時狀態備註上方) -->
+                                    <div class="pt-2 border-t border-b border-cosmic-700/20 pb-3">
+                                        <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
+                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
+                                            ${[1,2,3,4].map(p => `
+                                                <div class="bg-cosmic-950/50 p-1.5 rounded border border-cosmic-700/30">
+                                                    <input type="text" value="${srv['p'+p]||''}" placeholder="第${p}期金額" oninput="updateServiceField('${c.id}', ${idx}, 'p${p}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center mb-1">
+                                                    <input type="date" value="${srv['d'+p]||''}" onchange="updateServiceField('${c.id}', ${idx}, 'd${p}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center">
+                                                </div>
+                                            `).join('')}
+                                        </div>
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                                         <div><label class="text-slate-400 block mb-0.5">案件說明：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'desc', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${srv.desc||''}</textarea></div>
                                         <div><label class="text-slate-400 block mb-0.5">業務即時狀態備註：</label><textarea oninput="updateServiceField('${c.id}', ${idx}, 'remark', this.value); autoResizeTextarea(this);" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1.5 text-white overflow-hidden resize-none block whitespace-pre-wrap">${srv.remark||''}</textarea></div>
-                                    </div>
-
-                                    <div class="pt-2 border-t border-cosmic-700/20">
-                                        <label class="text-slate-400 font-bold block mb-1 text-xs">收款期程：</label>
-                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
-                                            ${[1,2,3,4].map(p => `
-                                                <div class="bg-cosmic-950/50 p-1.5 rounded border border-cosmic-700/30">
-                                                    <input type="number" value="${srv['p'+p]||''}" placeholder="第${p}期金額" oninput="updateServiceField('${c.id}', ${idx}, 'p${p}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center mb-1">
-                                                    <input type="date" value="${srv['d'+p]||''}" onchange="updateServiceField('${c.id}', ${idx}, 'd${p}', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 p-1 rounded text-white text-center">
-                                                </div>
-                                            `).join('')}
-                                        </div>
                                     </div>
                                 </div>
                             `).join('')}
@@ -707,17 +708,19 @@
                             <h4 class="text-xs font-bold text-emerald-400">四、土地基本資料</h4>
                             <button onclick="addLandRow('${c.id}')" class="text-[10px] bg-emerald-900 border border-emerald-700 px-2 py-0.5 rounded no-print">[＋ 地段地號]</button>
                         </div>
-                        <div class="grid grid-cols-2 gap-3 text-xs pt-1 pb-2 border-b border-cosmic-700/20">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs pt-1 pb-2 border-b border-cosmic-700/20">
+                            <div><label class="text-slate-400 block mb-0.5">土地所有權人：</label><input type="text" value="${c.landOwner||''}" oninput="updateField('${c.id}', 'landOwner', this.value)" placeholder="所有權人" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                             <div><label class="text-slate-400 block mb-0.5">縣市：</label><input type="text" value="${c.city||''}" oninput="updateField('${c.id}', 'city', this.value)" placeholder="例如：高雄市" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                             <div><label class="text-slate-400 block mb-0.5">區域：</label><input type="text" value="${c.region||''}" oninput="updateField('${c.id}', 'region', this.value)" placeholder="例如：岡山區" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
+                            <div><label class="text-slate-400 block mb-0.5">地段：</label><input type="text" value="${c.landSection||''}" oninput="updateField('${c.id}', 'landSection', this.value)" placeholder="例如：岡山段" class="w-full bg-cosmic-950 border border-cosmic-700 rounded px-2 py-1 text-white font-semibold"></div>
                         </div>
 
                         <!-- 📌 土地欄位名稱標題區塊 -->
                         <div class="grid grid-cols-7 gap-1 text-[11px] text-slate-400 font-bold text-center pt-2 pb-1 pr-7">
-                            <div>地段</div>
                             <div>地號</div>
+                            <div>登記發生日期</div>
                             <div>使用分區 / 類別</div>
-                            <div>自填細部類別</div>
+                            <div>用地</div>
                             <div>權利範圍</div>
                             <div>平方公尺</div>
                             <div>換算坪數</div>
@@ -727,13 +730,13 @@
                             ${c.lands.map((l, idx) => `
                                 <div class="flex items-center space-x-1 text-[11px]">
                                     <div class="grid grid-cols-7 gap-1 flex-1">
-                                        <input type="text" value="${l.section||''}" placeholder="地段" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
-                                        <input type="text" value="${l.number||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-center">
+                                        <input type="text" value="${l.section||''}" placeholder="地號" oninput="updateLandField('${c.id}', ${idx}, 'section', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
+                                        <input type="date" value="${l.number||''}" placeholder="登記發生日期" onchange="updateLandField('${c.id}', ${idx}, 'number', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-center text-white">
                                         <select onchange="updateLandField('${c.id}', ${idx}, 'pattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center font-medium">
                                             <option value="都市計畫使用分區" class="text-center" ${l.pattern==='都市計畫使用分區'?'selected':''}>都市計畫使用分區</option>
                                             <option value="非都市計畫使用地類別" class="text-center" ${l.pattern==='非都市計畫使用地類別'?'selected':''}>非都市計畫使用地類別</option>
                                         </select>
-                                        <input type="text" value="${l.customPattern||''}" placeholder="自填細部類別" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center">
+                                        <input type="text" value="${l.customPattern||''}" placeholder="用地" oninput="updateLandField('${c.id}', ${idx}, 'customPattern', this.value)" class="bg-cosmic-950 border border-cosmic-700 rounded text-white text-[10px] p-1 text-center">
                                         <input type="text" value="${l.currentPrice||''}" placeholder="權利範圍" oninput="updateLandField('${c.id}', ${idx}, 'currentPrice', this.value)" class="bg-cosmic-950 p-1 border border-cosmic-700 rounded text-white text-center">
                                         <input type="number" value="${l.sqm||''}" placeholder="平方公尺" oninput="calculateLandPingField('${c.id}', ${idx}, this.value)" class="bg-cosmic-950 p-1 border border-emerald-600 rounded text-white text-center font-semibold">
                                         <input type="number" value="${l.ping||''}" placeholder="自動換算坪" id="calc-ping-${idx}" readonly class="bg-cosmic-900 p-1 border border-cosmic-700 rounded text-slate-400 text-center">
@@ -2304,7 +2307,7 @@
                 obj.clientFilesObj = []; obj.ruiliFilesObj = [];
                 obj.electricBill = ""; obj.horsepower = ""; obj.contractCapacity = ""; obj.isHighVoltage = "否"; obj.isTimeRate = "否"; obj.timePeriod = "白天為主";
                 obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = "否"; obj.esgStorage = "否";
-                obj.city = ""; obj.region = "";
+                obj.landOwner = ""; obj.city = ""; obj.region = ""; obj.landSection = "";
                 obj.companyAddress = ""; obj.companyPhone = ""; obj.fax = ""; obj.bankAccount = ""; obj.companyRemark = "";
                 obj.evalDate = new Date().toISOString().slice(0, 16); obj.evalManager = currentUserRole; obj.evalStatus = "初期評估"; obj.evalSource = "";
                 obj.solarDate = new Date().toISOString().slice(0, 16); obj.solarManager = currentUserRole; obj.solarStatus = "初期評估"; obj.solarSource = "";
@@ -2429,12 +2432,11 @@
         }
 
         async function restoreCase(id, tabId) {
-            let dataArr = getTargetDataArray(tabId);
-            let target = dataArr.find(c => c.id === id);
+            const arr = getTargetDataArray(tabId);
+            const target = arr.find(c => c.id === id);
             if (target) {
                 target.is_deleted = false;
                 target.deleted_at = null;
-                
                 await supabaseClient.from('cases').upsert({
                     id: target.id,
                     tab_category: tabId,
@@ -2442,21 +2444,33 @@
                     is_deleted: false,
                     deleted_at: null
                 });
-
-                closeTrashModal();
                 renderSidebarSubLists();
                 renderMainForms();
-                alert(`「${target.companyName || target.meetSubject}」已成功復原！`);
+                openTrashModal();
             }
         }
 
-        // ==================== Supabase Realtime & 資料讀取 ====================
+        // ==================== Supabase Realtime 即時同步機制 ====================
+        function initSupabaseRealtime() {
+            supabaseClient
+                .channel('schema-db-changes')
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'cases' },
+                    (payload) => {
+                        if (isUserTyping) return; // 正在打字時避開即時更新重繪，防止游標跳動
+                        fetchSupabaseData();
+                    }
+                )
+                .subscribe();
+        }
+
         async function fetchSupabaseData() {
-            setSyncBadgeStatus('saving', '資料載入中...');
+            setSyncBadgeStatus('saving', '載入最新雲端資料...');
             const { data, error } = await supabaseClient.from('cases').select('*');
             if (error) {
-                console.error("Fetch Error:", error);
-                setSyncBadgeStatus('error', '載入失敗');
+                console.error("Fetch error:", error);
+                setSyncBadgeStatus('error', '連線失敗');
                 return;
             }
 
@@ -2478,18 +2492,7 @@
 
             renderSidebarSubLists();
             renderMainForms();
-            setSyncBadgeStatus('saved', '雲端已同步');
-        }
-
-        function initSupabaseRealtime() {
-            supabaseClient
-                .channel('cases-db-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
-                    if (!isUserTyping) {
-                        fetchSupabaseData();
-                    }
-                })
-                .subscribe();
+            setSyncBadgeStatus('saved', '雲端資料已連線');
         }
     </script>
 </body>
