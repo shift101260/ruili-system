@@ -118,8 +118,8 @@
         }
 
         /* ==========================================
-           手機直屏 (Portrait) 專用響應式樣式
-           ========================================== */
+            手機直屏 (Portrait) 專用響應式樣式
+            ========================================== */
         @media screen and (max-width: 768px) {
             
             /* 1. 將主要的 Flex / Grid 容器由橫排改為直排 */
@@ -151,7 +151,7 @@
 
             .responsive-table td {
                 display: flex;
-                justify-between: space-between;
+                justify-content: space-between;
                 padding: 6px 0;
                 border-bottom: 1px dashed #eee;
             }
@@ -2016,7 +2016,7 @@
             }
         }
 
-        // 自動帶入公式：面積 * 分子 / 分子 (支援解析權利範圍 1/2 格式)
+        // 自動帶入公式：面積 * 分子 / 分母 (支援解析權利範圍 1/2 格式)
         function autoCalcSqm(id, idx) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && target.lands && target.lands[idx]) {
@@ -2552,128 +2552,52 @@
         }
 
         async function confirmDeleteCase() {
-            let dataArr = getTargetDataArray(currentActiveTab);
-            const activeId = selectedIds[currentActiveTab];
-            const target = dataArr.find(c => c.id === activeId);
-            
-            if (target) {
-                if (currentUserRole === '中央控台') {
-                    const targetIndex = dataArr.findIndex(c => c.id === activeId);
-                    if (targetIndex !== -1) dataArr.splice(targetIndex, 1);
-                    await supabaseClient.from('cases').delete().eq('id', activeId);
-                } else {
-                    target.is_deleted = true;
-                    target.deleted_at = new Date().toISOString();
-                    await supabaseClient.from('cases').upsert({
-                        id: target.id,
-                        tab_category: currentActiveTab,
-                        data: target,
-                        is_deleted: true,
-                        deleted_at: target.deleted_at
-                    });
-                }
-
-                const visibleCases = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
-                if (visibleCases.length > 0) {
-                    selectedIds[currentActiveTab] = visibleCases[0].id;
-                } else {
-                    selectedIds[currentActiveTab] = null;
-                }
-            }
             closeDeleteModal();
-            renderSidebarSubLists();
-            renderMainForms();
-        }
-
-        // ==================== Supabase 雲端資料同步 ====================
-        async function saveToCloudSilent() {
-            try {
-                const activeId = selectedIds[currentActiveTab];
-                const activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === activeId);
-                if (activeCase) {
-                    await supabaseClient.from('cases').upsert({
-                        id: activeCase.id,
-                        tab_category: currentActiveTab,
-                        data: activeCase,
-                        is_deleted: activeCase.is_deleted || false,
-                        deleted_at: activeCase.deleted_at || null
-                    });
-                }
-            } catch (err) {
-                console.error("Auto save error:", err);
+            const activeId = selectedIds[currentActiveTab];
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let target = dataArr.find(c => c.id === activeId);
+            if (target) {
+                target.is_deleted = true;
+                target.deleted_at = new Date().toISOString();
+                renderSidebarSubLists();
+                renderMainForms();
+                await saveToCloud();
+                alert("案件已移動至資源回收桶！");
             }
         }
 
-        async function saveToCloud() {
-            setSyncBadgeStatus('saving', '雲端儲存中...');
-            await saveToCloudSilent();
-            setSyncBadgeStatus('saved', '手動儲存成功');
-            setTimeout(() => setSyncBadgeStatus('normal'), 2000);
-        }
-
-        async function fetchSupabaseData() {
-            setSyncBadgeStatus('saving', '載入資料中...');
-            try {
-                const { data, error } = await supabaseClient.from('cases').select('*');
-                if (error) throw error;
-                
-                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
-
-                if (data && data.length > 0) {
-                    data.forEach(item => {
-                        const cData = item.data || {};
-                        cData.id = item.id;
-                        cData.is_deleted = item.is_deleted;
-                        cData.deleted_at = item.deleted_at;
-
-                        if (item.tab_category === 'case-eval') caseEvalData.push(cData);
-                        else if (item.tab_category === 'solar') solarData.push(cData);
-                        else if (item.tab_category === 'trading') tradingData.push(cData);
-                        else if (item.tab_category === 'meeting') meetingData.push(cData);
-                        else if (item.tab_category === 'internal-meet') internalMeetData.push(cData);
-                    });
-                }
-                setSyncBadgeStatus('saved', '資料讀取完畢');
-            } catch (err) {
-                console.error("Fetch error:", err);
-                setSyncBadgeStatus('error', '讀取失敗');
-            }
-            renderSidebarSubLists();
-            renderMainForms();
-        }
-
-        function initSupabaseRealtime() {
-            supabaseClient.channel('public:cases')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
-                    if (!isUserTyping) {
-                        fetchSupabaseData();
-                    }
-                })
-                .subscribe();
-        }
-
-        // 股東回收桶彈窗控制
         function openTrashModal() {
-            const listEl = document.getElementById('trash-items-list');
-            if (!listEl) return;
-            
-            let allDeleted = [];
-            [caseEvalData, solarData, tradingData, meetingData, internalMeetData].forEach(arr => {
-                arr.filter(c => c.is_deleted).forEach(c => allDeleted.push(c));
+            const listContainer = document.getElementById('trash-items-list');
+            if (!listContainer) return;
+
+            let allDeletedItems = [];
+            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
+                let arr = getTargetDataArray(tabId);
+                arr.filter(c => c.is_deleted).forEach(c => {
+                    allDeletedItems.push({ ...c, originTab: tabId });
+                });
             });
 
-            if (allDeleted.length === 0) {
-                listEl.innerHTML = '<p class="text-slate-400 text-xs p-4 text-center">目前回收桶內沒有已刪除的項目。</p>';
+            if (allDeletedItems.length === 0) {
+                listContainer.innerHTML = "<p class='text-xs text-slate-400 text-center py-4'>目前資源回收桶內沒有已刪除的案件。</p>";
             } else {
-                listEl.innerHTML = allDeleted.map(c => `
-                    <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
-                        <div>
-                            <div class="font-bold text-white">${c.companyName || c.meetSubject || '未命名項目'}</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">刪除時間: ${c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '未知'}</div>
+                listContainer.innerHTML = allDeletedItems.map(item => {
+                    const name = item.companyName || item.meetSubject || '未命名項目';
+                    const delTime = item.deleted_at ? new Date(item.deleted_at).toLocaleString() : '';
+                    let tabNameMap = { "case-eval": "專案管理", "solar": "太陽能自建", "trading": "工廠買賣", "meeting": "會議記錄", "internal-meet": "睿立會議紀錄" };
+                    return `
+                        <div class="bg-cosmic-950 p-3 rounded-xl border border-cosmic-700 flex justify-between items-center text-xs">
+                            <div>
+                                <strong class="text-white">${name}</strong>
+                                <span class="text-slate-400 ml-2">[${tabNameMap[item.originTab] || item.originTab}]</span>
+                                <div class="text-[10px] text-slate-500 mt-0.5">刪除時間：${delTime}</div>
+                            </div>
+                            <button onclick="restoreCaseFromTrash('${item.id}', '${item.originTab}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg transition">
+                                <i class="fa-solid fa-rotate-left mr-1"></i>一鍵復原
+                            </button>
                         </div>
-                        <button onclick="restoreCase('${c.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg transition shadow">一鍵復原</button>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
             document.getElementById('trash-modal').classList.remove('hidden');
         }
@@ -2682,38 +2606,103 @@
             document.getElementById('trash-modal').classList.add('hidden');
         }
 
-        async function restoreCase(id) {
-            let found = null;
-            let foundCategory = '';
-            [
-                { arr: caseEvalData, cat: 'case-eval' },
-                { arr: solarData, cat: 'solar' },
-                { arr: tradingData, cat: 'trading' },
-                { arr: meetingData, cat: 'meeting' },
-                { arr: internalMeetData, cat: 'internal-meet' }
-            ].forEach(item => {
-                let target = item.arr.find(c => c.id === id);
-                if (target) {
-                    found = target;
-                    foundCategory = item.cat;
-                }
-            });
-
-            if (found) {
-                found.is_deleted = false;
-                found.deleted_at = null;
-                await supabaseClient.from('cases').upsert({
-                    id: found.id,
-                    tab_category: foundCategory,
-                    data: found,
-                    is_deleted: false,
-                    deleted_at: null
-                });
-                openTrashModal();
+        async function restoreCaseFromTrash(id, tabId) {
+            let arr = getTargetDataArray(tabId);
+            let target = arr.find(c => c.id === id);
+            if (target) {
+                target.is_deleted = false;
+                target.deleted_at = null;
+                closeTrashModal();
                 renderSidebarSubLists();
                 renderMainForms();
+                await saveToCloud();
+                alert("案件已成功復原！");
             }
         }
+
+        async function saveToCloudSilent() {
+            try {
+                const payload = {
+                    caseEvalData, solarData, tradingData, meetingData, internalMeetData,
+                    updated_at: new Date().toISOString()
+                };
+                const { error } = await supabaseClient
+                    .from('system_storage')
+                    .upsert({ id: 1, payload: payload });
+                if (error) console.error("Silent save error:", error);
+            } catch (err) {
+                console.error("Silent save exception:", err);
+            }
+        }
+
+        async function saveToCloud() {
+            setSyncBadgeStatus('saving', '雲端同步中...');
+            try {
+                const payload = {
+                    caseEvalData, solarData, tradingData, meetingData, internalMeetData,
+                    updated_at: new Date().toISOString()
+                };
+                const { error } = await supabaseClient
+                    .from('system_storage')
+                    .upsert({ id: 1, payload: payload });
+                if (error) {
+                    setSyncBadgeStatus('error', '同步失敗');
+                    alert("儲存至雲端失敗：" + error.message);
+                } else {
+                    setSyncBadgeStatus('saved', '資料已同步');
+                }
+            } catch (err) {
+                setSyncBadgeStatus('error', '同步失敗');
+                console.error("Save exception:", err);
+            }
+        }
+
+        async function fetchSupabaseData() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('system_storage')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
+                if (data && data.payload) {
+                    caseEvalData = data.payload.caseEvalData || [];
+                    solarData = data.payload.solarData || [];
+                    tradingData = data.payload.tradingData || [];
+                    meetingData = data.payload.meetingData || [];
+                    internalMeetData = data.payload.internalMeetData || [];
+                }
+                renderSidebarSubLists();
+                renderMainForms();
+                setSyncBadgeStatus('saved', '已連線');
+            } catch (err) {
+                console.error("Fetch data error:", err);
+                setSyncBadgeStatus('error', '連線異常');
+            }
+        }
+
+        function initSupabaseRealtime() {
+            supabaseClient
+                .channel('public:system_storage')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'system_storage' }, payload => {
+                    if (!isUserTyping && payload.new && payload.new.payload) {
+                        const p = payload.new.payload;
+                        caseEvalData = p.caseEvalData || [];
+                        solarData = p.solarData || [];
+                        tradingData = p.tradingData || [];
+                        meetingData = p.meetingData || [];
+                        internalMeetData = p.internalMeetData || [];
+                        renderSidebarSubLists();
+                        renderMainForms();
+                        setSyncBadgeStatus('saved', '已接收最新雲端更新');
+                    }
+                })
+                .subscribe();
+        }
+
+        window.onload = function() {
+            // 預設展開第一個側邊欄分類
+            toggleCategory('case-eval');
+        };
     </script>
 </body>
 </html>
