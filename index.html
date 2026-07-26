@@ -118,10 +118,10 @@
         }
 
         /* ==========================================
-          手機直屏 (Portrait) 專用響應式樣式
-          ========================================== */
+           手機直屏 (Portrait) 專用響應式樣式
+           ========================================== */
         @media screen and (max-width: 768px) {
-           
+            
             /* 1. 將主要的 Flex / Grid 容器由橫排改為直排 */
             .main-layout, .dashboard-container {
                 flex-direction: column !important;
@@ -173,7 +173,7 @@
             <div class="w-16 h-16 bg-gradient-to-tr from-cosmic-500 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg mx-auto">
                 <i class="fa-solid fa-user-lock text-white text-2xl"></i>
             </div>
-           
+            
             <div>
                 <h2 class="text-2xl font-bold tracking-wide text-white">睿立系統登入</h2>
                 <p class="text-xs text-slate-400 mt-2">請選擇身份並輸入個人密碼以存取資料</p>
@@ -286,7 +286,7 @@
         <header class="h-16 border-b border-cosmic-700/40 px-3 lg:px-6 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md z-10 no-print overflow-x-auto gap-2">
             <div class="flex items-center space-x-2 lg:space-x-3 shrink-0">
                 <input type="text" id="global-search" oninput="filterCases()" placeholder="按公司或會議主題關鍵字篩選..." class="w-40 lg:w-60 bg-cosmic-950 border border-cosmic-700 rounded-xl px-3 py-1.5 text-xs lg:text-sm text-white focus:outline-none">
-               
+                
                 <!-- 已登入使用者提示資訊 -->
                 <div id="current-user-badge" class="hidden flex items-center space-x-1.5 bg-cosmic-950/80 border border-cyan-500/50 px-2.5 py-1 rounded-xl text-xs text-cyan-400 shrink-0">
                     <i class="fa-solid fa-user-shield"></i>
@@ -399,7 +399,7 @@
             const label = document.getElementById('sync-text');
             if(!badge) return;
             badge.classList.remove('hidden');
-           
+            
             if (state === 'saving') {
                 icon.className = 'fa-solid fa-spinner animate-spin text-amber-400';
                 label.innerText = text || '雲端同步中...';
@@ -422,7 +422,7 @@
         function triggerAutoSave() {
             isUserTyping = true;
             setSyncBadgeStatus('saving', '編輯中...');
-           
+            
             if (autoSaveTimer) clearTimeout(autoSaveTimer);
             autoSaveTimer = setTimeout(async () => {
                 await saveToCloudSilent();
@@ -434,12 +434,12 @@
         function handleRoleLogin() {
             const role = document.getElementById('login-role').value;
             const pass = document.getElementById('login-pass').value;
-           
+            
             if ((role === '黃逸豪' && pass === '8888') || (role === '中央控台' && pass === '9999')) {
                 currentUserRole = role;
                 document.getElementById('login-overlay').classList.add('hidden');
                 document.getElementById('login-pass').value = '';
-               
+                
                 document.getElementById('user-display-name').innerText = role;
                 document.getElementById('current-user-badge').classList.remove('hidden');
 
@@ -1130,7 +1130,7 @@
                     <!-- 四、案件試算 -->
                     <div class="bg-cosmic-950/40 border border-amber-500/30 p-5 rounded-xl space-y-5 card-box">
                         <h4 class="text-xs font-bold text-amber-300 border-b border-cosmic-700/20 pb-1.5"><i class="fa-solid fa-calculator mr-1.5"></i>四、案件試算</h4>
-                       
+                        
                         <div class="space-y-3 bg-cosmic-900/30 p-4 border border-cyan-500/20 rounded-xl">
                             <span class="text-xs font-bold text-cyan-400 tracking-wider flex items-center"><i class="fa-solid fa-chart-pie mr-1.5"></i>【預估】</span>
                             <div class="text-xs bg-cosmic-950/60 p-3 rounded-lg border border-cosmic-700/40 space-y-1.5">
@@ -1546,7 +1546,7 @@
             return `
                 <div class="card-box bg-cosmic-800/70 border border-purple-500/50 rounded-2xl p-6 space-y-6 shadow-xl">
                     <div class="border-b border-purple-500/40 pb-2"><h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-handshake mr-2"></i>會議記錄</h3></div>
-                   
+                    
                     <!-- 一、會議資訊 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                         <h4 class="text-xs font-bold text-purple-300 border-b border-cosmic-700/20 pb-1.5">一、會議資訊</h4>
@@ -1565,7 +1565,7 @@
                     <!-- 二、出席單位與人員 -->
                     <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-4 card-box">
                         <h4 class="text-xs font-bold text-cyan-400 border-b border-cosmic-700/20 pb-1.5">二、出席單位與人員</h4>
-                       
+                        
                         <div class="text-xs space-y-1.5">
                             <label class="text-slate-400 block font-medium">睿立出席人員：</label>
                             <div class="flex flex-wrap gap-4 bg-cosmic-950/60 p-2.5 rounded border border-cosmic-700/40">
@@ -1994,7 +1994,7 @@
                 target.landOwnerGroups[gIdx].lands[lIdx].ping = parseFloat(ping.toFixed(2));
                 let pingInput = document.getElementById(`calc-grp-ping-${gIdx}-${lIdx}`);
                 if (pingInput) pingInput.value = ping.toFixed(2);
-               
+                
                 let grpLandSqm = target.landOwnerGroups[gIdx].lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
                 let totalGrpSqm = Math.round(grpLandSqm * 100) / 100;
                 let grpLandPing = target.landOwnerGroups[gIdx].lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
@@ -2022,7 +2022,7 @@
             if (target && target.lands && target.lands[idx]) {
                 const land = target.lands[idx];
                 const area = parseFloat(land.landArea || 0);
-               
+                
                 let num = parseFloat(land.numerator || 0);
                 let den = parseFloat(land.denominator || 0);
 
@@ -2049,25 +2049,25 @@
             try {
                 const rawExtension = file.name.includes('.') ? file.name.split('.').pop() : '';
                 const baseName = file.name.includes('.') ? file.name.substring(0, file.name.lastIndexOf('.')) : file.name;
-               
+                
                 let cleanBase = baseName.replace(/[^a-zA-Z0-9.\-_]/g, '_').replace(/_+/g, '_');
                 if (!cleanBase || cleanBase === '_') cleanBase = 'file';
-               
+                
                 const cleanExt = rawExtension.replace(/[^a-zA-Z0-9]/g, '');
                 const safeFileName = cleanExt ? `${cleanBase}.${cleanExt}` : cleanBase;
 
                 const uniqueId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
                     ? crypto.randomUUID() 
                     : Math.random().toString(36).substring(2, 10);
-               
+                
                 const filePath = `uploads/${Date.now()}_${uniqueId}_${safeFileName}`;
-               
+                
                 const { data, error } = await supabaseClient.storage.from('ruili-files').upload(filePath, file);
                 if (error) {
                     console.error("Storage Error:", error);
                     return URL.createObjectURL(file);
                 }
-               
+                
                 const { data: publicData } = supabaseClient.storage.from('ruili-files').getPublicUrl(filePath);
                 return publicData.publicUrl;
             } catch (err) {
@@ -2304,7 +2304,7 @@
             renderMainForms(); 
             triggerAutoSave();
         }
-       
+        
         async function handleRuiliMeetUpload(inputEl, id) {
             let target = internalMeetData.find(c => c.id === id);
             if (target && inputEl.files) {
@@ -2501,7 +2501,7 @@
             const nid = "id-" + Date.now();
             let dataArr = getTargetDataArray(currentActiveTab);
             let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: currentUserRole, is_deleted: false, deleted_at: null };
-           
+            
             if(currentActiveTab === 'internal-meet') {
                 obj.meetSubject = "新睿立會議紀錄 " + (dataArr.length + 1);
                 obj.attendees = [currentUserRole]; obj.financeReport = ""; obj.financeReview = ""; obj.financeConsensus = "";
@@ -2552,56 +2552,128 @@
         }
 
         async function confirmDeleteCase() {
-            closeDeleteModal();
             let dataArr = getTargetDataArray(currentActiveTab);
             const activeId = selectedIds[currentActiveTab];
-            let target = dataArr.find(c => c.id === activeId);
+            const target = dataArr.find(c => c.id === activeId);
+            
             if (target) {
-                target.is_deleted = true;
-                target.deleted_at = new Date().toISOString();
-                renderSidebarSubLists();
-                let remaining = dataArr.filter(c => !c.is_deleted);
-                if (currentUserRole === '中央控台') remaining = dataArr;
-                if (remaining.length > 0) {
-                    selectedIds[currentActiveTab] = remaining[0].id;
+                if (currentUserRole === '中央控台') {
+                    const targetIndex = dataArr.findIndex(c => c.id === activeId);
+                    if (targetIndex !== -1) dataArr.splice(targetIndex, 1);
+                    await supabaseClient.from('cases').delete().eq('id', activeId);
+                } else {
+                    target.is_deleted = true;
+                    target.deleted_at = new Date().toISOString();
+                    await supabaseClient.from('cases').upsert({
+                        id: target.id,
+                        tab_category: currentActiveTab,
+                        data: target,
+                        is_deleted: true,
+                        deleted_at: target.deleted_at
+                    });
+                }
+
+                const visibleCases = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
+                if (visibleCases.length > 0) {
+                    selectedIds[currentActiveTab] = visibleCases[0].id;
                 } else {
                     selectedIds[currentActiveTab] = null;
                 }
-                renderMainForms();
-                await saveToCloudSilent();
-                setSyncBadgeStatus('saved', '案件已移至回收桶');
+            }
+            closeDeleteModal();
+            renderSidebarSubLists();
+            renderMainForms();
+        }
+
+        // ==================== Supabase 雲端資料同步 ====================
+        async function saveToCloudSilent() {
+            try {
+                const activeId = selectedIds[currentActiveTab];
+                const activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === activeId);
+                if (activeCase) {
+                    await supabaseClient.from('cases').upsert({
+                        id: activeCase.id,
+                        tab_category: currentActiveTab,
+                        data: activeCase,
+                        is_deleted: activeCase.is_deleted || false,
+                        deleted_at: activeCase.deleted_at || null
+                    });
+                }
+            } catch (err) {
+                console.error("Auto save error:", err);
             }
         }
 
+        async function saveToCloud() {
+            setSyncBadgeStatus('saving', '雲端儲存中...');
+            await saveToCloudSilent();
+            setSyncBadgeStatus('saved', '手動儲存成功');
+            setTimeout(() => setSyncBadgeStatus('normal'), 2000);
+        }
+
+        async function fetchSupabaseData() {
+            setSyncBadgeStatus('saving', '載入資料中...');
+            try {
+                const { data, error } = await supabaseClient.from('cases').select('*');
+                if (error) throw error;
+                
+                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
+
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        const cData = item.data || {};
+                        cData.id = item.id;
+                        cData.is_deleted = item.is_deleted;
+                        cData.deleted_at = item.deleted_at;
+
+                        if (item.tab_category === 'case-eval') caseEvalData.push(cData);
+                        else if (item.tab_category === 'solar') solarData.push(cData);
+                        else if (item.tab_category === 'trading') tradingData.push(cData);
+                        else if (item.tab_category === 'meeting') meetingData.push(cData);
+                        else if (item.tab_category === 'internal-meet') internalMeetData.push(cData);
+                    });
+                }
+                setSyncBadgeStatus('saved', '資料讀取完畢');
+            } catch (err) {
+                console.error("Fetch error:", err);
+                setSyncBadgeStatus('error', '讀取失敗');
+            }
+            renderSidebarSubLists();
+            renderMainForms();
+        }
+
+        function initSupabaseRealtime() {
+            supabaseClient.channel('public:cases')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
+                    if (!isUserTyping) {
+                        fetchSupabaseData();
+                    }
+                })
+                .subscribe();
+        }
+
+        // 股東回收桶彈窗控制
         function openTrashModal() {
+            const listEl = document.getElementById('trash-items-list');
+            if (!listEl) return;
+            
             let allDeleted = [];
-            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
-                let arr = getTargetDataArray(tabId);
-                arr.filter(c => c.is_deleted).forEach(c => {
-                    allDeleted.push({ ...c, tabId: tabId });
-                });
+            [caseEvalData, solarData, tradingData, meetingData, internalMeetData].forEach(arr => {
+                arr.filter(c => c.is_deleted).forEach(c => allDeleted.push(c));
             });
 
-            const listContainer = document.getElementById('trash-items-list');
             if (allDeleted.length === 0) {
-                listContainer.innerHTML = "<p class='text-xs text-slate-400 text-center py-4'>目前資源回收桶是空的。</p>";
+                listEl.innerHTML = '<p class="text-slate-400 text-xs p-4 text-center">目前回收桶內沒有已刪除的項目。</p>';
             } else {
-                listContainer.innerHTML = allDeleted.map(c => {
-                    let tabNameMap = { "case-eval": "專案管理", "solar": "太陽能自建", "trading": "工廠買賣", "meeting": "會議記錄", "internal-meet": "睿立會議" };
-                    let delTimeStr = c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '';
-                    return `
-                        <div class="bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 flex justify-between items-center text-xs">
-                            <div>
-                                <strong class="text-white">${c.companyName || c.meetSubject || '未命名'}</strong>
-                                <span class="ml-2 text-[10px] bg-cosmic-800 text-cyan-400 px-2 py-0.5 rounded border border-cosmic-700">${tabNameMap[c.tabId]}</span>
-                                <div class="text-[10px] text-slate-500 mt-1">刪除時間: ${delTimeStr}</div>
-                            </div>
-                            <button onclick="restoreCase('${c.id}', '${c.tabId}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg transition text-xs shadow">
-                                一鍵復原
-                            </button>
+                listEl.innerHTML = allDeleted.map(c => `
+                    <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
+                        <div>
+                            <div class="font-bold text-white">${c.companyName || c.meetSubject || '未命名項目'}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">刪除時間: ${c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '未知'}</div>
                         </div>
-                    `;
-                }).join('');
+                        <button onclick="restoreCase('${c.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg transition shadow">一鍵復原</button>
+                    </div>
+                `).join('');
             }
             document.getElementById('trash-modal').classList.remove('hidden');
         }
@@ -2610,79 +2682,37 @@
             document.getElementById('trash-modal').classList.add('hidden');
         }
 
-        async function restoreCase(id, tabId) {
-            let arr = getTargetDataArray(tabId);
-            let target = arr.find(c => c.id === id);
-            if (target) {
-                target.is_deleted = false;
-                target.deleted_at = null;
+        async function restoreCase(id) {
+            let found = null;
+            let foundCategory = '';
+            [
+                { arr: caseEvalData, cat: 'case-eval' },
+                { arr: solarData, cat: 'solar' },
+                { arr: tradingData, cat: 'trading' },
+                { arr: meetingData, cat: 'meeting' },
+                { arr: internalMeetData, cat: 'internal-meet' }
+            ].forEach(item => {
+                let target = item.arr.find(c => c.id === id);
+                if (target) {
+                    found = target;
+                    foundCategory = item.cat;
+                }
+            });
+
+            if (found) {
+                found.is_deleted = false;
+                found.deleted_at = null;
+                await supabaseClient.from('cases').upsert({
+                    id: found.id,
+                    tab_category: foundCategory,
+                    data: found,
+                    is_deleted: false,
+                    deleted_at: null
+                });
                 openTrashModal();
                 renderSidebarSubLists();
                 renderMainForms();
-                await saveToCloudSilent();
-                setSyncBadgeStatus('saved', '案件已成功復原');
             }
-        }
-
-        async function saveToCloudSilent() {
-            try {
-                const payload = {
-                    id: "global-ruili-master-data",
-                    caseEvalData: caseEvalData,
-                    solarData: solarData,
-                    tradingData: tradingData,
-                    meetingData: meetingData,
-                    internalMeetData: internalMeetData,
-                    updated_at: new Date().toISOString()
-                };
-                const { error } = await supabaseClient.from('ruili_app_storage').upsert(payload);
-                if (error) console.error("Cloud save error:", error);
-            } catch (e) {
-                console.error("Cloud save exception:", e);
-            }
-        }
-
-        async function saveToCloud() {
-            setSyncBadgeStatus('saving', '手動儲存中...');
-            await saveToCloudSilent();
-            setSyncBadgeStatus('saved', '雲端已同步');
-            alert("資料已成功儲存至雲端！");
-        }
-
-        async function fetchSupabaseData() {
-            setSyncBadgeStatus('saving', '資料同步中...');
-            try {
-                const { data, error } = await supabaseClient.from('ruili_app_storage').select('*').eq('id', 'global-ruili-master-data').single();
-                if (data) {
-                    if (data.caseEvalData) caseEvalData = data.caseEvalData;
-                    if (data.solarData) solarData = data.solarData;
-                    if (data.tradingData) tradingData = data.tradingData;
-                    if (data.meetingData) meetingData = data.meetingData;
-                    if (data.internalMeetData) internalMeetData = data.internalMeetData;
-                }
-                setSyncBadgeStatus('saved', '雲端已同步');
-            } catch (err) {
-                console.error("Fetch error:", err);
-                setSyncBadgeStatus('error', '連線異常');
-            }
-            renderSidebarSubLists();
-            renderMainForms();
-        }
-
-        function initSupabaseRealtime() {
-            supabaseClient.channel('public:ruili_app_storage')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'ruili_app_storage' }, payload => {
-                    if (!isUserTyping && payload.new && payload.new.id === 'global-ruili-master-data') {
-                        if (payload.new.caseEvalData) caseEvalData = payload.new.caseEvalData;
-                        if (payload.new.solarData) solarData = payload.new.solarData;
-                        if (payload.new.tradingData) tradingData = payload.new.tradingData;
-                        if (payload.new.meetingData) meetingData = payload.new.meetingData;
-                        if (payload.new.internalMeetData) internalMeetData = payload.new.internalMeetData;
-                        renderSidebarSubLists();
-                        renderMainForms();
-                        setSyncBadgeStatus('saved', '雲端資料已更新');
-                    }
-                }).subscribe();
         }
     </script>
 </body>
