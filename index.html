@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -529,10 +529,6 @@
                 if (!activeCase.clientFilesObj) activeCase.clientFilesObj = [];
                 if (!activeCase.ruiliFilesObj) activeCase.ruiliFilesObj = [];
                 if (!activeCase.services) activeCase.services = [];
-                if (!activeCase.buildingsLegal) activeCase.buildingsLegal = [];
-                if (!activeCase.buildingsIllegal) activeCase.buildingsIllegal = [];
-                if (!activeCase.customDocsClient) activeCase.customDocsClient = [];
-                if (!activeCase.customDocsRuili) activeCase.customDocsRuili = [];
                 ensureLandOwnerGroups(activeCase);
                 container.innerHTML = generateCaseEvalHTML(activeCase);
             } else if (currentActiveTab === 'solar') {
@@ -622,7 +618,7 @@
             }
         }
 
-        // ==================== 一、專案管理 HTML (五、有保存登記建物完全與四、土地基本資料格式功能一致) ====================
+        // ==================== 一、專案管理 HTML (含五、有保存登記建物修改) ====================
         function generateCaseEvalHTML(c) {
             ensureLandOwnerGroups(c);
 
@@ -783,43 +779,41 @@
                         }).join('')}
                     </div>
 
-                    <!-- 五、建物基本資料 (完全比照四、土地土地基本資料之格式、欄位、公式功能) -->
+                    <!-- 五、建物基本資料 (已依需求修改) -->
                     <div class="grid grid-cols-1 gap-4 text-xs">
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
-                            <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1.5">
-                                <span class="font-bold text-blue-400 text-xs"><i class="fa-solid fa-building mr-1.5"></i>五、有保存登記建物</span>
-                                <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-2 py-0.5 rounded text-white no-print">[＋ 建號]</button>
+                            <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
+                                <span class="font-bold text-blue-400 text-xs">五、有保存登記建物</span>
+                                <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
                             </div>
 
                             <div class="space-y-4">
                                 ${c.buildingsLegal.map((b, i) => `
-                                    <div class="bg-cosmic-900/60 border border-cosmic-700/50 p-3 rounded-xl space-y-2.5 relative card-box">
-                                        <i onclick="removeBuildRow('${c.id}', 'legal', ${i})" class="fa-solid fa-circle-xmark text-red-400 absolute top-2.5 right-2.5 cursor-pointer hover:text-red-300 no-print" title="刪除此筆建號"></i>
+                                    <div class="bg-cosmic-900/60 border border-cosmic-700/50 p-3 rounded-xl space-y-2 relative card-box">
+                                        <i onclick="removeBuildRow('${c.id}', 'legal', ${i})" class="fa-solid fa-trash text-red-400 absolute top-2.5 right-2.5 cursor-pointer hover:text-red-300 no-print" title="刪除此筆建號"></i>
 
                                         <!-- 第一排：建物門牌、建物所有權人 -->
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pr-6">
-                                            <div><label class="text-slate-400 block mb-0.5 text-[11px]">建物門牌：</label><input type="text" value="${b.address||''}" placeholder="請輸入建物門牌" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'address', this.value)" class="w-full bg-cosmic-950 p-1.5 text-white border border-cosmic-700 rounded text-xs"></div>
-                                            <div><label class="text-slate-400 block mb-0.5 text-[11px]">建物所有權人：</label><input type="text" value="${b.owner||''}" placeholder="請輸入所有權人" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'owner', this.value)" class="w-full bg-cosmic-950 p-1.5 text-white border border-cosmic-700 rounded text-xs font-semibold"></div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pr-6">
+                                            <div><label class="text-slate-400 block mb-0.5 text-[11px]">建物門牌：</label><input type="text" value="${b.address||''}" placeholder="請輸入建物門牌" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'address', this.value)" class="w-full bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded"></div>
+                                            <div><label class="text-slate-400 block mb-0.5 text-[11px]">建物所有權人：</label><input type="text" value="${b.owner||''}" placeholder="請輸入所有權人" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'owner', this.value)" class="w-full bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded"></div>
                                         </div>
 
                                         <!-- 第二排：建號、坐落地號、主要用途(謄本)、現況、建築完成日期、總面積、平方公尺、換算坪數、權利範圍 -->
                                         <div class="grid grid-cols-2 md:grid-cols-9 gap-1.5 text-[11px] pt-1">
-                                            <div><label class="text-slate-400 block mb-0.5 text-center">建號</label><input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="w-full bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"></div>
-                                            <div><label class="text-slate-400 block mb-0.5 text-center">坐落地號</label><input type="text" value="${b.landNo||b.type||''}" placeholder="坐落地號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'landNo', this.value)" class="w-full bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"></div>
-                                            <div><label class="text-slate-400 block mb-0.5 text-center">主要用途(謄本)</label><input type="text" value="${b.mainUse||b.year||''}" placeholder="主要用途" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'mainUse', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1 text-white text-center"></div>
-                                            <div><label class="text-slate-400 block mb-0.5 text-center">現況</label><input type="text" value="${b.status||''}" placeholder="現況" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'status', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1 text-white text-center"></div>
-                                            <div><label class="text-slate-400 block mb-0.5 text-center">建築完成日期</label><input type="text" value="${b.completionDate||''}" placeholder="108/01/01" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'completionDate', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1 text-white text-center"></div>
-                                            <div><label class="text-slate-400 block mb-0.5 text-center">總面積</label><input type="text" value="${b.totalArea||''}" placeholder="總面積" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'totalArea', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1 text-white text-center"></div>
-                                            <div><label class="text-slate-400 block mb-0.5 text-center">平方公尺</label><input type="number" value="${b.sqm||''}" placeholder="平方公尺" oninput="updateBuildSqm('${c.id}', ${i}, this.value)" class="w-full bg-cosmic-950 border border-blue-500 rounded p-1 text-white text-center font-bold"></div>
-                                            <div><label class="text-slate-400 block mb-0.5 text-center">換算坪數</label><input type="number" value="${b.ping||''}" placeholder="自動計算" id="legal-calc-ping-${i}" readonly class="w-full bg-cosmic-900 border border-cosmic-700 rounded p-1 text-slate-300 text-center font-bold"></div>
-                                            <div><label class="text-slate-400 block mb-0.5 text-center">權利範圍</label><input type="text" value="${b.rights||''}" placeholder="1/1" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'rights', this.value)" class="w-full bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">建號</label><input type="text" value="${b.number||''}" placeholder="建號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'number', this.value)" class="w-full bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">坐落地號</label><input type="text" value="${b.landNo||b.type||''}" placeholder="坐落地號" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'landNo', this.value)" class="w-full bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">主要用途(謄本)</label><input type="text" value="${b.mainUse||b.year||''}" placeholder="主要用途" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'mainUse', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1 text-white text-center"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">現況</label><input type="text" value="${b.status||''}" placeholder="現況" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'status', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1 text-white text-center"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">建築完成日期</label><input type="text" value="${b.completionDate||''}" placeholder="108/01/01" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'completionDate', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1 text-white text-center"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">總面積</label><input type="text" value="${b.totalArea||''}" placeholder="總面積" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'totalArea', this.value)" class="w-full bg-cosmic-950 border border-cosmic-700 rounded p-1 text-white text-center"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">平方公尺</label><input type="number" value="${b.sqm||''}" placeholder="平方公尺" oninput="updateBuildSqm('${c.id}', ${i}, this.value)" class="w-full bg-cosmic-950 border border-blue-500 rounded p-1 text-white text-center font-bold"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">換算坪數</label><input type="number" value="${b.ping||''}" placeholder="自動計算" id="legal-calc-ping-${i}" readonly class="w-full bg-cosmic-900 border border-cosmic-700 rounded p-1 text-slate-300 text-center font-bold"></div>
+                                            <div><label class="text-slate-400 block mb-0.5">權利範圍</label><input type="text" value="${b.rights||''}" placeholder="1/1" oninput="updateBuildField('${c.id}', 'legal', ${i}, 'rights', this.value)" class="w-full bg-cosmic-950 p-1 text-white border border-cosmic-700 rounded text-center"></div>
                                         </div>
                                     </div>
                                 `).join('')}
                             </div>
-                            <div class="p-2.5 bg-cosmic-950 rounded text-xs mt-2 flex justify-between border border-cosmic-700/40">
-                                <span>有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping">${totalLegalPing}</strong> 坪</span>
-                            </div>
+                            <div class="pt-1 text-[11px]">有保存登記總坪數: <strong class="text-blue-400" id="sum-legal-ping">${totalLegalPing}</strong> 坪</div>
                         </div>
 
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-2 card-box">
@@ -1856,18 +1850,7 @@
             }
         }
 
-        // --- 有保存登記建物通用欄位與平方公尺自動換算坪數函數 ---
-        function updateBuildField(id, type, idx, field, value) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                let list = (type === 'legal') ? target.buildingsLegal : target.buildingsIllegal;
-                if (list && list[idx]) {
-                    list[idx][field] = value;
-                    triggerAutoSave();
-                }
-            }
-        }
-
+        // --- 有保存登記建物平方公尺自動換算坪數函數 ---
         function updateBuildSqm(id, idx, sqmValue) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && target.buildingsLegal && target.buildingsLegal[idx]) {
@@ -1884,50 +1867,6 @@
                 refreshSums();
                 triggerAutoSave();
             }
-        }
-
-        function addBuildRow(id, type) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                if (type === 'legal') {
-                    if (!target.buildingsLegal) target.buildingsLegal = [];
-                    target.buildingsLegal.push({ address: "", owner: "", number: "", landNo: "", mainUse: "", status: "", completionDate: "", totalArea: "", sqm: 0, ping: 0, rights: "1/1" });
-                } else {
-                    if (!target.buildingsIllegal) target.buildingsIllegal = [];
-                    target.buildingsIllegal.push({ type: "", year: "", rights: "1/1", ping: 0 });
-                }
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function removeBuildRow(id, type, idx) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                if (type === 'legal' && target.buildingsLegal) {
-                    target.buildingsLegal.splice(idx, 1);
-                } else if (type === 'illegal' && target.buildingsIllegal) {
-                    target.buildingsIllegal.splice(idx, 1);
-                }
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function refreshSums() {
-            let activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
-            if (!activeCase) return;
-
-            let rawLegalPing = activeCase.buildingsLegal ? activeCase.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-            let totalLegalPing = Math.round(rawLegalPing * 100) / 100;
-            let rawIllegalPing = activeCase.buildingsIllegal ? activeCase.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-            let totalIllegalPing = Math.round(rawIllegalPing * 100) / 100;
-
-            const sumLegalEl = document.getElementById(currentActiveTab === 'solar' ? 'sum-legal-ping-sol' : 'sum-legal-ping');
-            const sumIllegalEl = document.getElementById(currentActiveTab === 'solar' ? 'sum-illegal-ping-sol' : 'sum-illegal-ping');
-
-            if (sumLegalEl) sumLegalEl.innerText = totalLegalPing;
-            if (sumIllegalEl) sumIllegalEl.innerText = totalIllegalPing;
         }
 
         // --- 多所有權人擴充輔助函數 ---
@@ -2043,25 +1982,6 @@
             }
         }
 
-        function addLandRow(id) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                if (!target.lands) target.lands = [];
-                target.lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", landArea: "", currentPrice: "1/1", sqm: 0, ping: 0 });
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function removeLandRow(id, idx) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target && target.lands) {
-                target.lands.splice(idx, 1);
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
         function updateLandField(id, idx, field, value) { 
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && target.lands[idx]) {
@@ -2070,31 +1990,7 @@
             }
         }
 
-        function calculateLandPingField(id, idx, sqmVal) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target && target.lands[idx]) {
-                let sqm = parseFloat(sqmVal || 0);
-                let ping = sqm * 0.3025;
-                target.lands[idx].sqm = sqm;
-                target.lands[idx].ping = parseFloat(ping.toFixed(2));
-                let pingInput = document.getElementById(`calc-ping-${idx}`);
-                if (pingInput) pingInput.value = ping.toFixed(2);
-                
-                let rawLandSqm = target.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
-                let totalLandSqm = Math.round(rawLandSqm * 100) / 100;
-                let rawLandPing = target.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
-                let totalLandPing = Math.round(rawLandPing * 100) / 100;
-
-                const sqmEl = document.getElementById('sum-land-sqm-sol');
-                const pingEl = document.getElementById('sum-land-ping-sol');
-                if (sqmEl) sqmEl.innerText = totalLandSqm;
-                if (pingEl) pingEl.innerText = totalLandPing.toFixed(2);
-
-                triggerAutoSave();
-            }
-        }
-
-        // 自動帶入公式：面積 * 分子 / 分母 (支援解析權利範圍 1/2 格式)
+        // 自動帶入公式：面積 * 分子 / 分子 (支援解析權利範圍 1/2 格式)
         function autoCalcSqm(id, idx) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && target.lands && target.lands[idx]) {
@@ -2119,65 +2015,6 @@
                     if (sqmInput) sqmInput.value = calculatedSqm;
                     calculateLandPingField(id, idx, calculatedSqm);
                 }
-            }
-        }
-
-        function addServiceRow(id) {
-            let target = caseEvalData.find(c => c.id === id);
-            if (target) {
-                target.services.push({ name: "", quote: "", contract: "", p1: "", d1: "", p2: "", d2: "", p3: "", d3: "", p4: "", d4: "", desc: "", remark: "" });
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function removeServiceRow(id, idx) {
-            let target = caseEvalData.find(c => c.id === id);
-            if (target) {
-                target.services.splice(idx, 1);
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function addSolarServiceRow(id) {
-            let target = solarData.find(c => c.id === id);
-            if (target) {
-                target.solarServices.push({ name: "", quote: "", contract: "", p1: "", d1: "", p2: "", d2: "", p3: "", d3: "", p4: "", d4: "", desc: "", remark: "" });
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function removeSolarServiceRow(id, idx) {
-            let target = solarData.find(c => c.id === id);
-            if (target) {
-                target.solarServices.splice(idx, 1);
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function addDocItem(id, type) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                const name = prompt("請輸入文件名稱：");
-                if (name && name.trim()) {
-                    if (type === 'client') target.customDocsClient.push(name.trim());
-                    else target.customDocsRuili.push(name.trim());
-                    renderMainForms();
-                    triggerAutoSave();
-                }
-            }
-        }
-
-        function removeDocItem(id, type, idx) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                if (type === 'client') target.customDocsClient.splice(idx, 1);
-                else target.customDocsRuili.splice(idx, 1);
-                renderMainForms();
-                triggerAutoSave();
             }
         }
 
@@ -2486,269 +2323,373 @@
         function calculateSolarLive(id) {
             const activeCase = solarData.find(c => c.id === id);
             if (!activeCase) return;
+            const estPing = parseFloat(activeCase.estPing || 0);
+            const estPrice = parseFloat(activeCase.estPrice || 3.5);
+            const resEst1 = Math.round((estPing / 1.5) * 590 / 1000 * 4 * 365 * estPrice);
+            const resEst2 = Math.round(resEst1 * 0.1);
+            const estRentUnit = parseFloat(activeCase.estRentUnit || 0);
+            const resEst3 = Math.round(estPing * estRentUnit);
 
-            const ping = parseFloat(activeCase.estPing || 0);
-            const price = parseFloat(activeCase.estPrice || 0);
-            const rentUnit = parseFloat(activeCase.estRentUnit || 0);
+            if(document.getElementById(`res-est-1-${id}`)) document.getElementById(`res-est-1-${id}`).innerText = resEst1.toLocaleString();
+            if(document.getElementById(`res-est-2-${id}`)) document.getElementById(`res-est-2-${id}`).innerText = resEst2.toLocaleString();
+            if(document.getElementById(`res-est-3-${id}`)) document.getElementById(`res-est-3-${id}`).innerText = resEst3.toLocaleString();
 
-            const est1 = Math.round((ping / 1.5) * 590 / 1000 * 4 * 365 * price);
-            const est2 = Math.round((ping / 1.5) * 590 / 1000 * 365 * 1.5);
-            const est3 = Math.round(ping * rentUnit * 12);
-
-            if(document.getElementById(`res-est-1-${id}`)) document.getElementById(`res-est-1-${id}`).innerText = est1.toLocaleString();
-            if(document.getElementById(`res-est-2-${id}`)) document.getElementById(`res-est-2-${id}`).innerText = est2.toLocaleString();
-            if(document.getElementById(`res-est-3-${id}`)) document.getElementById(`res-est-3-${id}`).innerText = est3.toLocaleString();
-
-            const panels = parseFloat(activeCase.surveyPanels || 0);
-            const watts = parseFloat(activeCase.surveyWatts || 0);
+            const surPanels = parseFloat(activeCase.surveyPanels || 0);
+            const surWatts = parseFloat(activeCase.surveyWatts || 0);
             const surPrice = parseFloat(activeCase.surveyPrice || 0);
-            const billCost = parseFloat(activeCase.surveyBill || 0);
+            const resSurKwh = Math.round(surPanels * surWatts / 1000 * 4 * 365);
+            const resSur1 = Math.round(resSurKwh * surPrice);
+            const resSur2 = Math.round(resSur1 * 0.1);
+            const surBill = parseFloat(activeCase.surveyBill || 0);
+            const resSur3 = Math.round(resSur1 - surBill - resSur2);
 
-            const surKwh = Math.round((panels * watts / 1000) * 4 * 365);
-            const sur1 = Math.round(surKwh * surPrice);
-            const sur2 = Math.round((panels * watts / 1000) * 365 * 1.5);
-            const sur3 = sur1 - billCost - sur2;
-
-            if(document.getElementById(`res-sur-1-${id}`)) document.getElementById(`res-sur-1-${id}`).innerText = sur1.toLocaleString();
-            if(document.getElementById(`res-sur-kwh-${id}`)) document.getElementById(`res-sur-kwh-${id}`).innerText = surKwh.toLocaleString();
-            if(document.getElementById(`res-sur-2-${id}`)) document.getElementById(`res-sur-2-${id}`).innerText = sur2.toLocaleString();
-            if(document.getElementById(`res-sur-3-${id}`)) document.getElementById(`res-sur-3-${id}`).innerText = sur3.toLocaleString();
+            if(document.getElementById(`res-sur-kwh-${id}`)) document.getElementById(`res-sur-kwh-${id}`).innerText = resSurKwh.toLocaleString();
+            if(document.getElementById(`res-sur-1-${id}`)) document.getElementById(`res-sur-1-${id}`).innerText = resSur1.toLocaleString();
+            if(document.getElementById(`res-sur-2-${id}`)) document.getElementById(`res-sur-2-${id}`).innerText = resSur2.toLocaleString();
+            if(document.getElementById(`res-sur-3-${id}`)) document.getElementById(`res-sur-3-${id}`).innerText = resSur3.toLocaleString();
         }
 
-        // ==================== Supabase 資料庫對接與即時同步邏輯 ====================
-        function getTableName(tabId) {
-            if (tabId === 'case-eval') return 'cases_eval';
-            if (tabId === 'solar') return 'cases_solar';
-            if (tabId === 'trading') return 'cases_trading';
-            if (tabId === 'meeting') return 'cases_meeting';
-            if (tabId === 'internal-meet') return 'cases_internal_meet';
-            return null;
-        }
-
-        function createDefaultCase(tabId) {
-            const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
-                ? crypto.randomUUID() 
-                : 'case_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                
-            const nowIso = new Date().toISOString().slice(0, 16);
-            
-            if (tabId === 'case-eval') {
-                return {
-                    id: newId, companyName: "新專案評估案件", evalDate: nowIso, evalManager: currentUserRole, evalStatus: "初期評估", evalSource: "",
-                    taxId: "", factoryLicense: "", industryType: "", contact: "", phone: "", email: "", address: "", companyAddress: "", companyPhone: "", fax: "", bankAccount: "", website: "", companyRemark: "",
-                    landOwner: "", city: "高雄市", region: "岡山區", landSection: "", lands: [{ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", landArea: "", currentPrice: "1/1", sqm: 0, ping: 0 }],
-                    landOwnerGroups: [{ ownerName: "", city: "高雄市", region: "岡山區", landSection: "", lands: [{ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", landArea: "", currentPrice: "1/1", sqm: 0, ping: 0 }] }],
-                    buildingsLegal: [], buildingsIllegal: [], electricBill: "", horsepower: "", contractCapacity: "", isHighVoltage: "否", isTimeRate: "否", timePeriod: "白天為主",
-                    esgHasSuccessor: "否", esgIsExport: "否", esgEuCarbon: "否", esgGreenCert: "否", esgStorage: "否",
-                    customDocsClient: ["最新公司登記事項表", "工廠登記謄本與核准函", "土地與建物登記謄本", "地籍圖謄本", "使用執照與建築平面圖", "近一年用電繳費單（連續12個月）", "電力單線圖", "廠區屋頂平面圖與結構圖紙"],
-                    customDocsRuili: ["土地及建物登記謄本", "地籍圖謄本", "都市計畫使用分區證明", "航照圖與地籍套繪圖"],
-                    clientFilesObj: [], ruiliFilesObj: [], services: [], is_deleted: false
-                };
-            } else if (tabId === 'solar') {
-                return {
-                    id: newId, companyName: "新太陽能自建案", solarDate: nowIso, solarManager: currentUserRole, solarStatus: "初期評估", solarSource: "",
-                    taxId: "", factoryLicense: "", industryType: "", contact: "", phone: "", email: "", address: "", companyAddress: "", companyPhone: "", fax: "", bankAccount: "", website: "", companyRemark: "",
-                    city: "高雄市", region: "岡山區", lands: [], buildingsLegal: [], buildingsIllegal: [],
-                    electricBill: "", horsepower: "", contractCapacity: "", isHighVoltage: "否", isTimeRate: "否", timePeriod: "白天為主",
-                    esgHasSuccessor: "否", esgIsExport: "否", esgEuCarbon: "否", esgGreenCert: "否", esgStorage: "否",
-                    planModule: "", planInverter: "", planType: "", planPreference: "全部躉售", planPartner: "屋頂出租", planNote: "",
-                    condRoofType: "", condChemProduction: "否", condChemIndustry: "否", condShaded: "否", condSeaside: "否", condSeasideDist: "1公里內", condHasReport: "否", condAcceptTest: "否", condRoofEquip: [],
-                    customDocsClient: ["最新公司登記事項表", "工廠登記謄本與核准函", "土地與建物登記謄本", "地籍圖謄本", "使用執照與建築平面圖", "近一年用電繳費單（連續12個月）", "電力單線圖", "廠區屋頂平面圖與結構圖紙"],
-                    customDocsRuili: ["土地及建物登記謄本", "地籍圖謄本", "都市計畫使用分區證明", "航照圖與地籍套繪圖"],
-                    clientFilesObj: [], ruiliFilesObj: [], solarServices: [], estPing: 0, estPrice: 3.5, estRentUnit: 0, surveyPanels: 0, surveyWatts: 0, surveyPrice: 4.8, surveyBill: 0, is_deleted: false
-                };
-            } else if (tabId === 'trading') {
-                return { id: newId, companyName: "新買賣案件資料表", is_deleted: false };
-            } else if (tabId === 'meeting') {
-                return { id: newId, meetSubject: "新外部會議記錄", date: nowIso, ruiliAttendees: [currentUserRole], externalRepresentatives: [], contents: [], meetSummary: "", uploadedFiles: [], is_deleted: false };
-            } else if (tabId === 'internal-meet') {
-                return { id: newId, meetSubject: "新睿立內部會議紀錄", date: nowIso, attendees: [currentUserRole], financeReport: "", financeReview: "", financeConsensus: "", caseReports: [], proposalReports: [], globalConclusion: "", uploadedFiles: [], is_deleted: false };
+        function calculateLandPingField(id, idx, sqmVal) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target && target.lands[idx]) {
+                const sqm = parseFloat(sqmVal || 0);
+                const ping = sqm * 0.3025;
+                target.lands[idx].sqm = sqm;
+                target.lands[idx].ping = parseFloat(ping.toFixed(2));
+                const pingInput = document.getElementById(`calc-ping-${idx}`);
+                if(pingInput) pingInput.value = ping.toFixed(2);
+                refreshSums();
+                if(currentActiveTab === 'solar') calculateSolarLive(id);
+                triggerAutoSave();
             }
         }
 
-        async function fetchSupabaseData() {
-            setSyncBadgeStatus('saving', '連線雲端中...');
-            try {
-                const [rEval, rSolar, rTrading, rMeet, rInt] = await Promise.all([
-                    supabaseClient.from('cases_eval').select('*'),
-                    supabaseClient.from('cases_solar').select('*'),
-                    supabaseClient.from('cases_trading').select('*'),
-                    supabaseClient.from('cases_meeting').select('*'),
-                    supabaseClient.from('cases_internal_meet').select('*')
-                ]);
+        function updateBuildField(id, side, idx, field, value) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                if(side === 'legal') target.buildingsLegal[idx][field] = value;
+                else target.buildingsIllegal[idx][field] = value;
+                triggerAutoSave();
+            }
+        }
 
-                caseEvalData = rEval.data && rEval.data.length > 0 ? rEval.data.map(d => d.content) : [createDefaultCase('case-eval')];
-                solarData = rSolar.data && rSolar.data.length > 0 ? rSolar.data.map(d => d.content) : [createDefaultCase('solar')];
-                tradingData = rTrading.data && rTrading.data.length > 0 ? rTrading.data.map(d => d.content) : [createDefaultCase('trading')];
-                meetingData = rMeet.data && rMeet.data.length > 0 ? rMeet.data.map(d => d.content) : [createDefaultCase('meeting')];
-                internalMeetData = rInt.data && rInt.data.length > 0 ? rInt.data.map(d => d.content) : [createDefaultCase('internal-meet')];
+        function addServiceRow(id) { 
+            caseEvalData.find(c => c.id === id).services.push({ name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
 
-                caseEvalData.forEach(c => ensureLandOwnerGroups(c));
+        function removeServiceRow(id, idx) { 
+            caseEvalData.find(c => c.id === id).services.splice(idx, 1); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
 
+        function addSolarServiceRow(id) { 
+            solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function removeSolarServiceRow(id, idx) { 
+            solarData.find(c => c.id === id).solarServices.splice(idx, 1); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function addLandRow(id) { 
+            getTargetDataArray(currentActiveTab).find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", landArea: "", currentPrice: "1/1", sqm: 0, ping: 0 }); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function removeLandRow(id, idx) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target && target.lands) {
+                target.lands.splice(idx, 1);
+                renderMainForms();
+                refreshSums();
+                if (currentActiveTab === 'solar') calculateSolarLive(id);
+                triggerAutoSave();
+            }
+        }
+
+        function addBuildRow(id, side) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (side === 'legal') target.buildingsLegal.push({ address: "", owner: "", number: "", landNo: "", mainUse: "", status: "", completionDate: "", totalArea: "", sqm: "", ping: "", rights: "" });
+            else target.buildingsIllegal.push({ type: "", year: "", rights: "", sqm: "", ping: "" });
+            renderMainForms();
+            if(currentActiveTab === 'solar') calculateSolarLive(id);
+            triggerAutoSave();
+        }
+
+        function removeBuildRow(id, side, idx) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                if (side === 'legal' && target.buildingsLegal) {
+                    target.buildingsLegal.splice(idx, 1);
+                } else if (side === 'illegal' && target.buildingsIllegal) {
+                    target.buildingsIllegal.splice(idx, 1);
+                }
+                renderMainForms();
+                refreshSums();
+                if (currentActiveTab === 'solar') calculateSolarLive(id);
+                triggerAutoSave();
+            }
+        }
+
+        function addDocItem(id, side) {
+            let item = prompt("請輸入新增的文件項目：");
+            if (item) {
+                let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+                if (side === 'client') target.customDocsClient.push(item);
+                else target.customDocsRuili.push(item);
+                renderMainForms();
+                triggerAutoSave();
+            }
+        }
+
+        function removeDocItem(id, side, idx) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (side === 'client') target.customDocsClient.splice(idx, 1);
+            else target.customDocsRuili.splice(idx, 1);
+            renderMainForms();
+            triggerAutoSave();
+        }
+
+        function refreshSums() {
+            let activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
+            if (!activeCase) return;
+            
+            // 土地總面積與總坪數
+            if (activeCase.lands) {
+                let rawLandSqm = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
+                let totalLandSqm = Math.round(rawLandSqm * 100) / 100;
+                let rawLandPing = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
+                let totalLandPing = Math.round(rawLandPing * 100) / 100;
+
+                const suffix = currentActiveTab === 'case-eval' ? '' : '-sol';
+                if(document.getElementById("sum-land-sqm" + suffix)) document.getElementById("sum-land-sqm" + suffix).innerText = totalLandSqm;
+                if(document.getElementById("sum-land-ping" + suffix)) document.getElementById("sum-land-ping" + suffix).innerText = totalLandPing.toFixed(2);
+            }
+
+            // 有保存登記總坪數
+            if (activeCase.buildingsLegal) {
+                let rawLegalPing = activeCase.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0);
+                let totalLegalPing = Math.round(rawLegalPing * 100) / 100;
+                const legalSuffix = currentActiveTab === 'case-eval' ? '' : '-sol';
+                if(document.getElementById("sum-legal-ping" + legalSuffix)) document.getElementById("sum-legal-ping" + legalSuffix).innerText = totalLegalPing.toFixed(2);
+            }
+        }
+
+        function addNewCase() {
+            const nid = "id-" + Date.now();
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: currentUserRole, is_deleted: false, deleted_at: null };
+            
+            if(currentActiveTab === 'internal-meet') {
+                obj.meetSubject = "新睿立會議紀錄 " + (dataArr.length + 1);
+                obj.attendees = [currentUserRole]; obj.financeReport = ""; obj.financeReview = ""; obj.financeConsensus = "";
+                obj.caseReports = []; obj.proposalReports = []; obj.globalConclusion = ""; obj.uploadedFiles = [];
+            } else if(currentActiveTab === 'meeting') {
+                obj.meetSubject = "外部對接會議記錄 " + (dataArr.length + 1);
+                obj.ruiliAttendees = [currentUserRole]; obj.externalRepresentatives = []; obj.contents = []; obj.meetSummary = ""; obj.uploadedFiles = [];
+            } else {
+                obj.companyName = "全新案件項目 " + (dataArr.length + 1); 
+                obj.services = []; obj.solarServices = []; obj.lands = []; obj.buildingsLegal = []; obj.buildingsIllegal = []; 
+                obj.customDocsClient = ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"]; obj.customDocsRuili = ["土地謄本"]; 
+                obj.clientFilesObj = []; obj.ruiliFilesObj = [];
+                obj.electricBill = ""; obj.horsepower = ""; obj.contractCapacity = ""; obj.isHighVoltage = "否"; obj.isTimeRate = "否"; obj.timePeriod = "白天為主";
+                obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = "否"; obj.esgStorage = "否";
+                obj.landOwner = ""; obj.city = ""; obj.region = ""; obj.landSection = "";
+                obj.companyAddress = ""; obj.companyPhone = ""; obj.fax = ""; obj.bankAccount = ""; obj.companyRemark = "";
+                obj.evalDate = new Date().toISOString().slice(0, 16); obj.evalManager = currentUserRole; obj.evalStatus = "初期評估"; obj.evalSource = "";
+                obj.solarDate = new Date().toISOString().slice(0, 16); obj.solarManager = currentUserRole; obj.solarStatus = "初期評估"; obj.solarSource = "";
+                obj.landOwnerGroups = [{
+                    ownerName: "", city: "高雄市", region: "岡山區", landSection: "", lands: []
+                }];
+            }
+            dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
+            renderSidebarSubLists(); renderMainForms();
+            saveToCloudSilent();
+        }
+
+        function deleteCurrentCase() {
+            let dataArr = getTargetDataArray(currentActiveTab);
+            if (currentUserRole !== '中央控台') {
+                dataArr = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
+            }
+            if (dataArr.length === 0) {
+                alert("目前沒有可刪除的項目！");
+                return;
+            }
+            const activeId = selectedIds[currentActiveTab];
+            const targetIndex = dataArr.findIndex(c => c.id === activeId);
+            if (targetIndex !== -1) {
+                const targetName = dataArr[targetIndex].companyName || dataArr[targetIndex].meetSubject || '當前項目';
+                document.getElementById('delete-target-text').innerText = `確定要刪除「${targetName}」嗎？`;
+                document.getElementById('delete-modal').classList.remove('hidden');
+            }
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        async function confirmDeleteCase() {
+            let dataArr = getTargetDataArray(currentActiveTab);
+            const activeId = selectedIds[currentActiveTab];
+            const target = dataArr.find(c => c.id === activeId);
+            
+            if (target) {
+                if (currentUserRole === '中央控台') {
+                    const targetIndex = dataArr.findIndex(c => c.id === activeId);
+                    if (targetIndex !== -1) dataArr.splice(targetIndex, 1);
+                    await supabaseClient.from('cases').delete().eq('id', activeId);
+                } else {
+                    target.is_deleted = true;
+                    target.deleted_at = new Date().toISOString();
+                    await supabaseClient.from('cases').upsert({
+                        id: target.id,
+                        tab_category: currentActiveTab,
+                        data: target,
+                        is_deleted: true,
+                        deleted_at: target.deleted_at
+                    });
+                }
+
+                const visibleCases = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
+                if (visibleCases.length > 0) {
+                    selectedIds[currentActiveTab] = visibleCases[0].id;
+                } else {
+                    selectedIds[currentActiveTab] = null;
+                }
+
+                closeDeleteModal();
                 renderSidebarSubLists();
                 renderMainForms();
-                setSyncBadgeStatus('saved', '雲端資料已最新');
-            } catch (err) {
-                console.error("Fetch Error:", err);
-                setSyncBadgeStatus('error', '讀取失敗');
             }
         }
 
         async function saveToCloudSilent() {
-            const table = getTableName(currentActiveTab);
-            const dataArr = getTargetDataArray(currentActiveTab);
-            if (!table || !dataArr) return;
-
+            const activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
+            if (!activeCase) return;
+            
             try {
-                const upsertRows = dataArr.map(item => ({
-                    id: item.id,
-                    content: item,
-                    updated_at: new Date().toISOString()
-                }));
-
-                const { error } = await supabaseClient.from(table).upsert(upsertRows);
-                if (error) console.error("Auto Save Error:", error);
+                const { error } = await supabaseClient.from('cases').upsert({
+                    id: activeCase.id,
+                    tab_category: currentActiveTab,
+                    data: activeCase,
+                    is_deleted: activeCase.is_deleted || false,
+                    deleted_at: activeCase.deleted_at || null
+                });
+                if (error) console.error("Cloud Auto-Save Error:", error);
             } catch (err) {
-                console.error("Silent save catch:", err);
+                console.error("Auto Save Ex:", err);
             }
         }
 
         async function saveToCloud() {
-            setSyncBadgeStatus('saving', '正在儲存全部資料...');
-            try {
-                const pEval = supabaseClient.from('cases_eval').upsert(caseEvalData.map(i => ({ id: i.id, content: i, updated_at: new Date().toISOString() })));
-                const pSolar = supabaseClient.from('cases_solar').upsert(solarData.map(i => ({ id: i.id, content: i, updated_at: new Date().toISOString() })));
-                const pTrading = supabaseClient.from('cases_trading').upsert(tradingData.map(i => ({ id: i.id, content: i, updated_at: new Date().toISOString() })));
-                const pMeet = supabaseClient.from('cases_meeting').upsert(meetingData.map(i => ({ id: i.id, content: i, updated_at: new Date().toISOString() })));
-                const pInt = supabaseClient.from('cases_internal_meet').upsert(internalMeetData.map(i => ({ id: i.id, content: i, updated_at: new Date().toISOString() })));
+            setSyncBadgeStatus('saving', '雲端儲存中...');
+            await saveToCloudSilent();
+            setSyncBadgeStatus('saved', '資料已完全同步至雲端');
+            alert('資料已成功儲存至雲端！');
+        }
 
-                await Promise.all([pEval, pSolar, pTrading, pMeet, pInt]);
-                setSyncBadgeStatus('saved', '全部已手動儲存');
-                alert("✅ 資料已成功同步儲存至雲端 Supabase 資料庫！");
+        async function fetchSupabaseData() {
+            try {
+                const { data, error } = await supabaseClient.from('cases').select('*');
+                if (error) throw error;
+
+                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
+
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        let obj = item.data || {};
+                        obj.id = item.id;
+                        obj.is_deleted = item.is_deleted || false;
+                        obj.deleted_at = item.deleted_at || null;
+
+                        if (item.tab_category === 'case-eval') caseEvalData.push(obj);
+                        else if (item.tab_category === 'solar') solarData.push(obj);
+                        else if (item.tab_category === 'trading') tradingData.push(obj);
+                        else if (item.tab_category === 'meeting') meetingData.push(obj);
+                        else if (item.tab_category === 'internal-meet') internalMeetData.push(obj);
+                    });
+                }
+
+                renderSidebarSubLists();
+                renderMainForms();
+                setSyncBadgeStatus('saved', '雲端資料載入完成');
             } catch (err) {
-                console.error("Manual Save Error:", err);
-                setSyncBadgeStatus('error', '儲存失敗');
-                alert("❌ 儲存失敗，請檢查網路連線或聯繫系統管理員。");
+                console.error("Fetch Data Error:", err);
+                setSyncBadgeStatus('error', '載入失敗');
             }
         }
 
         function initSupabaseRealtime() {
-            ['cases_eval', 'cases_solar', 'cases_trading', 'cases_meeting', 'cases_internal_meet'].forEach(tbl => {
-                supabaseClient.channel('public:' + tbl)
-                    .on('postgres_changes', { event: '*', schema: 'public', table: tbl }, payload => {
-                        if (!isUserTyping) {
-                            fetchSupabaseData();
-                        }
-                    })
-                    .subscribe();
-            });
-        }
-
-        function addNewCase() {
-            const newObj = createDefaultCase(currentActiveTab);
-            getTargetDataArray(currentActiveTab).unshift(newObj);
-            selectedIds[currentActiveTab] = newObj.id;
-            renderSidebarSubLists();
-            renderMainForms();
-            saveToCloudSilent();
-        }
-
-        let pendingDeleteId = null;
-        function deleteCurrentCase() {
-            const activeId = selectedIds[currentActiveTab];
-            if (!activeId) return;
-            pendingDeleteId = activeId;
-            const target = getTargetDataArray(currentActiveTab).find(c => c.id === activeId);
-            const name = target ? (target.companyName || target.meetSubject || '此項目') : '此項目';
-            document.getElementById('delete-target-text').innerText = `確定要將「${name}」移至回收桶或刪除嗎？`;
-            document.getElementById('delete-modal').classList.remove('hidden');
-        }
-
-        function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); }
-
-        async function confirmDeleteCase() {
-            if (!pendingDeleteId) return;
-            let dataArr = getTargetDataArray(currentActiveTab);
-            let targetIdx = dataArr.findIndex(c => c.id === pendingDeleteId);
-            
-            if (targetIdx !== -1) {
-                if (currentUserRole === '中央控台') {
-                    // 中央控台直接物理刪除
-                    const targetId = pendingDeleteId;
-                    dataArr.splice(targetIdx, 1);
-                    const table = getTableName(currentActiveTab);
-                    if (table) {
-                        await supabaseClient.from(table).delete().eq('id', targetId);
+            supabaseClient
+                .channel('public:cases')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
+                    if (!isUserTyping) {
+                        fetchSupabaseData();
                     }
-                } else {
-                    // 業務身份標記為軟刪除
-                    dataArr[targetIdx].is_deleted = true;
-                    dataArr[targetIdx].deleted_at = new Date().toISOString();
-                    await saveToCloudSilent();
-                }
-            }
-            
-            closeDeleteModal();
-            selectedIds[currentActiveTab] = null;
-            renderSidebarSubLists();
-            renderMainForms();
+                })
+                .subscribe();
         }
 
         function openTrashModal() {
-            const listEl = document.getElementById('trash-items-list');
-            if (!listEl) return;
-            let allTrash = [];
+            const listContainer = document.getElementById('trash-items-list');
+            if (!listContainer) return;
 
+            let allDeletedCases = [];
             ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
                 let arr = getTargetDataArray(tabId);
                 arr.filter(c => c.is_deleted).forEach(c => {
-                    allTrash.push({ caseObj: c, tabId: tabId });
+                    allDeletedCases.push({ ...c, category: tabId });
                 });
             });
 
-            if (allTrash.length === 0) {
-                listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">資源回收桶目前沒有已刪除的案件。</p>`;
+            if (allDeletedCases.length === 0) {
+                listContainer.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">回收桶內無刪除案件。</p>';
             } else {
-                listEl.innerHTML = allTrash.map(item => {
-                    const c = item.caseObj;
-                    const tabNameMap = { "case-eval": "專案管理", "solar": "太陽能自建", "trading": "工廠買賣案件", "meeting": "會議記錄", "internal-meet": "睿立會議紀錄" };
-                    const delTime = c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '未知時間';
-                    return `
-                        <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
-                            <div>
-                                <span class="text-cyan-400 font-semibold">[${tabNameMap[item.tabId] || '項目'}]</span>
-                                <span class="text-white font-bold ml-2">${c.companyName || c.meetSubject || '未命名項目'}</span>
-                                <span class="text-slate-500 block text-[10px] mt-0.5">刪除時間：${delTime}</span>
-                            </div>
-                            <button onclick="restoreCase('${c.id}', '${item.tabId}')" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
-                                <i class="fa-solid fa-rotate-left mr-1"></i>一鍵復原
-                            </button>
+                listContainer.innerHTML = allDeletedCases.map(c => `
+                    <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
+                        <div>
+                            <span class="text-white font-semibold">${c.companyName || c.meetSubject || '未命名'}</span>
+                            <span class="text-[10px] text-slate-400 ml-2">(${c.category})</span>
+                            <div class="text-[10px] text-slate-500 mt-0.5">刪除時間: ${c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '未知'}</div>
                         </div>
-                    `;
-                }).join('');
+                        <button onclick="restoreCase('${c.id}', '${c.category}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-semibold transition">復原案件</button>
+                    </div>
+                `).join('');
             }
 
             document.getElementById('trash-modal').classList.remove('hidden');
         }
 
-        function closeTrashModal() { document.getElementById('trash-modal').classList.add('hidden'); }
+        function closeTrashModal() {
+            document.getElementById('trash-modal').classList.add('hidden');
+        }
 
-        async function restoreCase(id, tabId) {
-            let dataArr = getTargetDataArray(tabId);
+        async function restoreCase(id, category) {
+            let dataArr = getTargetDataArray(category);
             let target = dataArr.find(c => c.id === id);
             if (target) {
                 target.is_deleted = false;
-                delete target.deleted_at;
-                await saveToCloudSilent();
+                target.deleted_at = null;
+                await supabaseClient.from('cases').upsert({
+                    id: target.id,
+                    tab_category: category,
+                    data: target,
+                    is_deleted: false,
+                    deleted_at: null
+                });
                 openTrashModal();
                 renderSidebarSubLists();
                 renderMainForms();
             }
         }
-
-        window.onload = function() {
-            // 系統預設開啟登入視窗
-        };
     </script>
 </body>
 </html>
