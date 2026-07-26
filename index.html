@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome 圖標 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-fontawesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Supabase JS Client CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -204,7 +204,7 @@
                     <button onclick="toggleCategory('meeting')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition text-slate-300 hover:bg-cosmic-800/60">
                         <div class="flex items-center space-x-3">
                             <i class="fa-solid fa-handshake w-5 text-center text-purple-400"></i>
-                            <span class="font-medium text-sm tracking-wide">會議紀錄</span>
+                            <span class="font-medium text-sm tracking-wide">會議記錄</span>
                         </div>
                         <i id="arrow-meeting" class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
                     </button>
@@ -784,7 +784,7 @@
                         <div class="bg-cosmic-950/40 border border-cosmic-700/30 p-4 rounded-xl space-y-3 card-box">
                             <div class="flex justify-between items-center border-b border-cosmic-700/20 pb-1">
                                 <span class="font-bold text-blue-400 text-xs">五、有保存登記建物</span>
-                                <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 所有權人]</button>
+                                <button onclick="addBuildRow('${c.id}', 'legal')" class="text-[10px] bg-blue-900 border border-blue-700 px-1.5 py-0.5 rounded no-print">[＋ 建號]</button>
                             </div>
 
                             <div class="space-y-4">
@@ -2323,289 +2323,346 @@
         function calculateSolarLive(id) {
             const activeCase = solarData.find(c => c.id === id);
             if (!activeCase) return;
-
             const estPing = parseFloat(activeCase.estPing || 0);
-            const estPrice = parseFloat(activeCase.estPrice || 0);
-            const estRentUnit = parseFloat(activeCase.estRentUnit || 0);
-
+            const estPrice = parseFloat(activeCase.estPrice || 3.5);
             const resEst1 = Math.round((estPing / 1.5) * 590 / 1000 * 4 * 365 * estPrice);
-            const resEst2 = Math.round(resEst1 * 0.05);
+            const resEst2 = Math.round(resEst1 * 0.1);
+            const estRentUnit = parseFloat(activeCase.estRentUnit || 0);
             const resEst3 = Math.round(estPing * estRentUnit);
+
+            if(document.getElementById(`res-est-1-${id}`)) document.getElementById(`res-est-1-${id}`).innerText = resEst1.toLocaleString();
+            if(document.getElementById(`res-est-2-${id}`)) document.getElementById(`res-est-2-${id}`).innerText = resEst2.toLocaleString();
+            if(document.getElementById(`res-est-3-${id}`)) document.getElementById(`res-est-3-${id}`).innerText = resEst3.toLocaleString();
 
             const surPanels = parseFloat(activeCase.surveyPanels || 0);
             const surWatts = parseFloat(activeCase.surveyWatts || 0);
             const surPrice = parseFloat(activeCase.surveyPrice || 0);
-            const surBill = parseFloat(activeCase.surveyBill || 0);
-
             const resSurKwh = Math.round(surPanels * surWatts / 1000 * 4 * 365);
             const resSur1 = Math.round(resSurKwh * surPrice);
-            const resSur2 = Math.round(resSur1 * 0.05);
+            const resSur2 = Math.round(resSur1 * 0.1);
+            const surBill = parseFloat(activeCase.surveyBill || 0);
             const resSur3 = Math.round(resSur1 - surBill - resSur2);
 
-            const el1 = document.getElementById(`res-est-1-${id}`);
-            const el2 = document.getElementById(`res-est-2-${id}`);
-            const el3 = document.getElementById(`res-est-3-${id}`);
-            const elSurKwh = document.getElementById(`res-sur-kwh-${id}`);
-            const elSur1 = document.getElementById(`res-sur-1-${id}`);
-            const elSur2 = document.getElementById(`res-sur-2-${id}`);
-            const elSur3 = document.getElementById(`res-sur-3-${id}`);
-
-            if (el1) el1.innerText = resEst1.toLocaleString();
-            if (el2) el2.innerText = resEst2.toLocaleString();
-            if (el3) el3.innerText = resEst3.toLocaleString();
-            if (elSurKwh) elSurKwh.innerText = resSurKwh.toLocaleString();
-            if (elSur1) elSur1.innerText = resSur1.toLocaleString();
-            if (elSur2) elSur2.innerText = resSur2.toLocaleString();
-            if (elSur3) elSur3.innerText = resSur3.toLocaleString();
-        }
-
-        function addServiceRow(id) {
-            let target = caseEvalData.find(c => c.id === id);
-            if (target) {
-                target.services.push({ name: "", quote: "", contract: "", p1: "", d1: "", p2: "", d2: "", p3: "", d3: "", p4: "", d4: "", desc: "", remark: "" });
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function removeServiceRow(id, idx) {
-            let target = caseEvalData.find(c => c.id === id);
-            if (target && target.services[idx]) {
-                target.services.splice(idx, 1);
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function addSolarServiceRow(id) {
-            let target = solarData.find(c => c.id === id);
-            if (target) {
-                target.solarServices.push({ name: "", quote: "", contract: "", p1: "", d1: "", p2: "", d2: "", p3: "", d3: "", p4: "", d4: "", desc: "", remark: "" });
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function removeSolarServiceRow(id, idx) {
-            let target = solarData.find(c => c.id === id);
-            if (target && target.solarServices[idx]) {
-                target.solarServices.splice(idx, 1);
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function addLandRow(id) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                target.lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", landArea: "", currentPrice: "1/1", sqm: 0, ping: 0 });
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function removeLandRow(id, idx) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target && target.lands[idx]) {
-                target.lands.splice(idx, 1);
-                renderMainForms();
-                triggerAutoSave();
-            }
+            if(document.getElementById(`res-sur-kwh-${id}`)) document.getElementById(`res-sur-kwh-${id}`).innerText = resSurKwh.toLocaleString();
+            if(document.getElementById(`res-sur-1-${id}`)) document.getElementById(`res-sur-1-${id}`).innerText = resSur1.toLocaleString();
+            if(document.getElementById(`res-sur-2-${id}`)) document.getElementById(`res-sur-2-${id}`).innerText = resSur2.toLocaleString();
+            if(document.getElementById(`res-sur-3-${id}`)) document.getElementById(`res-sur-3-${id}`).innerText = resSur3.toLocaleString();
         }
 
         function calculateLandPingField(id, idx, sqmVal) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target && target.lands[idx]) {
-                let sqm = parseFloat(sqmVal || 0);
-                let ping = sqm * 0.3025;
+                const sqm = parseFloat(sqmVal || 0);
+                const ping = sqm * 0.3025;
                 target.lands[idx].sqm = sqm;
                 target.lands[idx].ping = parseFloat(ping.toFixed(2));
-                let pingInput = document.getElementById(`calc-ping-${idx}`);
-                if (pingInput) pingInput.value = ping.toFixed(2);
+                const pingInput = document.getElementById(`calc-ping-${idx}`);
+                if(pingInput) pingInput.value = ping.toFixed(2);
                 refreshSums();
+                if(currentActiveTab === 'solar') calculateSolarLive(id);
                 triggerAutoSave();
             }
         }
 
-        function addBuildRow(id, type) {
+        function updateBuildField(id, side, idx, field, value) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
             if (target) {
-                if (type === 'legal') {
-                    target.buildingsLegal.push({ address: "", owner: "", number: "", landNo: "", mainUse: "", status: "", completionDate: "", totalArea: "", sqm: 0, ping: 0, rights: "1/1", type: "", year: "" });
-                } else {
-                    target.buildingsIllegal.push({ type: "", year: "", rights: "1/1", ping: 0 });
+                if(side === 'legal') target.buildingsLegal[idx][field] = value;
+                else target.buildingsIllegal[idx][field] = value;
+                triggerAutoSave();
+            }
+        }
+
+        function addServiceRow(id) { 
+            caseEvalData.find(c => c.id === id).services.push({ name: "", desc: "", remark: "", quote: "", contract: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function removeServiceRow(id, idx) { 
+            caseEvalData.find(c => c.id === id).services.splice(idx, 1); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function addSolarServiceRow(id) { 
+            solarData.find(c => c.id === id).solarServices.push({ name: "", quote: "", contract: "", desc: "", remark: "", p1:"", d1:"", p2:"", d2:"", p3:"", d3:"", p4:"", d4:"" }); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function removeSolarServiceRow(id, idx) { 
+            solarData.find(c => c.id === id).solarServices.splice(idx, 1); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function addLandRow(id) { 
+            getTargetDataArray(currentActiveTab).find(c => c.id === id).lands.push({ section: "", number: "", pattern: "都市計畫使用分區", customPattern: "", landArea: "", currentPrice: "1/1", sqm: 0, ping: 0 }); 
+            renderMainForms(); 
+            triggerAutoSave();
+        }
+
+        function removeLandRow(id, idx) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target && target.lands) {
+                target.lands.splice(idx, 1);
+                renderMainForms();
+                refreshSums();
+                if (currentActiveTab === 'solar') calculateSolarLive(id);
+                triggerAutoSave();
+            }
+        }
+
+        function addBuildRow(id, side) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (side === 'legal') target.buildingsLegal.push({ address: "", owner: "", number: "", landNo: "", mainUse: "", status: "", completionDate: "", totalArea: "", sqm: "", ping: "", rights: "" });
+            else target.buildingsIllegal.push({ type: "", year: "", rights: "", sqm: "", ping: "" });
+            renderMainForms();
+            if(currentActiveTab === 'solar') calculateSolarLive(id);
+            triggerAutoSave();
+        }
+
+        function removeBuildRow(id, side, idx) {
+            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+            if (target) {
+                if (side === 'legal' && target.buildingsLegal) {
+                    target.buildingsLegal.splice(idx, 1);
+                } else if (side === 'illegal' && target.buildingsIllegal) {
+                    target.buildingsIllegal.splice(idx, 1);
                 }
                 renderMainForms();
+                refreshSums();
+                if (currentActiveTab === 'solar') calculateSolarLive(id);
                 triggerAutoSave();
-            }
-        }
-
-        function removeBuildRow(id, type, idx) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                if (type === 'legal') target.buildingsLegal.splice(idx, 1);
-                else target.buildingsIllegal.splice(idx, 1);
-                renderMainForms();
-                triggerAutoSave();
-            }
-        }
-
-        function updateBuildField(id, type, idx, field, value) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                let list = (type === 'legal') ? target.buildingsLegal : target.buildingsIllegal;
-                if (list && list[idx]) {
-                    list[idx][field] = value;
-                    triggerAutoSave();
-                }
             }
         }
 
         function addDocItem(id, side) {
-            let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                let docName = prompt("請輸入文件名稱：");
-                if (docName) {
-                    if (side === 'client') target.customDocsClient.push(docName);
-                    else target.customDocsRuili.push(docName);
-                    renderMainForms();
-                    triggerAutoSave();
-                }
+            let item = prompt("請輸入新增的文件項目：");
+            if (item) {
+                let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
+                if (side === 'client') target.customDocsClient.push(item);
+                else target.customDocsRuili.push(item);
+                renderMainForms();
+                triggerAutoSave();
             }
         }
 
         function removeDocItem(id, side, idx) {
             let target = getTargetDataArray(currentActiveTab).find(c => c.id === id);
-            if (target) {
-                if (side === 'client') target.customDocsClient.splice(idx, 1);
-                else target.customDocsRuili.splice(idx, 1);
-                renderMainForms();
-                triggerAutoSave();
-            }
+            if (side === 'client') target.customDocsClient.splice(idx, 1);
+            else target.customDocsRuili.splice(idx, 1);
+            renderMainForms();
+            triggerAutoSave();
         }
 
         function refreshSums() {
             let activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
             if (!activeCase) return;
-
-            if (currentActiveTab === 'case-eval') {
-                let rawLegalPing = activeCase.buildingsLegal ? activeCase.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-                let totalLegalPing = Math.round(rawLegalPing * 100) / 100;
-                let rawIllegalPing = activeCase.buildingsIllegal ? activeCase.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-                let totalIllegalPing = Math.round(rawIllegalPing * 100) / 100;
-
-                const legalEl = document.getElementById("sum-legal-ping");
-                const illegalEl = document.getElementById("sum-illegal-ping");
-                if (legalEl) legalEl.innerText = totalLegalPing;
-                if (illegalEl) illegalEl.innerText = totalIllegalPing;
-            } else if (currentActiveTab === 'solar') {
-                let rawLandSqm = activeCase.lands ? activeCase.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0) : 0;
+            
+            // 土地總面積與總坪數
+            if (activeCase.lands) {
+                let rawLandSqm = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.sqm || 0), 0);
                 let totalLandSqm = Math.round(rawLandSqm * 100) / 100;
-                let rawLandPing = activeCase.lands ? activeCase.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0) : 0;
+                let rawLandPing = activeCase.lands.reduce((sum, l) => sum + parseFloat(l.ping || 0), 0);
                 let totalLandPing = Math.round(rawLandPing * 100) / 100;
 
-                let rawLegalPing = activeCase.buildingsLegal ? activeCase.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
+                const suffix = currentActiveTab === 'case-eval' ? '' : '-sol';
+                if(document.getElementById("sum-land-sqm" + suffix)) document.getElementById("sum-land-sqm" + suffix).innerText = totalLandSqm;
+                if(document.getElementById("sum-land-ping" + suffix)) document.getElementById("sum-land-ping" + suffix).innerText = totalLandPing.toFixed(2);
+            }
+
+            // 有保存登記總坪數
+            if (activeCase.buildingsLegal) {
+                let rawLegalPing = activeCase.buildingsLegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0);
                 let totalLegalPing = Math.round(rawLegalPing * 100) / 100;
-                let rawIllegalPing = activeCase.buildingsIllegal ? activeCase.buildingsIllegal.reduce((sum, b) => sum + parseFloat(b.ping || 0), 0) : 0;
-                let totalIllegalPing = Math.round(rawIllegalPing * 100) / 100;
-
-                const landSqmEl = document.getElementById("sum-land-sqm-sol");
-                const landPingEl = document.getElementById("sum-land-ping-sol");
-                const legalEl = document.getElementById("sum-legal-ping-sol");
-                const illegalEl = document.getElementById("sum-illegal-ping-sol");
-
-                if (landSqmEl) landSqmEl.innerText = totalLandSqm;
-                if (landPingEl) landPingEl.innerText = totalLandPing.toFixed(2);
-                if (legalEl) legalEl.innerText = totalLegalPing;
-                if (illegalEl) illegalEl.innerText = totalIllegalPing;
+                const legalSuffix = currentActiveTab === 'case-eval' ? '' : '-sol';
+                if(document.getElementById("sum-legal-ping" + legalSuffix)) document.getElementById("sum-legal-ping" + legalSuffix).innerText = totalLegalPing.toFixed(2);
             }
         }
 
-        // ==================== 刪除與資源回收桶機制 ====================
-        let deleteTargetId = null;
+        function addNewCase() {
+            const nid = "id-" + Date.now();
+            let dataArr = getTargetDataArray(currentActiveTab);
+            let obj = { id: nid, date: new Date().toISOString().slice(0, 16), status: "初期評估", manager: currentUserRole, is_deleted: false, deleted_at: null };
+            
+            if(currentActiveTab === 'internal-meet') {
+                obj.meetSubject = "新睿立會議紀錄 " + (dataArr.length + 1);
+                obj.attendees = [currentUserRole]; obj.financeReport = ""; obj.financeReview = ""; obj.financeConsensus = "";
+                obj.caseReports = []; obj.proposalReports = []; obj.globalConclusion = ""; obj.uploadedFiles = [];
+            } else if(currentActiveTab === 'meeting') {
+                obj.meetSubject = "外部對接會議記錄 " + (dataArr.length + 1);
+                obj.ruiliAttendees = [currentUserRole]; obj.externalRepresentatives = []; obj.contents = []; obj.meetSummary = ""; obj.uploadedFiles = [];
+            } else {
+                obj.companyName = "全新案件項目 " + (dataArr.length + 1); 
+                obj.services = []; obj.solarServices = []; obj.lands = []; obj.buildingsLegal = []; obj.buildingsIllegal = []; 
+                obj.customDocsClient = ["電費單", "建築圖", "使用執照", "屋頂平面圖", "場域線路分佈圖", "廠區空拍圖", "屋頂現況照片（多角度）"]; obj.customDocsRuili = ["土地謄本"]; 
+                obj.clientFilesObj = []; obj.ruiliFilesObj = [];
+                obj.electricBill = ""; obj.horsepower = ""; obj.contractCapacity = ""; obj.isHighVoltage = "否"; obj.isTimeRate = "否"; obj.timePeriod = "白天為主";
+                obj.esgHasSuccessor = "否"; obj.esgIsExport = "否"; obj.esgEuCarbon = "否"; obj.esgGreenCert = "否"; obj.esgStorage = "否";
+                obj.landOwner = ""; obj.city = ""; obj.region = ""; obj.landSection = "";
+                obj.companyAddress = ""; obj.companyPhone = ""; obj.fax = ""; obj.bankAccount = ""; obj.companyRemark = "";
+                obj.evalDate = new Date().toISOString().slice(0, 16); obj.evalManager = currentUserRole; obj.evalStatus = "初期評估"; obj.evalSource = "";
+                obj.solarDate = new Date().toISOString().slice(0, 16); obj.solarManager = currentUserRole; obj.solarStatus = "初期評估"; obj.solarSource = "";
+                obj.landOwnerGroups = [{
+                    ownerName: "", city: "高雄市", region: "岡山區", landSection: "", lands: []
+                }];
+            }
+            dataArr.unshift(obj); selectedIds[currentActiveTab] = nid;
+            renderSidebarSubLists(); renderMainForms();
+            saveToCloudSilent();
+        }
 
         function deleteCurrentCase() {
-            const activeId = selectedIds[currentActiveTab];
-            if (!activeId) { alert("目前沒有可刪除的案件！"); return; }
-            deleteTargetId = activeId;
-            
-            const target = getTargetDataArray(currentActiveTab).find(c => c.id === activeId);
-            const name = target ? (target.companyName || target.meetSubject || '未命名項目') : '';
-            
-            const targetTextEl = document.getElementById('delete-target-text');
-            if (targetTextEl) {
-                if (currentUserRole === '中央控台') {
-                    targetTextEl.innerText = `[中央控台] 您正在將 「${name}」 完全永久刪除。`;
-                } else {
-                    targetTextEl.innerText = `您正在將 「${name}」 移至回收桶（中央控台可復原）。`;
-                }
+            let dataArr = getTargetDataArray(currentActiveTab);
+            if (currentUserRole !== '中央控台') {
+                dataArr = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
             }
-            document.getElementById('delete-modal').classList.remove('hidden');
+            if (dataArr.length === 0) {
+                alert("目前沒有可刪除的項目！");
+                return;
+            }
+            const activeId = selectedIds[currentActiveTab];
+            const targetIndex = dataArr.findIndex(c => c.id === activeId);
+            if (targetIndex !== -1) {
+                const targetName = dataArr[targetIndex].companyName || dataArr[targetIndex].meetSubject || '當前項目';
+                document.getElementById('delete-target-text').innerText = `確定要刪除「${targetName}」嗎？`;
+                document.getElementById('delete-modal').classList.remove('hidden');
+            }
         }
 
         function closeDeleteModal() {
-            deleteTargetId = null;
             document.getElementById('delete-modal').classList.add('hidden');
         }
 
         async function confirmDeleteCase() {
-            if (!deleteTargetId) return;
-            const id = deleteTargetId;
-            closeDeleteModal();
-
-            if (currentUserRole === '中央控台') {
-                const { error } = await supabaseClient.from('ruili_cases').delete().eq('id', id);
-                if (error) { alert("刪除失敗: " + error.message); return; }
-            } else {
-                const { error } = await supabaseClient.from('ruili_cases').update({
-                    is_deleted: true,
-                    deleted_by: currentUserRole,
-                    deleted_at: new Date().toISOString()
-                }).eq('id', id);
-                if (error) { alert("移至回收桶失敗: " + error.message); return; }
-            }
-
             let dataArr = getTargetDataArray(currentActiveTab);
-            const index = dataArr.findIndex(c => c.id === id);
-            if (index !== -1) dataArr.splice(index, 1);
+            const activeId = selectedIds[currentActiveTab];
+            const target = dataArr.find(c => c.id === activeId);
+            
+            if (target) {
+                if (currentUserRole === '中央控台') {
+                    const targetIndex = dataArr.findIndex(c => c.id === activeId);
+                    if (targetIndex !== -1) dataArr.splice(targetIndex, 1);
+                    await supabaseClient.from('cases').delete().eq('id', activeId);
+                } else {
+                    target.is_deleted = true;
+                    target.deleted_at = new Date().toISOString();
+                    await supabaseClient.from('cases').upsert({
+                        id: target.id,
+                        tab_category: currentActiveTab,
+                        data: target,
+                        is_deleted: true,
+                        deleted_at: target.deleted_at
+                    });
+                }
 
-            selectedIds[currentActiveTab] = dataArr.length > 0 ? dataArr[0].id : null;
-            renderSidebarSubLists();
-            renderMainForms();
+                const visibleCases = dataArr.filter(c => !c.is_deleted && isCaseBelongsToUser(c, currentUserRole));
+                if (visibleCases.length > 0) {
+                    selectedIds[currentActiveTab] = visibleCases[0].id;
+                } else {
+                    selectedIds[currentActiveTab] = null;
+                }
+
+                closeDeleteModal();
+                renderSidebarSubLists();
+                renderMainForms();
+            }
+        }
+
+        async function saveToCloudSilent() {
+            const activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === selectedIds[currentActiveTab]);
+            if (!activeCase) return;
+            
+            try {
+                const { error } = await supabaseClient.from('cases').upsert({
+                    id: activeCase.id,
+                    tab_category: currentActiveTab,
+                    data: activeCase,
+                    is_deleted: activeCase.is_deleted || false,
+                    deleted_at: activeCase.deleted_at || null
+                });
+                if (error) console.error("Cloud Auto-Save Error:", error);
+            } catch (err) {
+                console.error("Auto Save Ex:", err);
+            }
+        }
+
+        async function saveToCloud() {
+            setSyncBadgeStatus('saving', '雲端儲存中...');
+            await saveToCloudSilent();
+            setSyncBadgeStatus('saved', '資料已完全同步至雲端');
+            alert('資料已成功儲存至雲端！');
+        }
+
+        async function fetchSupabaseData() {
+            try {
+                const { data, error } = await supabaseClient.from('cases').select('*');
+                if (error) throw error;
+
+                caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
+
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        let obj = item.data || {};
+                        obj.id = item.id;
+                        obj.is_deleted = item.is_deleted || false;
+                        obj.deleted_at = item.deleted_at || null;
+
+                        if (item.tab_category === 'case-eval') caseEvalData.push(obj);
+                        else if (item.tab_category === 'solar') solarData.push(obj);
+                        else if (item.tab_category === 'trading') tradingData.push(obj);
+                        else if (item.tab_category === 'meeting') meetingData.push(obj);
+                        else if (item.tab_category === 'internal-meet') internalMeetData.push(obj);
+                    });
+                }
+
+                renderSidebarSubLists();
+                renderMainForms();
+                setSyncBadgeStatus('saved', '雲端資料載入完成');
+            } catch (err) {
+                console.error("Fetch Data Error:", err);
+                setSyncBadgeStatus('error', '載入失敗');
+            }
+        }
+
+        function initSupabaseRealtime() {
+            supabaseClient
+                .channel('public:cases')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
+                    if (!isUserTyping) {
+                        fetchSupabaseData();
+                    }
+                })
+                .subscribe();
         }
 
         function openTrashModal() {
-            const trashList = document.getElementById('trash-items-list');
-            if (!trashList) return;
+            const listContainer = document.getElementById('trash-items-list');
+            if (!listContainer) return;
 
-            const allCases = [...caseEvalData, ...solarData, ...tradingData, ...meetingData, ...internalMeetData];
-            const deletedCases = allCases.filter(c => c.is_deleted);
+            let allDeletedCases = [];
+            ["case-eval", "solar", "trading", "meeting", "internal-meet"].forEach(tabId => {
+                let arr = getTargetDataArray(tabId);
+                arr.filter(c => c.is_deleted).forEach(c => {
+                    allDeletedCases.push({ ...c, category: tabId });
+                });
+            });
 
-            if (deletedCases.length === 0) {
-                trashList.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">目前回收桶內沒有已刪除的案件。</p>`;
+            if (allDeletedCases.length === 0) {
+                listContainer.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">回收桶內無刪除案件。</p>';
             } else {
-                trashList.innerHTML = deletedCases.map(c => {
-                    const delTime = c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '未知時間';
-                    let tabName = "專案管理";
-                    if (c.tab_type === "solar") tabName = "太陽能自建";
-                    else if (c.tab_type === "trading") tabName = "工廠買賣";
-                    else if (c.tab_type === "meeting") tabName = "會議紀錄";
-                    else if (c.tab_type === "internal-meet") tabName = "睿立會議紀錄";
-
-                    return `
-                        <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
-                            <div>
-                                <span class="bg-cosmic-800 text-cyan-400 px-2 py-0.5 rounded text-[10px] mr-2 font-semibold">${tabName}</span>
-                                <strong class="text-white">${c.companyName || c.meetSubject || '未命名項目'}</strong>
-                                <span class="text-slate-400 text-[11px] ml-2">(刪除者: ${c.deleted_by || '業務'} | 時間: ${delTime})</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button onclick="restoreCaseFromTrash('${c.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-xs transition">復原案件</button>
-                                <button onclick="permanentlyDeleteFromTrash('${c.id}')" class="bg-red-600 hover:bg-red-500 text-white font-bold px-3 py-1 rounded-lg text-xs transition">徹底刪除</button>
-                            </div>
+                listContainer.innerHTML = allDeletedCases.map(c => `
+                    <div class="flex items-center justify-between bg-cosmic-950 p-3 rounded-xl border border-cosmic-700/50 text-xs">
+                        <div>
+                            <span class="text-white font-semibold">${c.companyName || c.meetSubject || '未命名'}</span>
+                            <span class="text-[10px] text-slate-400 ml-2">(${c.category})</span>
+                            <div class="text-[10px] text-slate-500 mt-0.5">刪除時間: ${c.deleted_at ? new Date(c.deleted_at).toLocaleString() : '未知'}</div>
                         </div>
-                    `;
-                }).join('');
+                        <button onclick="restoreCase('${c.id}', '${c.category}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-semibold transition">復原案件</button>
+                    </div>
+                `).join('');
             }
 
             document.getElementById('trash-modal').classList.remove('hidden');
@@ -2615,216 +2672,23 @@
             document.getElementById('trash-modal').classList.add('hidden');
         }
 
-        async function restoreCaseFromTrash(id) {
-            const { error } = await supabaseClient.from('ruili_cases').update({
-                is_deleted: false,
-                deleted_by: null,
-                deleted_at: null
-            }).eq('id', id);
-
-            if (error) { alert("復原失敗: " + error.message); return; }
-
-            const allCases = [...caseEvalData, ...solarData, ...tradingData, ...meetingData, ...internalMeetData];
-            const target = allCases.find(c => c.id === id);
+        async function restoreCase(id, category) {
+            let dataArr = getTargetDataArray(category);
+            let target = dataArr.find(c => c.id === id);
             if (target) {
                 target.is_deleted = false;
-                target.deleted_by = null;
                 target.deleted_at = null;
-            }
-
-            openTrashModal();
-            renderSidebarSubLists();
-            renderMainForms();
-        }
-
-        async function permanentlyDeleteFromTrash(id) {
-            if (!confirm("確定要永久刪除此案件嗎？此操作不可逆！")) return;
-
-            const { error } = await supabaseClient.from('ruili_cases').delete().eq('id', id);
-            if (error) { alert("永久刪除失敗: " + error.message); return; }
-
-            [caseEvalData, solarData, tradingData, meetingData, internalMeetData].forEach(arr => {
-                const idx = arr.findIndex(c => c.id === id);
-                if (idx !== -1) arr.splice(idx, 1);
-            });
-
-            openTrashModal();
-            renderSidebarSubLists();
-            renderMainForms();
-        }
-
-        // ==================== 新增案件與雲端資料同步 ====================
-        async function addNewCase() {
-            const newId = 'case_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
-            let newObj = { id: newId, tab_type: currentActiveTab, companyName: "新案件 " + new Date().toLocaleDateString(), is_deleted: false };
-
-            if (currentActiveTab === 'case-eval') {
-                newObj.evalManager = currentUserRole;
-                newObj.evalDate = new Date().toISOString().slice(0, 16);
-                newObj.evalStatus = "初期評估";
-                newObj.city = "高雄市";
-                newObj.region = "岡山區";
-                newObj.landOwnerGroups = [{ ownerName: "", city: "高雄市", region: "岡山區", landSection: "", lands: [] }];
-                newObj.lands = [];
-                newObj.buildingsLegal = [];
-                newObj.buildingsIllegal = [];
-                newObj.services = [];
-                newObj.customDocsClient = ["土地所有權人身份證影本", "土地/建物權狀影本", "近三期電費單據", "工廠登記許可文件"];
-                newObj.customDocsRuili = ["土地/建物第一類謄本", "地籍圖謄本", "都市計畫使用分區證明", "建物測量成果圖"];
-                newObj.clientFilesObj = [];
-                newObj.ruiliFilesObj = [];
-                caseEvalData.unshift(newObj);
-            } else if (currentActiveTab === 'solar') {
-                newObj.solarManager = currentUserRole;
-                newObj.solarDate = new Date().toISOString().slice(0, 16);
-                newObj.solarStatus = "初期評估";
-                newObj.city = "高雄市";
-                newObj.region = "岡山區";
-                newObj.lands = [];
-                newObj.buildingsLegal = [];
-                newObj.buildingsIllegal = [];
-                newObj.solarServices = [];
-                newObj.customDocsClient = ["土地/建物權狀影本", "最近一期電費單", "公司變更登記表"];
-                newObj.customDocsRuili = ["土地/建物第一類謄本", "地籍圖謄本", "現場勘查照片紀錄"];
-                newObj.clientFilesObj = [];
-                newObj.ruiliFilesObj = [];
-                solarData.unshift(newObj);
-            } else if (currentActiveTab === 'trading') {
-                tradingData.unshift(newObj);
-            } else if (currentActiveTab === 'meeting') {
-                newObj.meetSubject = "新會議紀錄 " + new Date().toLocaleDateString();
-                newObj.date = new Date().toISOString().slice(0, 16);
-                newObj.ruiliAttendees = [currentUserRole];
-                newObj.externalRepresentatives = [];
-                newObj.contents = [];
-                newObj.uploadedFiles = [];
-                meetingData.unshift(newObj);
-            } else if (currentActiveTab === 'internal-meet') {
-                newObj.meetSubject = "新睿立會議紀錄 " + new Date().toLocaleDateString();
-                newObj.date = new Date().toISOString().slice(0, 16);
-                newObj.attendees = [currentUserRole];
-                newObj.caseReports = [];
-                newObj.proposalReports = [];
-                newObj.uploadedFiles = [];
-                internalMeetData.unshift(newObj);
-            }
-
-            selectedIds[currentActiveTab] = newId;
-            renderSidebarSubLists();
-            renderMainForms();
-            await saveToCloudSilent();
-        }
-
-        async function saveToCloud() {
-            setSyncBadgeStatus('saving', '手動儲存中...');
-            const success = await saveToCloudSilent();
-            if (success) {
-                setSyncBadgeStatus('saved', '雲端儲存成功！');
-                alert("資料已成功儲存至 Supabase 雲端！");
-            } else {
-                setSyncBadgeStatus('error', '儲存失敗');
-                alert("儲存至 Supabase 發生錯誤，請檢查網路連線。");
-            }
-        }
-
-        async function saveToCloudSilent() {
-            try {
-                const activeId = selectedIds[currentActiveTab];
-                if (!activeId) return true;
-
-                const activeCase = getTargetDataArray(currentActiveTab).find(c => c.id === activeId);
-                if (!activeCase) return true;
-
-                const payload = {
-                    id: activeCase.id,
-                    tab_type: currentActiveTab,
-                    data_content: activeCase,
-                    updated_at: new Date().toISOString(),
-                    is_deleted: activeCase.is_deleted || false,
-                    deleted_by: activeCase.deleted_by || null,
-                    deleted_at: activeCase.deleted_at || null
-                };
-
-                const { error } = await supabaseClient.from('ruili_cases').upsert(payload);
-                if (error) {
-                    console.error("Supabase Save Error:", error);
-                    return false;
-                }
-                return true;
-            } catch (err) {
-                console.error("Save Exception:", err);
-                return false;
-            }
-        }
-
-        async function fetchSupabaseData() {
-            setSyncBadgeStatus('saving', '載入資料中...');
-            try {
-                const { data, error } = await supabaseClient.from('ruili_cases').select('*');
-                if (error) {
-                    console.error("Supabase Fetch Error:", error);
-                    setSyncBadgeStatus('error', '載入失敗');
-                    return;
-                }
-
-                if (data && data.length > 0) {
-                    caseEvalData = []; solarData = []; tradingData = []; meetingData = []; internalMeetData = [];
-
-                    data.forEach(row => {
-                        const content = row.data_content || {};
-                        content.id = row.id;
-                        content.tab_type = row.tab_type;
-                        content.is_deleted = row.is_deleted || false;
-                        content.deleted_by = row.deleted_by || null;
-                        content.deleted_at = row.deleted_at || null;
-
-                        if (row.tab_type === 'case-eval') caseEvalData.push(content);
-                        else if (row.tab_type === 'solar') solarData.push(content);
-                        else if (row.tab_type === 'trading') tradingData.push(content);
-                        else if (row.tab_type === 'meeting') meetingData.push(content);
-                        else if (row.tab_type === 'internal-meet') internalMeetData.push(content);
-                    });
-                }
-
-                setSyncBadgeStatus('saved', '雲端已同步');
+                await supabaseClient.from('cases').upsert({
+                    id: target.id,
+                    tab_category: category,
+                    data: target,
+                    is_deleted: false,
+                    deleted_at: null
+                });
+                openTrashModal();
                 renderSidebarSubLists();
                 renderMainForms();
-            } catch (err) {
-                console.error("Fetch Exception:", err);
-                setSyncBadgeStatus('error', '連線異常');
             }
-        }
-
-        function initSupabaseRealtime() {
-            supabaseClient
-                .channel('public:ruili_cases')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'ruili_cases' }, payload => {
-                    if (isUserTyping) return;
-                    
-                    const newRow = payload.new;
-                    if (!newRow || !newRow.id) return;
-
-                    const content = newRow.data_content || {};
-                    content.id = newRow.id;
-                    content.tab_type = newRow.tab_type;
-                    content.is_deleted = newRow.is_deleted || false;
-                    content.deleted_by = newRow.deleted_by || null;
-                    content.deleted_at = newRow.deleted_at || null;
-
-                    let targetArr = getTargetDataArray(newRow.tab_type);
-                    const idx = targetArr.findIndex(c => c.id === newRow.id);
-
-                    if (payload.eventType === 'DELETE') {
-                        if (idx !== -1) targetArr.splice(idx, 1);
-                    } else {
-                        if (idx !== -1) targetArr[idx] = content;
-                        else targetArr.unshift(content);
-                    }
-
-                    renderSidebarSubLists();
-                    renderMainForms();
-                })
-                .subscribe();
         }
     </script>
 </body>
